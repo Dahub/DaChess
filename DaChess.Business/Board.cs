@@ -12,30 +12,19 @@ namespace DaChess.Business
     using System;
     using System.Collections.Generic;
     
-    public partial class Party
+    public partial class Board
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Party()
+        public Board()
         {
-            this.PartyMoves = new HashSet<PartyMove>();
+            this.Parties = new HashSet<Party>();
         }
     
         public int Id { get; set; }
-        public Nullable<System.DateTime> CreationDate { get; set; }
-        public string WhiteLink { get; set; }
-        public string BlackLink { get; set; }
-        public string PartLink { get; set; }
-        public int FK_Player_White { get; set; }
-        public int FK_Player_Black { get; set; }
-        public int FK_Board_Type { get; set; }
-        public string Board { get; set; }
-        public bool WhiteTurn { get; set; }
-        public string Seed { get; set; }
+        public string Wording { get; set; }
+        public string Content { get; set; }
     
-        public virtual Board BoardType { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PartyMove> PartyMoves { get; set; }
-        public virtual Player Black { get; set; }
-        public virtual Player White { get; set; }
+        public virtual ICollection<Party> Parties { get; set; }
     }
 }
