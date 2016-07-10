@@ -7,6 +7,21 @@ namespace DaChess.Business
     {
         private const int NUMBER_OF_TRY = 200;
 
+        public Party GetByName(string name)
+        {
+            Party toReturn;
+
+            using (var context = new ChessEntities())
+            {
+                toReturn = context.Parties.Where(p => p.PartLink.ToLower().Equals(name.ToLower())).FirstOrDefault();                
+            }
+
+            if (toReturn == null)
+                throw new Exception(String.Format("Partie {0} introuvable", name));
+
+            return toReturn;
+        }
+
         /// <summary>
         /// Build a new party with an unique name 
         /// </summary>

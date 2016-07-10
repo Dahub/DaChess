@@ -1,7 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Index";
 }
+
 <script type="text/javascript">
         var viewModel = {
             chatMessages: ko.observableArray([]),
@@ -22,7 +22,7 @@
 
             $("#pushbtn").click(function () {
                 $.ajax({
-                    url: "http://localhost:49217/api/chat",
+                    url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/chat"))',
                     data: JSON.stringify(ko.mapping.toJS(viewModel.newMessage)),
                     cache: false,
                     type: 'POST',
@@ -32,11 +32,10 @@
                 viewModel.newMessage.Text('');
                 $("#push").val('');
             });
-
         });
 
         if (!!window.EventSource) {
-            var source = new EventSource('http://localhost:49217/api/chat');
+            var source = new EventSource('@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/chat"))');
             source.addEventListener('message', function (e) {
                 //console.log(e.data);
                 var json = JSON.parse(e.data);
