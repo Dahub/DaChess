@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
 
 namespace DaChess.Api
 {
@@ -9,7 +6,8 @@ namespace DaChess.Api
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            // Web API configuration and service
+            config.EnableCors();
 
             // Web API routes
             config.MapHttpAttributeRoutes();

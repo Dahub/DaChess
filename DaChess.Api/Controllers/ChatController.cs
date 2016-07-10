@@ -6,10 +6,12 @@ using System.IO;
 using System.Net;
 using System.Collections.Concurrent;
 using Newtonsoft.Json;
+using System.Web.Http.Cors;
 
 namespace DaChess.Api.Controllers
 {
     // http://www.strathweb.com/2012/05/native-html5-push-notifications-with-asp-net-web-api-and-knockout-js/
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ChatController : ApiController
     {
         private static readonly ConcurrentQueue<StreamWriter> _streammessage = new ConcurrentQueue<StreamWriter>();
