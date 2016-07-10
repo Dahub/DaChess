@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DaTools.NameMaker">
+      <HintPath>..\Libs\DaTools.NameMaker.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -54,6 +57,7 @@
     <Compile Include="Board.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
+    <Compile Include="Colors.cs" />
     <Compile Include="Domain.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

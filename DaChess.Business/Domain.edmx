@@ -22,10 +22,10 @@
           <Property Name="WhiteLink" Type="nvarchar" MaxLength="256" />
           <Property Name="BlackLink" Type="nvarchar" MaxLength="256" />
           <Property Name="PartLink" Type="nvarchar" MaxLength="256" />
-          <Property Name="FK_Player_White" Type="int" Nullable="false" />
-          <Property Name="FK_Player_Black" Type="int" Nullable="false" />
+          <Property Name="FK_Player_White" Type="int" />
+          <Property Name="FK_Player_Black" Type="int" />
           <Property Name="FK_Board_Type" Type="int" Nullable="false" />
-          <Property Name="Board" Type="nvarchar" MaxLength="2048" />
+          <Property Name="Board" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
         </EntityType>
@@ -73,7 +73,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="fk_player_black">
-          <End Role="Player" Type="Self.Player" Multiplicity="1" />
+          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Player">
@@ -85,7 +85,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="fk_player_white">
-          <End Role="Player" Type="Self.Player" Multiplicity="1" />
+          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Player">
@@ -162,10 +162,10 @@
           <Property Name="WhiteLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="BlackLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="PartLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="FK_Player_White" Type="Int32" Nullable="false" />
-          <Property Name="FK_Player_Black" Type="Int32" Nullable="false" />
+          <Property Name="FK_Player_White" Type="Int32" />
+          <Property Name="FK_Player_Black" Type="Int32" />
           <Property Name="FK_Board_Type" Type="Int32" Nullable="false" />
-          <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="WhiteTurn" Type="Boolean" Nullable="false" />
           <Property Name="Seed" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BoardType" Relationship="ChessModel.fk_board_type" FromRole="Party" ToRole="Board" />
@@ -192,8 +192,6 @@
           <Property Name="FullName" Type="String" Nullable="false" MaxLength="512" FixedLength="false" Unicode="true" />
           <Property Name="Login" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <Property Name="Password" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Parties" Relationship="ChessModel.fk_player_black" FromRole="Player" ToRole="Party" />
-          <NavigationProperty Name="Parties1" Relationship="ChessModel.fk_player_white" FromRole="Player" ToRole="Party" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -220,7 +218,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="fk_player_black">
-          <End Type="ChessModel.Player" Role="Player" Multiplicity="1" />
+          <End Type="ChessModel.Player" Role="Player" Multiplicity="0..1" />
           <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Player">
@@ -232,7 +230,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="fk_player_white">
-          <End Type="ChessModel.Player" Role="Player" Multiplicity="1" />
+          <End Type="ChessModel.Player" Role="Player" Multiplicity="0..1" />
           <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Player">
@@ -243,7 +241,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>

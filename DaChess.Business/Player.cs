@@ -14,21 +14,9 @@ namespace DaChess.Business
     
     public partial class Player
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Player()
-        {
-            this.Parties = new HashSet<Party>();
-            this.Parties1 = new HashSet<Party>();
-        }
-    
         public int Id { get; set; }
         public string FullName { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Party> Parties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Party> Parties1 { get; set; }
     }
 }
