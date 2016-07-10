@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DaChess.Api")]
+[assembly: AssemblyTitle("DaChess.Ui")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("DaChess.Api")]
+[assembly: AssemblyProduct("DaChess.Ui")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b1d14345-c160-4498-9169-19ac64fbb159")]
+[assembly: Guid("0b007faa-e44d-4201-b33c-8fbbae45772d")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -25,8 +25,6 @@ namespace DaChess.Business
         public string WhiteLink { get; set; }
         public string BlackLink { get; set; }
         public string PartLink { get; set; }
-        public Nullable<int> FK_Player_White { get; set; }
-        public Nullable<int> FK_Player_Black { get; set; }
         public int FK_Board_Type { get; set; }
         public string Board { get; set; }
         public bool WhiteTurn { get; set; }
@@ -35,7 +33,5 @@ namespace DaChess.Business
         public virtual Board BoardType { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PartyMove> PartyMoves { get; set; }
-        public virtual Player Black { get; set; }
-        public virtual Player White { get; set; }
     }
 }

@@ -39,15 +39,6 @@
           <Property Name="Move" Type="nvarchar" MaxLength="16" Nullable="false" />
           <Property Name="MoveNumber" Type="int" Nullable="false" />
         </EntityType>
-        <EntityType Name="Player">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FullName" Type="nvarchar" MaxLength="512" Nullable="false" />
-          <Property Name="Login" Type="nvarchar" MaxLength="64" Nullable="false" />
-          <Property Name="Password" Type="nvarchar" MaxLength="256" Nullable="false" />
-        </EntityType>
         <Association Name="fk_board_type">
           <End Role="Board" Type="Self.Board" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
@@ -72,35 +63,10 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_player_black">
-          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
-          <End Role="Party" Type="Self.Party" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Player">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Party">
-              <PropertyRef Name="FK_Player_Black" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_player_white">
-          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
-          <End Role="Party" Type="Self.Party" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Player">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Party">
-              <PropertyRef Name="FK_Player_White" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="Board" EntityType="Self.Board" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyMove" EntityType="Self.PartyMove" Schema="chess" store:Type="Tables" />
-          <EntitySet Name="Player" EntityType="Self.Player" Schema="chess" store:Type="Tables" />
           <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
             <End Role="Board" EntitySet="Board" />
             <End Role="Party" EntitySet="Party" />
@@ -109,15 +75,7 @@
             <End Role="Party" EntitySet="Party" />
             <End Role="PartyMove" EntitySet="PartyMove" />
           </AssociationSet>
-          <AssociationSet Name="fk_player_black" Association="Self.fk_player_black">
-            <End Role="Player" EntitySet="Player" />
-            <End Role="Party" EntitySet="Party" />
-          </AssociationSet>
-          <AssociationSet Name="fk_player_white" Association="Self.fk_player_white">
-            <End Role="Player" EntitySet="Player" />
-            <End Role="Party" EntitySet="Party" />
-          </AssociationSet>
-        </EntityContainer>
+          </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -126,7 +84,6 @@
           <EntitySet Name="Boards" EntityType="ChessModel.Board" />
           <EntitySet Name="Parties" EntityType="ChessModel.Party" />
           <EntitySet Name="PartyMoves" EntityType="ChessModel.PartyMove" />
-          <EntitySet Name="Players" EntityType="ChessModel.Player" />
           <AssociationSet Name="fk_board_type" Association="ChessModel.fk_board_type">
             <End Role="Board" EntitySet="Boards" />
             <End Role="Party" EntitySet="Parties" />
@@ -135,15 +92,7 @@
             <End Role="Party" EntitySet="Parties" />
             <End Role="PartyMove" EntitySet="PartyMoves" />
           </AssociationSet>
-          <AssociationSet Name="fk_player_black" Association="ChessModel.fk_player_black">
-            <End Role="Player" EntitySet="Players" />
-            <End Role="Party" EntitySet="Parties" />
-          </AssociationSet>
-          <AssociationSet Name="fk_player_white" Association="ChessModel.fk_player_white">
-            <End Role="Player" EntitySet="Players" />
-            <End Role="Party" EntitySet="Parties" />
-          </AssociationSet>
-        </EntityContainer>
+          </EntityContainer>
         <EntityType Name="Board">
           <Key>
             <PropertyRef Name="Id" />
@@ -162,17 +111,13 @@
           <Property Name="WhiteLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="BlackLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="PartLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="FK_Player_White" Type="Int32" />
-          <Property Name="FK_Player_Black" Type="Int32" />
           <Property Name="FK_Board_Type" Type="Int32" Nullable="false" />
           <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="WhiteTurn" Type="Boolean" Nullable="false" />
           <Property Name="Seed" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BoardType" Relationship="ChessModel.fk_board_type" FromRole="Party" ToRole="Board" />
           <NavigationProperty Name="PartyMoves" Relationship="ChessModel.fk_party" FromRole="Party" ToRole="PartyMove" />
-          <NavigationProperty Name="Black" Relationship="ChessModel.fk_player_black" FromRole="Party" ToRole="Player" />
-          <NavigationProperty Name="White" Relationship="ChessModel.fk_player_white" FromRole="Party" ToRole="Player" />
-        </EntityType>
+          </EntityType>
         <EntityType Name="PartyMove">
           <Key>
             <PropertyRef Name="Id" />
@@ -183,15 +128,6 @@
           <Property Name="Move" Type="String" Nullable="false" MaxLength="16" FixedLength="false" Unicode="true" />
           <Property Name="MoveNumber" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Party" Relationship="ChessModel.fk_party" FromRole="PartyMove" ToRole="Party" />
-        </EntityType>
-        <EntityType Name="Player">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FullName" Type="String" Nullable="false" MaxLength="512" FixedLength="false" Unicode="true" />
-          <Property Name="Login" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
-          <Property Name="Password" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -217,30 +153,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_player_black">
-          <End Type="ChessModel.Player" Role="Player" Multiplicity="0..1" />
-          <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Player">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Party">
-              <PropertyRef Name="FK_Player_Black" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_player_white">
-          <End Type="ChessModel.Player" Role="Player" Multiplicity="0..1" />
-          <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Player">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Party">
-              <PropertyRef Name="FK_Player_White" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -263,8 +175,6 @@
                 <ScalarProperty Name="WhiteTurn" ColumnName="WhiteTurn" />
                 <ScalarProperty Name="Board" ColumnName="Board" />
                 <ScalarProperty Name="FK_Board_Type" ColumnName="FK_Board_Type" />
-                <ScalarProperty Name="FK_Player_Black" ColumnName="FK_Player_Black" />
-                <ScalarProperty Name="FK_Player_White" ColumnName="FK_Player_White" />
                 <ScalarProperty Name="PartLink" ColumnName="PartLink" />
                 <ScalarProperty Name="BlackLink" ColumnName="BlackLink" />
                 <ScalarProperty Name="WhiteLink" ColumnName="WhiteLink" />
@@ -280,16 +190,6 @@
                 <ScalarProperty Name="Move" ColumnName="Move" />
                 <ScalarProperty Name="MoveDate" ColumnName="MoveDate" />
                 <ScalarProperty Name="FK_Party" ColumnName="FK_Party" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Players">
-            <EntityTypeMapping TypeName="ChessModel.Player">
-              <MappingFragment StoreEntitySet="Player">
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="Login" ColumnName="Login" />
-                <ScalarProperty Name="FullName" ColumnName="FullName" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

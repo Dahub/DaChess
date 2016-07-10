@@ -34,14 +34,14 @@ create table [chess].[Board]
 )
 go
 
-create table [chess].[Player]
-(
-	Id integer not null primary key identity(1,1),
-	FullName nvarchar(512) not null,
-	Login nvarchar(64) not null,
-	Password nvarchar(256) not null
-)
-go
+--create table [chess].[Player]
+--(
+--	Id integer not null primary key identity(1,1),
+--	FullName nvarchar(512) not null,
+--	Login nvarchar(64) not null,
+--	Password nvarchar(256) not null
+--)
+--go
 
 create table [chess].[Party]
 (
@@ -50,8 +50,8 @@ create table [chess].[Party]
 	WhiteLink nvarchar(256) null,
 	BlackLink nvarchar(256) null,
 	PartLink nvarchar(256) null,
-	FK_Player_White integer null constraint fk_player_white foreign key references [chess].[Player] (Id) default 1,
-	FK_Player_Black integer null constraint fk_player_black foreign key references [chess].[Player] (Id) default 2,
+	--FK_Player_White integer null constraint fk_player_white foreign key references [chess].[Player] (Id) default 1,
+	--FK_Player_Black integer null constraint fk_player_black foreign key references [chess].[Player] (Id) default 2,
 	FK_Board_Type integer not null constraint fk_board_type foreign key references [chess].[Board] (Id),
 	Board text null,
 	WhiteTurn bit not null default 1,
@@ -70,12 +70,12 @@ create table [chess].[PartyMove]
 go
 
 /* init */
-insert into [chess].[Player] (FullName, Login, Password) values
-('Sammy le Crabe', 'ano1', HASHBYTES('SHA2_256','ano1'))
-go
-insert into [chess].[Player] (FullName, Login, Password) values
-('Jimmy la Jungle', 'ano2', HASHBYTES('SHA2_256','ano2'))
-go
+--insert into [chess].[Player] (FullName, Login, Password) values
+--('Sammy le Crabe', 'ano1', HASHBYTES('SHA2_256','ano1'))
+--go
+--insert into [chess].[Player] (FullName, Login, Password) values
+--('Jimmy la Jungle', 'ano2', HASHBYTES('SHA2_256','ano2'))
+--go
 insert into [chess].[Board] (Wording, Content) values
 ('Classic',
 '

@@ -5,15 +5,12 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="a308e26b1b624b77bc2c08dc400b6b39" Name="Diagram1">
-        <EntityTypeShape EntityType="ChessModel.Board" Width="1.5" PointX="0.75" PointY="6.125" />
+        <EntityTypeShape EntityType="ChessModel.Board" Width="1.5" PointX="0.75" PointY="1.75" />
         <EntityTypeShape EntityType="ChessModel.Party" Width="1.5" PointX="3" PointY="1" />
         <EntityTypeShape EntityType="ChessModel.PartyMove" Width="1.5" PointX="5.25" PointY="1.875" />
-        <EntityTypeShape EntityType="ChessModel.Player" Width="1.5" PointX="0.75" PointY="1.875" />
         <AssociationConnector Association="ChessModel.fk_board_type" />
         <AssociationConnector Association="ChessModel.fk_party" />
-        <AssociationConnector Association="ChessModel.fk_player_black" />
-        <AssociationConnector Association="ChessModel.fk_player_white" />
-      </Diagram>
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>
