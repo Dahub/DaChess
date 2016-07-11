@@ -2,17 +2,22 @@
 using System.Web.Http;
 using DaChess.Business;
 using System;
+using System.Web.Http.Cors;
+using System.Net.Http;
+using System.Linq;
 
 namespace DaChess.Api.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class PartyController : ApiController
     {
-        public IHttpActionResult Get(string partyName)
+        public IHttpActionResult Get(HttpRequestMessage request)
         {
+            //   request.Get
+            string partyName = request.GetQueryNameValuePairs().Where(k => k.Key.Equals("Name")).First().Value;
             PartyModel toReturn;
 
             try
-
             {
                 Party myParty = Factory.Instance.GetPartyManager().GetByName(partyName);
 

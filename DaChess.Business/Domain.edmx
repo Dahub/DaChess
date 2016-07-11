@@ -22,8 +22,6 @@
           <Property Name="WhiteLink" Type="nvarchar" MaxLength="256" />
           <Property Name="BlackLink" Type="nvarchar" MaxLength="256" />
           <Property Name="PartLink" Type="nvarchar" MaxLength="256" />
-          <Property Name="FK_Player_White" Type="int" />
-          <Property Name="FK_Player_Black" Type="int" />
           <Property Name="FK_Board_Type" Type="int" Nullable="false" />
           <Property Name="Board" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
@@ -75,7 +73,7 @@
             <End Role="Party" EntitySet="Party" />
             <End Role="PartyMove" EntitySet="PartyMove" />
           </AssociationSet>
-          </EntityContainer>
+        </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>

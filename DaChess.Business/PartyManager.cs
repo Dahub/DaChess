@@ -90,6 +90,7 @@ namespace DaChess.Business
             Party toReturn = new Party()
             {
                 Seed = Guid.NewGuid().ToString(),
+                CreationDate = DateTime.Now,
                 WhiteTurn = true,
                 BoardType = Boards.Classic(context),
                 PartLink = DaTools.NameMaker.Creator.Build(DaTools.NameMaker.NameType.FIRST_NAMES, DaTools.NameMaker.NameType.FIRST_NAMES),

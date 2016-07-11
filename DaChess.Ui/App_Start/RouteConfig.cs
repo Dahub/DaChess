@@ -14,6 +14,18 @@ namespace DaChess.Ui
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "CreateParty",
+                url: "Party/Create",
+                defaults: new { controller = "Party", action = "Create" }
+            );
+
+            routes.MapRoute(
+                name: "StartParty",
+                url: "Party/{partyName}",
+                defaults: new { controller = "Party", action = "Start", partyName = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

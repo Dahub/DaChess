@@ -1,0 +1,25 @@
+﻿@model string
+
+@{
+    ViewBag.Title = "Start";
+}
+
+<script type="text/javascript">
+    var party = { Name : '@Model' };
+    $(document).ready(function () {
+        $.ajax({
+            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
+            data: party,
+            cache: false,
+            type: 'GET',
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+        });;
+    });
+</script>
+
+<h2>DaChess</h2>
+<div class="row">
+    <p>@Model</p>
+</div>
