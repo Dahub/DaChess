@@ -14,7 +14,7 @@
         }
 
         viewModel.resizeChat = function () {
-        //    $("#console").scrollTop($("#console")[0].scrollHeight);
+            $("#console").scrollTop($("#console")[0].scrollHeight);
         };
 
         $(document).ready(function () {
@@ -37,37 +37,22 @@
         if (!!window.EventSource) {
             var source = new EventSource('@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/chat"))');
             source.addEventListener('message', function (e) {
-                //console.log(e.data);
+                console.log(e.data);
                 var json = JSON.parse(e.data);
                 viewModel.chatMessages.push(json);
             }, false);
 
             source.addEventListener('open', function (e) {
-              //console.log("open!");
+              console.log("open!");
             }, false);
 
             source.addEventListener('error', function (e) {
                 if (e.readyState == EventSource.CLOSED) {
-                    //console.log("error!");
+                    console.log("error!");
                 }
             }, false);
-
         } else {
-            // not supported!
-            //console.log("xdR");
-            var xdr = new XDomainRequest();
-            xdr.open("GET", "/api/chat/?" + Math.random());
-            xdr.send();
-            xdr.onload = function () {
-                //console.log(xdr);
-                var data = JSON.parse(xdr.responseText);
-                viewModel.chatMessages.push(data);
-            }
-            xdr.onprogress = function () {
-                //console.log(xdr.responseText);
-                var data = JSON.parse(xdr.responseText);
-                viewModel.chatMessages.push(data);
-            }
+            alert('Votre navigateur ne supporte pas cette application');
         }
 </script>
 

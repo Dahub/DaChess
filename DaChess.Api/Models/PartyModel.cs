@@ -10,6 +10,8 @@ namespace DaChess.Api.Models
         public string WhiteToken { get; set; }
         public string BlackToken { get; set; }
         public bool WhiteTurn { get; set; }
+        public bool WhiteAskToPlay { get; set; }
+        public bool BlackAskToPlay { get; set; }
         public bool IsReady
         {
             get

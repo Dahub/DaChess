@@ -22,6 +22,18 @@ namespace DaChess.Business
             return toReturn;
         }
 
+        public Party Update(Party toUpdate)
+        {
+            using (var context = new ChessEntities())
+            {
+                context.Entry(toUpdate).State =
+                    System.Data.Entity.EntityState.Modified;                    
+                context.SaveChanges();
+            }
+
+            return toUpdate;
+        }
+
         /// <summary>
         /// Build a new party with an unique name 
         /// </summary>

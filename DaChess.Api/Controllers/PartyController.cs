@@ -5,17 +5,18 @@ using System;
 using System.Web.Http.Cors;
 using System.Net.Http;
 using System.Linq;
+using System.Web.Http.Results;
 
 namespace DaChess.Api.Controllers
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class PartyController : ApiController
-    {
-        public IHttpActionResult Get(HttpRequestMessage request)
+    {       
+        public JsonResult<PartyModel> Get(HttpRequestMessage request)
         {
             //   request.Get
-            string partyName = request.GetQueryNameValuePairs().Where(k => k.Key.Equals("Name")).First().Value;
-            PartyModel toReturn;
+            string partyName = request.GetQueryNameValuePairs().Where(k => k.Key.ToLower().Equals("name")).First().Value;
+            PartyModel toReturn = new PartyModel();
 
             try
             {
@@ -33,10 +34,25 @@ namespace DaChess.Api.Controllers
             }
             catch (Exception ex)
             {
+               // return BadRequest(ex.Message);
+            }
+
+            return Json(toReturn); // Ok(toReturn);
+        }        
+
+        public IHttpActionResult Put(PartyModel model)
+        {
+            try
+            {
+                Party toUpdate = Factory.Instance.GetPartyManager().GetByName(model.Name);
+
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
 
-            return Ok(toReturn);
+            return Ok(model);
         }
 
         public IHttpActionResult Post()
@@ -54,26 +70,12 @@ namespace DaChess.Api.Controllers
                     WhiteTurn = newParty.WhiteTurn
                 };
             }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            return Ok(toReturn);
-        }
-
-        public IHttpActionResult Put(PartyModel model)
-        {
-            try
-            {
-                // TODO update 
-            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
 
-            return Ok(model);
+            return Ok(toReturn);
         }
     }
 }

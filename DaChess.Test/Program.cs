@@ -16,8 +16,10 @@ namespace DaChess.Test
         {
             IPartyManager manager = DaChess.Business.Factory.Instance.GetPartyManager();
             var tt = manager.New();
-            manager.AddPlayerToParty(tt.Id, Colors.BLACK);
-            manager.AddPlayerToParty(tt.Id, Colors.WHITE);
+            tt = manager.AddPlayerToParty(tt.Id, Colors.BLACK);
+            tt = manager.AddPlayerToParty(tt.Id, Colors.WHITE);
+            tt.WhiteTurn = false;
+            tt = manager.Update(tt);
             
             var hh = tt;
             Console.Read();

@@ -33,6 +33,7 @@ namespace DaChess.Api.Controllers
 
         public static void OnStreamAvailable(Stream stream, HttpContent headers, TransportContext context)
         {
+            
             StreamWriter streamwriter = new StreamWriter(stream);
             _streammessage.Enqueue(streamwriter);
         }
