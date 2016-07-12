@@ -134,7 +134,7 @@
         // Reference the auto-generated proxy for the hub.
         var chat = $.connection.partyHub;
         // Create a function that the hub can call back to display messages.
-        chat.client.addNewMessageToPage = function (name, message) {
+        chat.client.addNewMessageToPage = function (partyname, name, message) {
             // Add the message to the page.
             $('#discussion').append('<li><strong>' + htmlEncode(name)
                 + '</strong>: ' + htmlEncode(message) + '</li>');
@@ -145,9 +145,12 @@
         $('#message').focus();
         // Start the connection.
         $.connection.hub.start().done(function () {
+            // on abonne le client à la partie
+            chat.server.joinParty('@Model');
+
             $('#sendmessage').click(function () {
                 // Call the Send method on the hub.
-                chat.server.send($('#displayname').val(), $('#message').val());
+                chat.server.sendMessage('@Model' ,  $('#displayname').val(), $('#message').val());
                 // Clear text box and reset focus for next comment.
                 $('#message').val('').focus();
             });
