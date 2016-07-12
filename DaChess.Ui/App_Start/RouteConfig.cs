@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace DaChess.Ui
@@ -15,8 +11,8 @@ namespace DaChess.Ui
 
             routes.MapRoute(
                 name: "CreateParty",
-                url: "Party/Create",
-                defaults: new { controller = "Party", action = "Create" }
+                url: "Party/Create/{id}",
+                defaults: new { controller = "Party", action = "Create", id= UrlParameter.Optional }
             );
 
             routes.MapRoute(

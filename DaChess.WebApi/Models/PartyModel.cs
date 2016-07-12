@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DaChess.Api.Models
+namespace DaChess.WebApi.Models
 {
     public class PartyModel
     {

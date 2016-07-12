@@ -14,7 +14,6 @@ namespace DaChess.Api.Controllers
     {       
         public JsonResult<PartyModel> Get(HttpRequestMessage request)
         {
-            //   request.Get
             string partyName = request.GetQueryNameValuePairs().Where(k => k.Key.ToLower().Equals("name")).First().Value;
             PartyModel toReturn = new PartyModel();
 
@@ -29,53 +28,56 @@ namespace DaChess.Api.Controllers
                     Name = myParty.PartLink,
                     BlackToken = myParty.BlackLink,
                     WhiteToken = myParty.WhiteLink,
-                    WhiteTurn = myParty.WhiteTurn
+                    WhiteTurn = myParty.WhiteTurn,
+                    IsError = false,
+                    ErrorMessage = String.Empty
                 };
             }
             catch (Exception ex)
             {
-               // return BadRequest(ex.Message);
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = ex.Message;
             }
 
-            return Json(toReturn); // Ok(toReturn);
+            return Json(toReturn);
         }        
 
-        public IHttpActionResult Put(PartyModel model)
-        {
-            try
-            {
-                Party toUpdate = Factory.Instance.GetPartyManager().GetByName(model.Name);
+        //public IHttpActionResult Put(PartyModel model)
+        //{
+        //    try
+        //    {
+        //        Party toUpdate = Factory.Instance.GetPartyManager().GetByName(model.Name);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
 
-            return Ok(model);
-        }
+        //    return Ok(model);
+        //}
 
-        public IHttpActionResult Post()
-        {
-            PartyModel toReturn;
+        //public IHttpActionResult Post()
+        //{
+        //    PartyModel toReturn;
 
-            try
-            {
-                Party newParty = Factory.Instance.GetPartyManager().New();
-                toReturn = new PartyModel()
-                {
-                    Id = newParty.Id,
-                    Board = newParty.Board,
-                    Name = newParty.PartLink,
-                    WhiteTurn = newParty.WhiteTurn
-                };
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        //    try
+        //    {
+        //        Party newParty = Factory.Instance.GetPartyManager().New();
+        //        toReturn = new PartyModel()
+        //        {
+        //            Id = newParty.Id,
+        //            Board = newParty.Board,
+        //            Name = newParty.PartLink,
+        //            WhiteTurn = newParty.WhiteTurn
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
 
-            return Ok(toReturn);
-        }
+        //    return Ok(toReturn);
+        //}
     }
 }

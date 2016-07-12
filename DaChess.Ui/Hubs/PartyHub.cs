@@ -11,8 +11,17 @@ namespace DaChess.Ui.Hubs
 
         public void SendMessage(string partyName, string name, string message)
         {
-            // Call the addNewMessageToPage method to update clients.
             Clients.Group(partyName).addNewMessageToPage(name, message);
+        }
+
+        public void SendAddWhitePlayer(string partyName)
+        {
+            Clients.Group(partyName).addPlayerWhite();
+        }
+
+        public void SendAddBlackPlayer(string partyName)
+        {
+            Clients.Group(partyName).addPlayerBlack();
         }
     }
 }

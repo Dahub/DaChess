@@ -10,16 +10,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{9FA1FF41-953
 		create.sql = create.sql
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Test", "DaChess.Test\DaChess.Test.csproj", "{C9D01D85-EC73-4982-9ACF-0F4085FB7147}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{D0691091-FC72-4610-BA3F-6E5B0551C8BC}"
 	ProjectSection(SolutionItems) = preProject
 		Libs\DaTools.NameMaker.dll = Libs\DaTools.NameMaker.dll
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Api", "DaChess.Api\DaChess.Api.csproj", "{B1D14345-C160-4498-9169-19AC64FBB159}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Ui", "DaChess.Ui\DaChess.Ui.csproj", "{0B007FAA-E44D-4201-B33C-8FBBAE45772D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.WebApi", "DaChess.WebApi\DaChess.WebApi.csproj", "{872D78D6-5120-4816-9C1D-4EC5E0ABC1F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,18 +29,14 @@ Global
 		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9D01D85-EC73-4982-9ACF-0F4085FB7147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9D01D85-EC73-4982-9ACF-0F4085FB7147}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9D01D85-EC73-4982-9ACF-0F4085FB7147}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9D01D85-EC73-4982-9ACF-0F4085FB7147}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1D14345-C160-4498-9169-19AC64FBB159}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1D14345-C160-4498-9169-19AC64FBB159}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1D14345-C160-4498-9169-19AC64FBB159}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1D14345-C160-4498-9169-19AC64FBB159}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872D78D6-5120-4816-9C1D-4EC5E0ABC1F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872D78D6-5120-4816-9C1D-4EC5E0ABC1F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872D78D6-5120-4816-9C1D-4EC5E0ABC1F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872D78D6-5120-4816-9C1D-4EC5E0ABC1F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
