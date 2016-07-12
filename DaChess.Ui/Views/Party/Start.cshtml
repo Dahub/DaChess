@@ -5,6 +5,7 @@
 }
 
 <script type="text/javascript">
+
     var party = {
         Id: 0,
         Name: '',
@@ -18,96 +19,110 @@
     }
 
     $(document).ready(function () {
+        if (!!window.EventSource) {
+            var source = new EventSource('@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player?name=", @Model))');      
 
-        reload();
+            source.addEventListener('message', function (e) {
+                console.log('nouveau message serveur via listener !');
+                mapParty(e.data);
+                reload();
+            }, false);
 
-        $("#whiteBtn").click(function () {
-            party.WhiteAskToPlay = true;
-            addPlayer();
-        });
+            source.addEventListener('open', function (e) {
+                console.log("open!");
+            }, false);
 
-        $("#blackBtn").click(function () {
-            party.BlackAskToPlay = true;
-            addPlayer();
-        });
-    });
+            source.addEventListener('error', function (e) {
+                if (e.readyState == EventSource.CLOSED) {
+                    console.log("error!");
+                }
+            }, false);
 
-    function addPlayer() {
-        $.ajax({
-            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player"))',
-            data: JSON.stringify(party),
-            cache: false,
-            type: 'POST',
-            dataType: "json",
-            contentType: 'application/json; charset=utf-8'
-        }).done(function (data) {
-            console.log('post OK');
-            // ici traitement token
-        });
-    }
-
-    function reload() {
-        var partyName = { name: '@Model' };
-        $.ajax({
-            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
-            data: partyName,
-            cache: false,
-            type: 'GET',
-            dataType: "json",
-            contentType: 'application/json; charset=utf-8'
-        }).done(function (data) {
-            mapParty(data);
-            if (false == isEmpty(party.WhiteToken)) {
-                $('#whiteBtn').prop('disabled', true);
-                $('#whiteBtn').removeClass('btn-success');
-            }
-            if (false == isEmpty(party.BlackToken)) {
-                $('#blackBtn').prop('disabled', true);
-                $('#blackBtn').removeClass('btn-success');
-            }
-        });;
-    }
-
-    function mapParty(data) {
-        party.Id = data.Id;
-        party.Name = data.Name;
-        party.Board = data.Board;
-        party.WhiteToken = data.WhiteToken;
-        party.BlackToken = data.BlackToken;
-        party.WhiteTurn = data.WhiteTurn;
-        party.IsReady = data.IsReady;
-    }
-
-    if (!!window.EventSource) {
-        var source = new EventSource('@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player?name=", @Model))');
-        source.addEventListener('message', function (e) {
-            console.log('nouveau message serveur !');
-            mapParty(e.data);
             reload();
-        }, false);
-        source.addEventListener('open', function (e) {
-            console.log("open!");
-        }, false);
-        source.addEventListener('error', function (e) {
-            if (e.readyState == EventSource.CLOSED) {
-                console.log("error!");
-            }
-        }, false);
-    }
-    else {
-        alert('Votre navigateur ne supporte pas cette application');
-    }
+            $("#whiteBtn").click(function () {
+                party.WhiteAskToPlay = true;
+                addPlayer();
+            });
 
-    function isEmpty(str) {        
-        return (!str || 0 === str.length);
-    }
+            $("#blackBtn").click(function () {
+                party.BlackAskToPlay = true;
+                addPlayer();
+            });
+
+        }
+        else {
+            alert('Votre navigateur ne supporte pas cette application');
+        }
+
+        function addPlayer() {
+            $.ajax({
+                url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player"))',
+                data: JSON.stringify(party),
+                cache: false,
+                type: 'POST',
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                async: false
+            }).done(function (data)
+            {
+                console.log('post OK')
+            });
+        }
+
+        function reload() {
+            console.log('reload demandé');
+
+            var partyName = { name: '@Model' };
+            $.ajax({
+                url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
+                data: partyName,
+                cache: false,
+                type: 'GET',
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+            }).done(function (data) {
+                mapParty(data);
+                if (false == isEmpty(party.WhiteToken)) {
+                    $('#whiteBtn').prop('disabled', true);
+                    $('#whiteBtn').removeClass('btn-success');
+                }
+                else {
+                    $('#whiteBtn').prop('disabled', false);
+                    $('#whiteBtn').addClass('btn-success');
+
+                }
+                if (false == isEmpty(party.BlackToken)) {
+                    $('#blackBtn').prop('disabled', true);
+                    $('#blackBtn').removeClass('btn-success');
+                }
+                else {
+                    $('#blackBtn').prop('disabled', false);
+                    $('#blackBtn').addClass('btn-success');
+                }
+            });;
+        }
+
+        function mapParty(data) {
+            party.Id = data.Id;
+            party.Name = data.Name;
+            party.Board = data.Board;
+            party.WhiteToken = data.WhiteToken;
+            party.BlackToken = data.BlackToken;
+            party.WhiteTurn = data.WhiteTurn;
+            party.IsReady = data.IsReady;
+        }
+
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
+    });
 </script>
 
 <h2>DaChess</h2>
 <div class="row">
     <div class="col-md-1 col-md-offset-1">
         <h4>Blancs</h4>
-        <button type="button" id="whiteBtn" class="btn-lg btn-success">Jouer avec les blancs</button>
+        <button type="button" id="whiteBtn" class="btn-lg" disabled>Jouer avec les blancs</button>
     </div>
     <div class="col-md-8">
         <h4>Plateau</h4>
@@ -115,7 +130,7 @@
     </div>
     <div class="col-md-1">
         <h4>Noirs</h4>
-        <button type="button" id="blackBtn" class="btn-lg btn-success">Jouer avec les noirs</button>
+        <button type="button" id="blackBtn" class="btn-lg" disabled>Jouer avec les noirs</button>
     </div>
 
 </div>

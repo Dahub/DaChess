@@ -28,17 +28,18 @@ namespace DaChess.Api.Controllers
             {
                 OnStreamAvailable(stream, httpContent, context, partyName);
             }, "text/event-stream");
+
             return response;
         }
 
         public void Post(PartyModel party)
         {
-            if(party.WhiteAskToPlay && String.IsNullOrEmpty(party.WhiteToken))
+            if (party.WhiteAskToPlay && String.IsNullOrEmpty(party.WhiteToken))
             {
                 var myParty = Factory.Instance.GetPartyManager().AddPlayerToParty(party.Id, Colors.WHITE);
                 party.WhiteToken = myParty.WhiteLink;
             }
-            else if(party.BlackAskToPlay && String.IsNullOrEmpty(party.BlackToken))
+            else if (party.BlackAskToPlay && String.IsNullOrEmpty(party.BlackToken))
             {
                 var myParty = Factory.Instance.GetPartyManager().AddPlayerToParty(party.Id, Colors.BLACK);
                 party.BlackToken = myParty.BlackLink;
@@ -65,17 +66,17 @@ namespace DaChess.Api.Controllers
         private static void MessageCallback(PartyModel m)
         {
             if (_subscribers.ContainsKey(m.Name))
-            {               
+            {
                 foreach (var s in _subscribers[m.Name])
                 {
                     try
                     {
-                        s.WriteLine("data:" + JsonConvert.SerializeObject(m) + "\n");
+                        s.WriteLine("data:" + JsonConvert.SerializeObject(m) + Environment.NewLine);
                         s.Flush();
                     }
                     catch // si exception, on n'arrête pas
                     {
-                       
+
                     }
                 }
             }
