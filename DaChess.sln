@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Api", "DaChess.Api\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Ui", "DaChess.Ui\DaChess.Ui.csproj", "{0B007FAA-E44D-4201-B33C-8FBBAE45772D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.SignalRClient", "DaChess.SignalRClient\DaChess.SignalRClient.csproj", "{E9CFE7D5-CD7C-498D-B27D-75EED057D136}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B007FAA-E44D-4201-B33C-8FBBAE45772D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9CFE7D5-CD7C-498D-B27D-75EED057D136}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9CFE7D5-CD7C-498D-B27D-75EED057D136}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9CFE7D5-CD7C-498D-B27D-75EED057D136}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9CFE7D5-CD7C-498D-B27D-75EED057D136}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

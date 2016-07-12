@@ -4,6 +4,8 @@ namespace DaChess.Api.Models
 {
     public class PartyModel
     {
+        public string ErrorMessage { get; set; }
+        public bool IsError { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public string Board { get; set; }
