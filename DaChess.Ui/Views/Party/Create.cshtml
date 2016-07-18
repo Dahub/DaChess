@@ -16,7 +16,7 @@
             }).done(function (data) {
                 console.log(data);
                 console.log(data.Name);
-                $("#resultDiv").html('<h3><a href="http://localhost:52551/Party/' + data.Name + '">http://localhost:52551/Party/' + data.Name + '</h3>');
+                $("#resultDiv").html('<h3><a href="@String.Concat(ConfigurationWrapper.Instance.UiUrl, "/Party/")' + data.Name + '">@String.Concat(ConfigurationWrapper.Instance.UiUrl, "/Party/")' + data.Name + '</h3>');
             });;
         });
     });

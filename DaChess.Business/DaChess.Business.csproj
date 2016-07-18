@@ -74,6 +74,7 @@
       <DependentUpon>Domain.edmx</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IPartyManager.cs" />
+    <Compile Include="Interfaces\IPlayerManager.cs" />
     <Compile Include="Party.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
@@ -81,10 +82,13 @@
     <Compile Include="PartyMove.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
+    <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\Boards.cs" />
     <Compile Include="Tools\CryptoHelper.cs" />
+    <Compile Include="Tools\DaChessException.cs" />
     <Compile Include="Tools\Factory.cs" />
+    <Compile Include="Tools\PartyHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="Domain.edmx">

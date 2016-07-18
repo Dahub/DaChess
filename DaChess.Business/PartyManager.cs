@@ -9,26 +9,27 @@ namespace DaChess.Business
 
         public Party GetByName(string name)
         {
-            Party toReturn;
-
-            using (var context = new ChessEntities())
-            {
-                toReturn = context.Parties.Where(p => p.PartLink.ToLower().Equals(name.ToLower())).FirstOrDefault();                
-            }
-
-            if (toReturn == null)
-                throw new Exception(String.Format("Partie {0} introuvable", name));
-
-            return toReturn;
+            return PartyHelper.GetByName(name);
         }
 
         public Party Update(Party toUpdate)
         {
-            using (var context = new ChessEntities())
+            try
             {
-                context.Entry(toUpdate).State =
-                    System.Data.Entity.EntityState.Modified;                    
-                context.SaveChanges();
+                using (var context = new ChessEntities())
+                {
+                    context.Entry(toUpdate).State =
+                        System.Data.Entity.EntityState.Modified;
+                    context.SaveChanges();
+                }
+            }
+            catch (DaChessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DaChessException("Erreur dans la mise à jour de la partie", ex);
             }
 
             return toUpdate;
@@ -42,20 +43,31 @@ namespace DaChess.Business
         {
             Party toReturn = null;
 
-            using (ChessEntities context = new ChessEntities())
+            try
             {
-                int count = 0;
-
-                do
+                using (ChessEntities context = new ChessEntities())
                 {
-                    toReturn = InitParty(context);
-                    count++;
-                    if (count > NUMBER_OF_TRY)
-                        throw new Exception("Can not create a new Party");
-                } while (context.Parties.Where(p => p.PartLink.Equals(toReturn.PartLink)).FirstOrDefault() != null);
+                    int count = 0;
 
-                context.Parties.Add(toReturn);
-                context.SaveChanges();
+                    do
+                    {
+                        toReturn = InitParty(context);
+                        count++;
+                        if (count > NUMBER_OF_TRY)
+                            throw new Exception("Can not create a new Party");
+                    } while (context.Parties.Where(p => p.PartLink.Equals(toReturn.PartLink)).FirstOrDefault() != null);
+
+                    context.Parties.Add(toReturn);
+                    context.SaveChanges();
+                }
+            }
+            catch (DaChessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DaChessException("Erreur dans la création de la partie", ex);
             }
 
             return toReturn;
@@ -65,33 +77,50 @@ namespace DaChess.Business
         {
             Party toReturn;
 
-            using (ChessEntities context = new ChessEntities())
+            try
             {
-                toReturn = context.Parties.Where(p => p.Id.Equals(partyId)).FirstOrDefault();
-                if (toReturn == null)
-                    throw new Exception(String.Format("Can not fin party {0}", partyId));
-
-                // on génère le lien
-                string infos = String.Format("{0}#;#{1}", partyId, (int)playerColor);
-                string link = CryptoHelper.Encrypt(infos, toReturn.Seed);
-
-                switch (playerColor)
+                using (ChessEntities context = new ChessEntities())
                 {
-                    case Colors.BLACK:
-                        if (String.IsNullOrEmpty(toReturn.BlackLink))
-                        {
-                            toReturn.BlackLink = link;
-                        }
-                        break;
-                    case Colors.WHITE:
-                        if (String.IsNullOrEmpty(toReturn.WhiteLink))
-                        {
-                            toReturn.WhiteLink = link;
-                        }
-                        break;
-                }
+                    toReturn = context.Parties.Where(p => p.Id.Equals(partyId)).FirstOrDefault();
+                    if (toReturn == null)
+                        throw new DaChessException(String.Format("Impossible de trouver la partie d'id {0}", partyId));
 
-                context.SaveChanges();
+                    if (!String.IsNullOrEmpty(toReturn.BlackLink) && playerColor == Colors.BLACK)
+                        throw new DaChessException("La partie a déjà un jouer noir inscrit");
+
+                    if (!String.IsNullOrEmpty(toReturn.WhiteLink) && playerColor == Colors.WHITE)
+                        throw new DaChessException("La partie a déjà un jouer blanc inscrit");
+
+                    // on génère le lien
+                    string infos = String.Format("{0}#;#{1}", partyId, (int)playerColor);
+                    string link = CryptoHelper.Encrypt(infos, toReturn.Seed);
+
+                    switch (playerColor)
+                    {
+                        case Colors.BLACK:
+                            if (String.IsNullOrEmpty(toReturn.BlackLink))
+                            {
+                                toReturn.BlackLink = link;
+                            }
+                            break;
+                        case Colors.WHITE:
+                            if (String.IsNullOrEmpty(toReturn.WhiteLink))
+                            {
+                                toReturn.WhiteLink = link;
+                            }
+                            break;
+                    }
+
+                    context.SaveChanges();
+                }
+            }
+            catch (DaChessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DaChessException("Erreur dans l'ajout du joueur à la partie", ex);
             }
 
             return toReturn;
@@ -99,7 +128,9 @@ namespace DaChess.Business
 
         private static Party InitParty(ChessEntities context)
         {
-            Party toReturn = new Party()
+            Party toReturn;
+
+            toReturn = new Party()
             {
                 Seed = Guid.NewGuid().ToString(),
                 CreationDate = DateTime.Now,
@@ -108,6 +139,7 @@ namespace DaChess.Business
                 PartLink = DaTools.NameMaker.Creator.Build(DaTools.NameMaker.NameType.FIRST_NAMES, DaTools.NameMaker.NameType.FIRST_NAMES),
             };
             toReturn.Board = toReturn.BoardType.Content;
+
             return toReturn;
         }
     }

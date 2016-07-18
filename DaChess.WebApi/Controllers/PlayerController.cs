@@ -10,6 +10,31 @@ namespace DaChess.WebApi.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class PlayerController : ApiController
     {
+        public JsonResult<PlayerModel> Get(string token, string partyName)
+        {
+            PlayerModel toReturn = new PlayerModel();
+
+            try
+            {
+                toReturn.PartyName = partyName;
+                Colors c = Factory.Instance.GetPlayerManager().GetPlayerColor(token, partyName);
+                toReturn.IsBlack = c == Colors.BLACK;
+                toReturn.IsWhite = c == Colors.WHITE;
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = "Erreur non gérée dans la récupération de la couleur du joueur";
+            }
+
+            return Json(toReturn);
+        }
+
         public JsonResult<PartyModel> Post(PartyModel party)
         {
             try
@@ -25,10 +50,15 @@ namespace DaChess.WebApi.Controllers
                     party.BlackToken = myParty.BlackLink;
                 }
             }
-            catch (Exception ex)
+            catch (DaChessException ex)
             {
                 party.IsError = true;
                 party.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                party.IsError = true;
+                party.ErrorMessage = "Erreur non gérée dans l'ajout du joueur à la partie";
             }
 
             return Json(party);

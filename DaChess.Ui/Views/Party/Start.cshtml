@@ -4,63 +4,9 @@
     ViewBag.Title = "Start";
 }
 
-<script type="text/javascript">
-    var party = {
-        Id: 0,
-        Name: '',
-        Board: '',
-        WhiteToken: '',
-        BlackToken: '',
-        WhiteTurn: true,
-        IsReady: false,
-        WhiteAskToPlay: false,
-        BlackAskToPlay: false,
-    }
-
-    $(document).ready(function () {
-        var partyName = { name: '@Model' };
-        $.ajax({
-            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
-            data: partyName,
-            cache: false,
-            type: 'GET',
-            dataType: "json",
-            contentType: 'application/json; charset=utf-8'
-        }).done(function (data) {
-            mapParty(data);
-            if (false == isEmpty(party.WhiteToken)) {
-                $('#whiteBtn').prop('disabled', true);
-                $('#whiteBtn').removeClass('btn-success');
-            }
-            else {
-                $('#whiteBtn').prop('disabled', false);
-                $('#whiteBtn').addClass('btn-success');
-            }
-
-            if (false == isEmpty(party.BlackToken)) {
-                $('#blackBtn').prop('disabled', true);
-                $('#blackBtn').removeClass('btn-success');
-            }
-            else {
-                $('#blackBtn').prop('disabled', false);
-                $('#blackBtn').addClass('btn-success');
-            }
-        });
-
-        $("#whiteBtn").click(function () {
-            party.WhiteAskToPlay = true;
-            addPlayer('white');
-        });
-
-        $("#blackBtn").click(function () {
-            party.BlackAskToPlay = true;
-            addPlayer('black');
-        });
-    });
-</script>
 
 <input type="hidden" id="isWhitePlayer" value="false" />
-<input type="hidden" id="isBlackPlayer" value="true" />
+<input type="hidden" id="isBlackPlayer" value="false" />
 <input type="hidden" id="token" value="" />
 
 <h2>DaChess</h2>
@@ -91,11 +37,99 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
+    var party = {
+        Id: 0,
+        Name: '',
+        Board: '',
+        WhiteToken: '',
+        BlackToken: '',
+        WhiteTurn: true,
+        IsReady: false,
+        WhiteAskToPlay: false,
+        BlackAskToPlay: false,
+    }
+
+    $(document).ready(function () {
+        // récupération de la partie
+        var partyName = { name: '@Model' };
+        $.ajax({
+            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
+            data: partyName,
+            cache: false,
+            type: 'GET',
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (data) {
+            mapParty(data);
+            // on tente de voir si on a des données de cookies
+            $.ajax({
+                url: "/Player/GetPlayerPartyName",
+                type: "get",
+                success: function (dataPartyName) {
+                    if (dataPartyName == partyName.name) {
+                        $.ajax({
+                            url: "/Player/GetPlayerToken",
+                            type: "get",
+                            success: function (dataToken) {
+                                $('#token').val(dataToken);
+
+                                // on récupère la couleur via l'API
+                                $.ajax({
+                                    url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player"))',
+                                    data: { partyName: party.Name, token: dataToken },
+                                    cache: false,
+                                    type: 'GET',
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8'
+                                }).done(function (data) {
+                                    if (data.IsWhite == true)
+                                        ImWhitePlayer(dataToken);
+                                    if (data.IsBlack == true)
+                                        ImBlackPlayer(dataToken);
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        if (false == isEmpty(party.WhiteToken)) {
+                            $('#whiteBtn').prop('disabled', true);
+                            $('#whiteBtn').removeClass('btn-success');
+                        }
+                        else {
+                            $('#whiteBtn').prop('disabled', false);
+                            $('#whiteBtn').addClass('btn-success');
+                        }
+
+                        if (false == isEmpty(party.BlackToken)) {
+                            $('#blackBtn').prop('disabled', true);
+                            $('#blackBtn').removeClass('btn-success');
+                        }
+                        else {
+                            $('#blackBtn').prop('disabled', false);
+                            $('#blackBtn').addClass('btn-success');
+                        }
+                    }
+                }
+            });
+        });
+
+
+        // abonnements aux clics sur les boutons
+        $("#whiteBtn").click(function () {
+            party.WhiteAskToPlay = true;
+            addPlayer('white');
+        });
+
+        $("#blackBtn").click(function () {
+            party.BlackAskToPlay = true;
+            addPlayer('black');
+        });
+    });
+
     $(function () {
         var partyHub = $.connection.partyHub;
         partyHub.client.addNewMessageToPage = function (name, message) {
-            console.log(name);
             $('#discussion').append('<li><strong>' + htmlEncode(name)
                 + '</strong>: ' + htmlEncode(message) + '</li>');
         };
@@ -123,7 +157,7 @@
             });
         });
     });
-    // This optional function html-encodes messages for display in the page.
+
     function htmlEncode(value) {
         var encodedValue = $('<div />').text(value).html();
         return encodedValue;
@@ -139,30 +173,47 @@
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
             mapParty(data);
-            $('#token').val(data.WhiteToken);
-            var partyHub = $.connection.partyHub;
+
             if (color == 'white') {
-                $('#displayname').val('Blancs');
-                $('#isWhitePlayer').val('true');
-                $('#token').val(data.WhiteToken);
-                if ($('#blackBtn').prop('disabled') == false) {
-                    $('#blackBtn').prop('disabled', true);
-                    $('#blackBtn').html('Attente du joueur');
-                    $('#blackBtn').removeClass('btn-success');
-                }
-                partyHub.server.sendAddWhitePlayer('@Model');               
-            } else {
-                $('#displayname').val('Noirs');
-                $('#isBlackPlayer').val('true');
-                $('#token').val(data.BlackToken);
-                if ($('#whiteBtn').prop('disabled') == false) {
-                    $('#whiteBtn').prop('disabled', true);
-                    $('#whiteBtn').html('Attente du joueur');
-                    $('#whiteBtn').removeClass('btn-success');
-                }
-                partyHub.server.sendAddBlackPlayer('@Model');                
+                ImWhitePlayer(data.WhiteToken);
             }
+            else {
+                ImBlackPlayer(data.BlackToken);
+            }
+
+            // on créé les cookies via le playerController de ce site          
+            $.ajax({
+                url: "/Player/SetPlayerCookies",
+                type: "get", 
+                data: { partyName: party.Name, token: $('#token').val() }
+            });
         });
+    }
+
+    function ImBlackPlayer(token) {
+        var partyHub = $.connection.partyHub;
+        $('#displayname').val('Noirs');
+        $('#isBlackPlayer').val('true');
+        $('#token').val(token);
+        if ($('#whiteBtn').prop('disabled') == false) {
+            $('#whiteBtn').prop('disabled', true);
+            $('#whiteBtn').html('Attente du joueur');
+            $('#whiteBtn').removeClass('btn-success');
+        }
+        partyHub.server.sendAddBlackPlayer('@Model');
+    }
+
+    function ImWhitePlayer(token) {
+        var partyHub = $.connection.partyHub;
+        $('#displayname').val('Blancs');
+        $('#isWhitePlayer').val('true');
+        $('#token').val(token);
+        if ($('#blackBtn').prop('disabled') == false) {
+            $('#blackBtn').prop('disabled', true);
+            $('#blackBtn').html('Attente du joueur');
+            $('#blackBtn').removeClass('btn-success');
+        }
+        partyHub.server.sendAddWhitePlayer('@Model');
     }
 
     function mapParty(data) {
@@ -174,6 +225,7 @@
         party.WhiteTurn = data.WhiteTurn;
         party.IsReady = data.IsReady;
     }
+
     function isEmpty(str) {
         return (!str || 0 === str.length);
     }

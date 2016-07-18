@@ -14,6 +14,11 @@ namespace DaChess.Business
             return new PartyManager();
         }
 
+        public IPlayerManager GetPlayerManager()
+        {
+            return new PlayerManager();
+        }
+
         public static Factory Instance
         {
             get

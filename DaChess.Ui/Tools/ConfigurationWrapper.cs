@@ -18,6 +18,16 @@ namespace DaChess.Ui
             }
         }
 
+        public string UiUrl
+        {
+            get
+            {
+                if (WebConfigurationManager.AppSettings["UiUrl"] == null || String.IsNullOrEmpty(WebConfigurationManager.AppSettings["UiUrl"].ToString()))
+                    throw new Exception("Element UiUrl manquant ou vide");
+                return WebConfigurationManager.AppSettings["UiUrl"].ToString();
+            }
+    }
+
         public static ConfigurationWrapper Instance
         {
             get

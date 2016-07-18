@@ -33,10 +33,15 @@ namespace DaChess.WebApi.Controllers
                     ErrorMessage = String.Empty
                 };
             }
-            catch (Exception ex)
+            catch (DaChessException ex)
             {
                 toReturn.IsError = true;
                 toReturn.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = "Erreur non gérée dans la récupération de la partie";
             }
 
             return Json(toReturn);
@@ -57,9 +62,13 @@ namespace DaChess.WebApi.Controllers
                     WhiteTurn = newParty.WhiteTurn
                 };
             }
-            catch (Exception ex)
+            catch (DaChessException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Erreur non gérée dans la création de la partie");
             }
 
             return Ok(toReturn);

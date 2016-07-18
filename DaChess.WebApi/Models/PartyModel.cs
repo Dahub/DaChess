@@ -2,10 +2,9 @@
 
 namespace DaChess.WebApi.Models
 {
-    public class PartyModel
+    public class PartyModel : AbstractModel
     {
-        public bool IsError { get; set; }
-        public string ErrorMessage { get; set; }
+        
 
         public int Id { get; set; }
         public string Name { get; set; }

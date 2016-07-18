@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 
 namespace DaChess.Ui.Controllers
 {
@@ -12,6 +13,6 @@ namespace DaChess.Ui.Controllers
         public ActionResult Start(string partyName)
         {
             return View((object)partyName);
-        }
+        }        
     }
 }
