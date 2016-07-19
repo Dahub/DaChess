@@ -6,6 +6,9 @@
     var caseNumber = 8;
     var caseSize = size / caseNumber;
 
+    var moveStep = 0;
+    var moveText = '';
+
     refreshCanvas();
 
     function refreshCanvas() {
@@ -32,7 +35,12 @@
     }
 
     function getMousePos(canvas, evt) {
-        refreshCanvas();
+        if(moveStep == 2){
+            refreshCanvas();
+            moveStep = 0;
+            moveText = '';
+        }
+        moveStep++;
 
         var rect = canvas.getBoundingClientRect();
         var xcord = evt.clientX - rect.left
@@ -46,12 +54,12 @@
 
         var c = $("#canvas");
         var ctx = c[0].getContext('2d');
+ 
+        ctx.fillStyle = 'rgba(23, 105, 138, 0.5)';
+        ctx.fillRect(xcord * caseSize,size - ycord * caseSize, caseSize, caseSize);
 
-        ctx.fillStyle = 'rgba(20,20,20,0.2)'; // The closer to black the better
-        ctx.fillRect(xcord * caseSize, (ycord + 1) * caseSize, caseSize, caseSize);
-
-        console.log(ycord);
-        console.log(xcord);
-        console.log(result);
+        moveText += result;
+        moveText += ' ';
+        console.log(moveText);
     }
 </script>

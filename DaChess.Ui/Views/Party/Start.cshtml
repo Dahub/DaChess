@@ -9,47 +9,59 @@
 <input type="hidden" id="isBlackPlayer" value="false" />
 <input type="hidden" id="token" value="" />
 
-<h2>DaChess</h2>
+<h2>Partie @Model</h2>
 
 <!-- première ligne pour les infos -->
 <div class="row">
-    <div class="col-md-2" id="whiteBtnDiv">
+    <div class="col-md-6 alignRight" id="whiteBtnDiv">
         <button type="button" id="whiteBtn" class="btn" disabled>Jouer avec les blancs</button><br />
-    </div>  
-      
-    <div class="col-md-3" id="infoDiv"></div>
-    
-    <div class="col-md-1 alignRight">        
-        <img src="~/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon"/>
-        <img src="~/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
     </div>
-    <div class="col-md-3" id="colorDiv"></div>
+    <div class="col-md-6" id="blackBtnDiv">
+        <button type="button" id="blackBtn" class="btn" disabled>Jouer avec les noirs</button>
+    </div>
 </div>
 <br />
-
 <!-- ligne avec les coups, le plateau et le tchat -->
 <div class="row">
-    <div class="col-md-2" id="blackBtnDiv">
-        <button type="button" id="blackBtn" class="btn" disabled>Jouer avec les noirs</button>
-    </div>   
-</div>
-<br />
-<div class="row">
-    <div class="col-md-1" id="moveDiv">
-        Coups joués
-        <ul id="moves"></ul>
-    </div>
-    <div class="col-md-7">
-        <div class="centerBlock">
-            @Html.Partial("_Board")
+    <div class="col-md-3" id="moveDiv">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="infoDiv"></div>
+            <div class="panel-body">
+                <img src="~/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                <img src="~/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                <span id="colorDiv"></span>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Historique</div>
+            <div class="panel-body">
+                <ul id="moves"></ul>
+            </div>
         </div>
     </div>
-    <div class="col-md-4 col-md-offset tchatDiv">
-        <textarea id="message" rows="2" cols="40"></textarea>
-        <input type="button" id="sendmessage" value="Ok" />
-        <input type="hidden" id="displayname" value="Lurker" />
-        <br />
-        <ul id="discussion"></ul>
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="turnDiv"></div>
+            <div class="panel-body">
+                <div class="centerBlock">
+                    @Html.Partial("_Board")
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Tchat</div>
+            <div class="panel-body">
+                <textarea id="message" rows="2" cols="40"></textarea>
+                <input type="button" id="sendmessage" value="Ok" />
+                <input type="hidden" id="displayname" value="Lurker" />
+                <br /><br />
+                <ul id="discussion"></ul>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -282,6 +294,14 @@
         }
         else {
             $('#infoDiv').html('En attente de joueurs');
+        }
+
+        $('#turnDiv').html('');
+        if (party.WhiteTurn == true) {
+            $('#turnDiv').html('Aux blancs de jouer');
+        }
+        else {
+            $('#turnDiv').html('Aux noirs de jouer');
         }
     }
 
