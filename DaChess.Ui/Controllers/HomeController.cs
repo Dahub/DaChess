@@ -6,7 +6,7 @@ namespace DaChess.Ui.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("Create", "Party");
         }
     }
 }

@@ -20,3 +20,21 @@ textarea {
     display: table;
     margin: 0 auto;
 }
+
+.alignRight {
+   text-align:right;
+}
+
+.tchatDiv {
+    border: 1px solid #808080;
+    padding: 1em;    
+    height: 400px;
+    background-color:#bfb2a4;
+}
+
+.playerIcon {
+    height: auto; 
+    width: auto; 
+    max-width: 30px; 
+    max-height: 30px;
+}

@@ -10,32 +10,49 @@
 <input type="hidden" id="token" value="" />
 
 <h2>DaChess</h2>
+
+<!-- première ligne pour les infos -->
 <div class="row">
-    <div class="col-md-2 col-md-offset-1">
-        <div class="centerBlock">
-            <button type="button" id="whiteBtn" class="btn-lg" disabled>Jouer avec les blancs</button>
-        </div>
+    <div class="col-md-2" id="whiteBtnDiv">
+        <button type="button" id="whiteBtn" class="btn" disabled>Jouer avec les blancs</button><br />
+    </div>  
+      
+    <div class="col-md-3" id="infoDiv"></div>
+    
+    <div class="col-md-1 alignRight">        
+        <img src="~/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon"/>
+        <img src="~/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
     </div>
-    <div class="col-md-6">
+    <div class="col-md-3" id="colorDiv"></div>
+</div>
+<br />
+
+<!-- ligne avec les coups, le plateau et le tchat -->
+<div class="row">
+    <div class="col-md-2" id="blackBtnDiv">
+        <button type="button" id="blackBtn" class="btn" disabled>Jouer avec les noirs</button>
+    </div>   
+</div>
+<br />
+<div class="row">
+    <div class="col-md-1" id="moveDiv">
+        Coups joués
+        <ul id="moves"></ul>
+    </div>
+    <div class="col-md-7">
         <div class="centerBlock">
             @Html.Partial("_Board")
         </div>
     </div>
-    <div class="col-md-2">
-        <div class="centerBlock">
-            <button type="button" id="blackBtn" class="btn-lg" disabled>Jouer avec les noirs</button>
-        </div>
-    </div>
-</div>
-<br /><hr /><br />
-<div class="row">
-    <div class="col-md-6 col-md-offset-3">
-        <input type="text" id="message" />
-        <input type="button" id="sendmessage" value="Envoyer" />
+    <div class="col-md-4 col-md-offset tchatDiv">
+        <textarea id="message" rows="2" cols="40"></textarea>
+        <input type="button" id="sendmessage" value="Ok" />
         <input type="hidden" id="displayname" value="Lurker" />
+        <br />
         <ul id="discussion"></ul>
     </div>
 </div>
+
 
 <script type="text/javascript">
     var party = {
@@ -112,6 +129,8 @@
                     }
                 }
             });
+
+            RefreshPartyState();
         });
 
 
@@ -130,7 +149,12 @@
     $(function () {
         var partyHub = $.connection.partyHub;
         partyHub.client.addNewMessageToPage = function (name, message) {
-            $('#discussion').append('<li><strong>' + htmlEncode(name)
+
+            if ($("#discussion li").length > 10) {
+                $('#discussion li:last').remove();
+            }
+
+            $('#discussion').prepend('<li><strong>' + htmlEncode(name)
                 + '</strong>: ' + htmlEncode(message) + '</li>');
         };
 
@@ -138,12 +162,18 @@
             $('#whiteBtn').prop('disabled', true);
             $('#whiteBtn').html('Joueur connecté');
             $('#whiteBtn').removeClass('btn-success');
+
+            // on recharge la partie
+            reloadParty();
         };
 
         partyHub.client.addPlayerBlack = function () {
             $('#blackBtn').prop('disabled', true);
             $('#blackBtn').html('Joueur connecté');
             $('#blackBtn').removeClass('btn-success');
+
+            // on recharge la partie
+            reloadParty();
         };
 
         $('#displayname').val('Anonymous');
@@ -163,6 +193,22 @@
         return encodedValue;
     }
 
+    function reloadParty() {
+        var partyName = { name: '@Model' };
+        $.ajax({
+            url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
+            data: partyName,
+            cache: false,
+            type: 'GET',
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (data) {
+            mapParty(data);
+            RefreshPartyState();
+        });
+
+    }
+
     function addPlayer(color) {
         $.ajax({
             url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/player"))',
@@ -174,6 +220,14 @@
         }).done(function (data) {
             mapParty(data);
 
+            RefreshPartyState();
+
+            console.log(data);
+            console.log(party.IsReady);
+            console.log(party.WhiteToken);
+            console.log(party.BlackToken);
+
+
             if (color == 'white') {
                 ImWhitePlayer(data.WhiteToken);
             }
@@ -181,10 +235,11 @@
                 ImBlackPlayer(data.BlackToken);
             }
 
-            // on créé les cookies via le playerController de ce site          
+
+            // on créé les cookies via le playerController de ce site
             $.ajax({
                 url: "/Player/SetPlayerCookies",
-                type: "get", 
+                type: "get",
                 data: { partyName: party.Name, token: $('#token').val() }
             });
         });
@@ -195,11 +250,10 @@
         $('#displayname').val('Noirs');
         $('#isBlackPlayer').val('true');
         $('#token').val(token);
-        if ($('#whiteBtn').prop('disabled') == false) {
-            $('#whiteBtn').prop('disabled', true);
-            $('#whiteBtn').html('Attente du joueur');
-            $('#whiteBtn').removeClass('btn-success');
-        }
+        $('#colorDiv').html('Vous jouez les noirs');
+        $('#whiteBtn').addClass('hidden');
+        $('#blackBtn').addClass('hidden');
+        $('#blackIcon').removeClass('hidden');
         partyHub.server.sendAddBlackPlayer('@Model');
     }
 
@@ -208,12 +262,27 @@
         $('#displayname').val('Blancs');
         $('#isWhitePlayer').val('true');
         $('#token').val(token);
-        if ($('#blackBtn').prop('disabled') == false) {
-            $('#blackBtn').prop('disabled', true);
-            $('#blackBtn').html('Attente du joueur');
-            $('#blackBtn').removeClass('btn-success');
-        }
+        $('#colorDiv').html('Vous jouez les blancs');
+        $('#whiteBtn').addClass('hidden');
+        $('#blackBtn').addClass('hidden');
+        $('#whiteIcon').removeClass('hidden');
         partyHub.server.sendAddWhitePlayer('@Model');
+    }
+
+    function RefreshPartyState() {
+        $('#infoDiv').html('');
+        if (party.IsReady == true) {
+            $('#infoDiv').html('Partie prête');
+        }
+        else if (isEmpty(party.BlackToken) == false) {
+            $('#infoDiv').html('En attente du joueur blanc');
+        }
+        else if (isEmpty(party.WhiteToken) == false) {
+            $('#infoDiv').html('En attente du joueur noir');
+        }
+        else {
+            $('#infoDiv').html('En attente de joueurs');
+        }
     }
 
     function mapParty(data) {
@@ -229,5 +298,11 @@
     function isEmpty(str) {
         return (!str || 0 === str.length);
     }
-</script>
 
+
+    $('#message').on('keyup', function (e) {
+        if (e.keyCode === 13) {
+            $('#sendmessage').click();
+        }
+    });
+</script>
