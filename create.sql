@@ -80,133 +80,133 @@ insert into [chess].[Board] (Wording, Content) values
 ('Classic',
 '
 	{	"board":[
-			{ 	"col" :" a",
-				"line" : "1",
-				"piece" : "w_rook"
+			{ 	"col": "a",
+				"line": "1",
+				"piece": "w_rook"
 			},
-			{	"col" :" b",
-				"line" : "1",
-				"piece" : "w_knight"
+			{	"col": "b",
+				"line": "1",
+				"piece": "w_knight"
 			},
-			{	"col" :" c",
-				"line" : "1",
-				"piece" : "w_bishop"
+			{	"col": "c",
+				"line": "1",
+				"piece": "w_bishop"
 			},
-			{	"col" :" d",
-				"line" : "1",
-				"piece" : "w_queen"
+			{	"col": "d",
+				"line": "1",
+				"piece": "w_queen"
 			},
-			{	"col" :" e",
-				"line" : "1",
-				"piece" : "w_king"
+			{	"col": "e",
+				"line": "1",
+				"piece": "w_king"
 			},
-			{	"col" :" f",
-				"line" : "1",
-				"piece" : "w_bishop"
+			{	"col": "f",
+				"line": "1",
+				"piece": "w_bishop"
 			},
-			{	"col" :" g",
-				"line" : "1",
-				"piece" : "w_knight"
+			{	"col": "g",
+				"line": "1",
+				"piece": "w_knight"
 			},
-			{	"col" :" h",
-				"line" : "1",
-				"piece" : "w_rook"
+			{	"col": "h",
+				"line": "1",
+				"piece": "w_rook"
 			},
-			{ 	"col" :" a",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "a",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" b",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "b",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" c",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "c",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" d",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "d",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" e",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "e",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" f",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "f",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" g",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "g",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" h",
-				"line" : "2",
-				"piece" : "w_pawn"
+			{ 	"col": "h",
+				"line": "2",
+				"piece": "w_pawn"
 			},
-			{ 	"col" :" a",
-				"line" : "8",
-				"piece" : "b_rook"
+			{ 	"col": "a",
+				"line": "8",
+				"piece": "b_rook"
 			},
-			{	"col" :" b",
-				"line" : "8",
-				"piece" : "b_knight"
+			{	"col": "b",
+				"line": "8",
+				"piece": "b_knight"
 			},
-			{	"col" :" c",
-				"line" : "8",
-				"piece" : "b_bishop"
+			{	"col": "c",
+				"line": "8",
+				"piece": "b_bishop"
 			},
-			{	"col" :" d",
-				"line" : "8",
-				"piece" : "b_queen"
+			{	"col": "d",
+				"line": "8",
+				"piece": "b_queen"
 			},
-			{	"col" :" e",
-				"line" : "8",
-				"piece" : "b_king"
+			{	"col": "e",
+				"line": "8",
+				"piece": "b_king"
 			},
-			{	"col" :" f",
-				"line" : "8",
-				"piece" : "b_bishop"
+			{	"col": "f",
+				"line": "8",
+				"piece": "b_bishop"
 			},
-			{	"col" :" g",
-				"line" : "8",
-				"piece" : "b_knight"
+			{	"col": "g",
+				"line": "8",
+				"piece": "b_knight"
 			},
-			{	"col" :" h",
-				"line" : "8",
-				"piece" : "b_rook"
+			{	"col": "h",
+				"line": "8",
+				"piece": "b_rook"
 			},
-			{ 	"col" :" a",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "a",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" b",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "b",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" c",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "c",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" d",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "d",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" e",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "e",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" f",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "f",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" g",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "g",
+				"line": "7",
+				"piece": "b_pawn"
 			},
-			{ 	"col" :" h",
-				"line" : "7",
-				"piece" : "b_pawn"
+			{ 	"col": "h",
+				"line": "7",
+				"piece": "b_pawn"
 			}
 		]
 	}

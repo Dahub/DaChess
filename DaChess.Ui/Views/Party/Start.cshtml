@@ -21,49 +21,6 @@
     </div>
 </div>
 <br />
-<!-- ligne avec les coups, le plateau et le tchat -->
-<div class="row">
-    <div class="col-md-3" id="moveDiv">
-        <div class="panel panel-default">
-            <div class="panel-heading" id="infoDiv"></div>
-            <div class="panel-body">
-                <img src="~/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
-                <img src="~/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
-                <span id="colorDiv"></span>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Historique</div>
-            <div class="panel-body">
-                <ul id="moves"></ul>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="panel panel-default">
-            <div class="panel-heading" id="turnDiv"></div>
-            <div class="panel-body">
-                <div class="centerBlock">
-                    @Html.Partial("_Board")
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">Tchat</div>
-            <div class="panel-body">
-                <textarea id="message" rows="2" cols="40"></textarea>
-                <input type="button" id="sendmessage" value="Ok" />
-                <input type="hidden" id="displayname" value="Lurker" />
-                <br /><br />
-                <ul id="discussion"></ul>
-            </div>
-        </div>
-
-    </div>
-</div>
 
 
 <script type="text/javascript">
@@ -79,6 +36,8 @@
         BlackAskToPlay: false,
     }
 
+    var myBoard;
+
     $(document).ready(function () {
         // récupération de la partie
         var partyName = { name: '@Model' };
@@ -91,6 +50,8 @@
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
             mapParty(data);
+            myBoard = JSON.parse(party.Board);
+            refreshCanvas();
             // on tente de voir si on a des données de cookies
             $.ajax({
                 url: "/Player/GetPlayerPartyName",
@@ -217,8 +178,8 @@
         }).done(function (data) {
             mapParty(data);
             RefreshPartyState();
+            myBoard = JSON.parse(party.Board);
         });
-
     }
 
     function addPlayer(color) {
@@ -231,14 +192,7 @@
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
             mapParty(data);
-
             RefreshPartyState();
-
-            console.log(data);
-            console.log(party.IsReady);
-            console.log(party.WhiteToken);
-            console.log(party.BlackToken);
-
 
             if (color == 'white') {
                 ImWhitePlayer(data.WhiteToken);
@@ -246,7 +200,6 @@
             else {
                 ImBlackPlayer(data.BlackToken);
             }
-
 
             // on créé les cookies via le playerController de ce site
             $.ajax({
@@ -326,3 +279,49 @@
         }
     });
 </script>
+
+<!-- ligne avec les coups, le plateau et le tchat -->
+<div class="row">
+    <div class="col-md-3" id="moveDiv">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="infoDiv"></div>
+            <div class="panel-body">
+                <img src="~/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                <img src="~/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                <span id="colorDiv"></span>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Historique</div>
+            <div class="panel-body">
+                <ul id="moves"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="turnDiv"></div>
+            <div class="panel-body">
+                <div class="centerBlock">
+                    @Html.Partial("_Board")
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Tchat</div>
+            <div class="panel-body">
+                <textarea id="message" rows="2" cols="40"></textarea>
+                <input type="button" id="sendmessage" value="Ok" />
+                <input type="hidden" id="displayname" value="Lurker" />
+                <br /><br />
+                <ul id="discussion"></ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
