@@ -46,6 +46,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,6 +58,7 @@
     <Compile Include="Board.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
+    <Compile Include="BoardManager.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="Domain.Context.cs">
       <AutoGen>True</AutoGen>
@@ -73,6 +75,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Domain.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IBoardManager.cs" />
     <Compile Include="Interfaces\IPartyManager.cs" />
     <Compile Include="Interfaces\IPlayerManager.cs" />
     <Compile Include="Party.cs">

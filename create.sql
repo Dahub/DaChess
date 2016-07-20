@@ -79,88 +79,137 @@ go
 insert into [chess].[Board] (Wording, Content) values
 ('Classic',
 '
-	<board name="classic">
-		<rank wording="1">
-			<col wording="A">Tb</col>
-			<col wording="B">Cb</col>
-			<col wording="C">Fb</col>
-			<col wording="D">Db</col>
-			<col wording="E">Rb</col>
-			<col wording="F">Fb</col>
-			<col wording="G">Cb</col>
-			<col wording="H">Tb</col>
-		</rank>
-		<rank wording="2">
-			<col wording="A">Pb</col>
-			<col wording="B">Pb</col>
-			<col wording="C">Pb</col>
-			<col wording="D">Pb</col>
-			<col wording="E">Pb</col>
-			<col wording="F">Pb</col>
-			<col wording="G">Pb</col>
-			<col wording="H">Pb</col>
-		</rank>
-		<rank wording="3">
-			<col wording="A"></col>
-			<col wording="B"></col>
-			<col wording="C"></col>
-			<col wording="D"></col>
-			<col wording="E"></col>
-			<col wording="F"></col>
-			<col wording="G"></col>
-			<col wording="H"></col>
-		</rank>
-		<rank wording="4">
-			<col wording="A"></col>
-			<col wording="B"></col>
-			<col wording="C"></col>
-			<col wording="D"></col>
-			<col wording="E"></col>
-			<col wording="F"></col>
-			<col wording="G"></col>
-			<col wording="H"></col>
-		</rank>
-		<rank wording="5">
-			<col wording="A"></col>
-			<col wording="B"></col>
-			<col wording="C"></col>
-			<col wording="D"></col>
-			<col wording="E"></col>
-			<col wording="F"></col>
-			<col wording="G"></col>
-			<col wording="H"></col>
-		</rank>
-		<rank wording="6">
-			<col wording="A"></col>
-			<col wording="B"></col>
-			<col wording="C"></col>
-			<col wording="D"></col>
-			<col wording="E"></col>
-			<col wording="F"></col>
-			<col wording="G"></col>
-			<col wording="H"></col>
-		</rank>
-		<rank wording="7">
-			<col wording="A">Pn</col>
-			<col wording="B">Pn</col>
-			<col wording="C">Pn</col>
-			<col wording="D">Pn</col>
-			<col wording="E">Pn</col>
-			<col wording="F">Pn</col>
-			<col wording="G">Pn</col>
-			<col wording="H">Pn</col>
-		</rank>
-		<rank wording="8">
-			<col wording="A">Tn</col>
-			<col wording="B">Cn</col>
-			<col wording="C">Fn</col>
-			<col wording="D">Dn</col>
-			<col wording="E">Rn</col>
-			<col wording="F">Fn</col>
-			<col wording="G">Cn</col>
-			<col wording="H">Tn</col>
-		</rank>
-	</board>
+	{	"board":[
+			{ 	"col" :" a",
+				"line" : "1",
+				"piece" : "w_rook"
+			},
+			{	"col" :" b",
+				"line" : "1",
+				"piece" : "w_knight"
+			},
+			{	"col" :" c",
+				"line" : "1",
+				"piece" : "w_bishop"
+			},
+			{	"col" :" d",
+				"line" : "1",
+				"piece" : "w_queen"
+			},
+			{	"col" :" e",
+				"line" : "1",
+				"piece" : "w_king"
+			},
+			{	"col" :" f",
+				"line" : "1",
+				"piece" : "w_bishop"
+			},
+			{	"col" :" g",
+				"line" : "1",
+				"piece" : "w_knight"
+			},
+			{	"col" :" h",
+				"line" : "1",
+				"piece" : "w_rook"
+			},
+			{ 	"col" :" a",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" b",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" c",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" d",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" e",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" f",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" g",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" h",
+				"line" : "2",
+				"piece" : "w_pawn"
+			},
+			{ 	"col" :" a",
+				"line" : "8",
+				"piece" : "b_rook"
+			},
+			{	"col" :" b",
+				"line" : "8",
+				"piece" : "b_knight"
+			},
+			{	"col" :" c",
+				"line" : "8",
+				"piece" : "b_bishop"
+			},
+			{	"col" :" d",
+				"line" : "8",
+				"piece" : "b_queen"
+			},
+			{	"col" :" e",
+				"line" : "8",
+				"piece" : "b_king"
+			},
+			{	"col" :" f",
+				"line" : "8",
+				"piece" : "b_bishop"
+			},
+			{	"col" :" g",
+				"line" : "8",
+				"piece" : "b_knight"
+			},
+			{	"col" :" h",
+				"line" : "8",
+				"piece" : "b_rook"
+			},
+			{ 	"col" :" a",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" b",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" c",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" d",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" e",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" f",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" g",
+				"line" : "7",
+				"piece" : "b_pawn"
+			},
+			{ 	"col" :" h",
+				"line" : "7",
+				"piece" : "b_pawn"
+			}
+		]
+	}
 ')
 go
 

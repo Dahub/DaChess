@@ -19,6 +19,11 @@ namespace DaChess.Business
             return new PlayerManager();
         }
 
+        public IBoardManager GetBoardManager()
+        {
+            return new BoardManager();
+        }
+
         public static Factory Instance
         {
             get

@@ -8,5 +8,10 @@ namespace DaChess.Ui.Controllers
         {
             return RedirectToAction("Create", "Party");
         }
+
+        public ActionResult About()
+        {
+            return View();
+        }
     }
 }

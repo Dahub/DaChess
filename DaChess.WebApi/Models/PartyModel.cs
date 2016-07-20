@@ -4,8 +4,6 @@ namespace DaChess.WebApi.Models
 {
     public class PartyModel : AbstractModel
     {
-        
-
         public int Id { get; set; }
         public string Name { get; set; }
         public string Board { get; set; }
