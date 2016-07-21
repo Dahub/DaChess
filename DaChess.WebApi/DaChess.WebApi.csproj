@@ -132,12 +132,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\MoveController.cs" />
     <Compile Include="Controllers\PartyController.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AbstractModel.cs" />
+    <Compile Include="Models\MoveModel.cs" />
     <Compile Include="Models\PartyModel.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

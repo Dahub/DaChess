@@ -23,5 +23,10 @@ namespace DaChess.Ui.Hubs
         {
             Clients.Group(partyName).addPlayerBlack();
         }
+
+        public void NewMove(string partyName)
+        {
+            Clients.Group(partyName).moveOver();
+        }
     }
 }

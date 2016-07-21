@@ -19,5 +19,18 @@ namespace DaChess.Business
 
             return toReturn;
         }
+
+        internal static bool IsPlayerInParty(Party party, string token)
+        {
+            if (party.WhiteLink == token || party.BlackLink == token)
+                return true;
+            return false;
+        }
+
+        internal static bool IsPlayerInParty(string name, string token)
+        {
+            Party p = GetByName(name);
+            return IsPlayerInParty(p, token);
+        }
     }
 }
