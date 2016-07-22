@@ -134,6 +134,11 @@
             RefreshPartyState();
         });
 
+        $('#message').on('keyup', function (e) {
+            if (e.keyCode === 13) {
+                $('#sendmessage').click();
+            }
+        });
 
         // abonnements aux clics sur les boutons
         $("#whiteBtn").click(function () {
@@ -201,7 +206,6 @@
     function setMsg(msg) {
         $('#msgDiv').html(msg);
     }
-
 
     function reloadParty() {
         var partyName = { name: '@Model' };
@@ -341,9 +345,7 @@
     function getMousePos(canvas, evt) {
         if (playerTurn() == true) {
             if (moveStep == 2) {
-                refreshCanvas();
-                moveStep = 0;
-                moveText = '';
+                resetCanvasMove();
             }
             moveStep++;
 
@@ -351,27 +353,21 @@
             var xcord = evt.clientX - rect.left
             var ycord = evt.clientY - rect.top
 
-
             // y => chiffres
             ycord = caseNumber - Math.trunc(ycord / caseSize);
             xcord = Math.trunc(xcord / caseSize);
             var result = String.fromCharCode(97 + xcord) + ycord.toString();
 
-            var c = $("#canvas");
-            var ctx = c[0].getContext('2d');
-
-            ctx.fillStyle = 'rgba(23, 105, 138, 0.5)';
-            ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
-
-            console.log(moveText);
-            console.log(result);
-            if (moveText == result + ' ')
+            if (moveText == result + ' ') // clic sur la même case, on reprends à 0
             {
-                refreshCanvas();
-                moveStep = 0;
-                moveText = '';
+                resetCanvasMove();
             }
-            else {
+            else if (isLegalCase(result) == true) {
+                var c = $("#canvas");
+                var ctx = c[0].getContext('2d');
+
+                ctx.fillStyle = 'rgba(23, 105, 138, 0.5)';
+                ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
 
                 moveText += result;
                 moveText += ' ';
@@ -391,7 +387,48 @@
                     });
                 }
             }
+            else {
+                moveStep--;
+            }
         }
+    }
+
+    // on vérifie qu'on a bien sélectionné une case valide
+    // par exemple : une pièce de la couleur du joueur pour la case de départ
+    function isLegalCase(myCase) {
+        var col = myCase.charAt(0);
+        var line = myCase.charAt(1);
+        var caseFind = false;
+
+        for (var i = 0; i < myBoard.board.length; i++) {
+            if (myBoard.board[i].col == col && myBoard.board[i].line == line) {
+                caseFind = true;
+                if (moveStep == 1 && isEmpty(myBoard.board[i].piece))
+                    return false;
+                if (moveStep == 1) {
+                    if ($('#isBlackPlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'w')
+                        return false;
+                    if ($('#isWhitePlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'b')
+                        return false;
+                }
+                else if (moveStep == 2) {
+                    if ($('#isBlackPlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'b')
+                        return false;
+                    if ($('#isWhitePlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'w')
+                        return false;
+                }
+            }
+        }
+        if (moveStep == 1 && caseFind == false)
+            return false;
+
+        return true;
+    }
+
+    function resetCanvasMove() {
+        refreshCanvas();
+        moveStep = 0;
+        moveText = '';
     }
 
     function playerTurn() {
@@ -419,12 +456,6 @@
     function isEmpty(str) {
         return (!str || 0 === str.length);
     }
-
-    $('#message').on('keyup', function (e) {
-        if (e.keyCode === 13) {
-            $('#sendmessage').click();
-        }
-    });
 </script>
 
 <!-- ligne avec les coups, le plateau et le tchat -->
