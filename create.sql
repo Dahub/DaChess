@@ -13,15 +13,15 @@ end
 go
 
 /* Création des tables */
-if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyMove]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
-drop table [chess].[PartyMove]
-go
+--if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyMove]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+--drop table [chess].[PartyMove]
+--go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Party]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Party]
 go
-if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Player]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
-drop table [chess].[Player]
-go
+--if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Player]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+--drop table [chess].[Player]
+--go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Board]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Board]
 go
@@ -54,19 +54,13 @@ create table [chess].[Party]
 	Board text null,
 	History text null,
 	WhiteTurn bit not null default 1,
-	Seed nvarchar(64) not null
+	Seed nvarchar(64) not null,
+	WhiteIsCheck bit null default 0,
+	BlackIsCheck bit null default 0,
+	EnPassantCase nvarchar(2) null
 )
 go
 
-create table [chess].[PartyMove]
-(
-	Id integer not null primary key identity(1,1),
-	FK_Party integer not null constraint fk_party foreign key references [chess].[Party] (Id),
-	MoveDate datetime not null default getdate(),
-	Move nvarchar(16) not null,
-	MoveNumber integer not null
-)
-go
 
 insert into [chess].[Board] (Wording, Content) values
 ('Classic',
@@ -240,4 +234,7 @@ go
 
 select * from [chess].[Board]
 select * from [chess].[Party]
-select * from [chess].[PartyMove]
+
+
+select EnPassant from [chess].[Party]
+select History from [chess].[Party]

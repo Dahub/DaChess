@@ -11,8 +11,13 @@ namespace DaChess.Business
             return context.Boards.Where(b => b.Id.Equals(1)).FirstOrDefault();
         }
 
-        internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol)
+        internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol, Party party, out MovesType moveType)
         {
+            if(endCase.Piece.HasValue)
+                moveType = MovesType.Capture;
+            else
+                moveType = MovesType.Classic;
+
             if (endCase.Piece.HasValue && startCase.PieceColor == endCase.PieceColor)
                 return false;
 
@@ -31,19 +36,29 @@ namespace DaChess.Business
                             return true;
                         if (startCase.PieceColor == Colors.BLACK && startLine - endLine == 2 && startCase.HasMove == false
                             && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                        return true;
+                            return true;
                         return false;
                     }
                     else if (endCase.Piece.HasValue && Math.Abs(startCol - endCol) == 1)
                     {
-                        if (startCase.PieceColor == Colors.WHITE
-                            && endLine - startLine == 1
-                            && Math.Abs(startCol - endCol) == 1)
+                        if (startCase.PieceColor == Colors.WHITE && endLine - startLine == 1 && Math.Abs(startCol - endCol) == 1)
                             return true;
-                        if (startCase.PieceColor == Colors.BLACK
-                          && startLine - endLine == 1
-                          && Math.Abs(startCol - endCol) == 1)
+                        if (startCase.PieceColor == Colors.BLACK && startLine - endLine == 1 && Math.Abs(startCol - endCol) == 1)
                             return true;
+                    }
+                    // peut être une prise en passant ?
+                    else if (!endCase.Piece.HasValue && Math.Abs(startCol - endCol) == 1 && !String.IsNullOrEmpty(party.EnPassantCase))
+                    {
+                        string epCol = party.EnPassantCase.Substring(0, 1);
+                        string epLine = party.EnPassantCase.Substring(1, 1);
+                        int epColInt = ColToInt(epCol) - 1;
+                        int epLineInt = Int32.Parse(epLine) - 1;
+                        CaseInfo epCase = board[epLineInt][epColInt];
+                        if (epCase.Piece.HasValue && epCase.Piece == PiecesType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
+                        {
+                            moveType = MovesType.EnPassant; 
+                            return true;
+                        }
                     }
                     return false;
                 case PiecesType.ROOK:

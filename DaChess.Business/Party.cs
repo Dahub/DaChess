@@ -24,6 +24,9 @@ namespace DaChess.Business
         public string History { get; set; }
         public bool WhiteTurn { get; set; }
         public string Seed { get; set; }
+        public Nullable<bool> WhiteIsCheck { get; set; }
+        public Nullable<bool> BlackIsCheck { get; set; }
+        public string EnPassantCase { get; set; }
     
         public virtual Board BoardType { get; set; }
     }

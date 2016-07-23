@@ -71,7 +71,7 @@ namespace DaChess.Business
                 // on récupère la première pièce
                 string col = cases[0].Substring(0, 1);
                 string line = cases[0].Substring(1, 1);
-                //string history = party.History;
+                string enPassant = String.Empty;
                 History histo = null;
 
                 int startLine = Int32.Parse(cases[0].Substring(1, 1)) - 1;
@@ -81,19 +81,42 @@ namespace DaChess.Business
                 {
                     int endLine = Int32.Parse(cases[1].Substring(1, 1)) -1;
                     int endCol = BoardsHelper.ColToInt(cases[1].Substring(0, 1)) -1;
+                    MovesType mt;
 
-                    if (!BoardsHelper.IsLegalMove(Cases[startLine][startCol], Cases[endLine][endCol], Cases, startLine, endLine, startCol, endCol))
+                    if (!BoardsHelper.IsLegalMove(Cases[startLine][startCol], Cases[endLine][endCol], Cases, startLine, endLine, startCol, endCol, party, out mt))
                     {
                         throw new DaChessException("Coup illégal");
                     }
 
-                    if (Cases[endLine][endCol].Piece.HasValue) // si il y a une pièce, c'est une prise
+                    switch(mt)
                     {
-                        move = move.Replace(" ", "x");
-                    }
-                    else
+                        case MovesType.Classic:
+                            move = move.Replace(" ", "-");
+                            break;
+                        case MovesType.Capture:
+                            move = move.Replace(" ", "x");
+                            break;
+                        case MovesType.EnPassant:
+                            move = move.Replace(" ", "x");
+                            move = String.Concat(move, " e.p.");
+                            // on enlève la pièce prise en passant
+                            string epCol = party.EnPassantCase.Substring(0, 1);
+                            string epLine = party.EnPassantCase.Substring(1, 1);
+                            int epColInt = BoardsHelper.ColToInt(epCol) - 1;
+                            int epLineInt = Int32.Parse(epLine) - 1;
+                            this.Cases[epLineInt][epColInt].HasMove = null;
+                            this.Cases[epLineInt][epColInt].Piece = null;
+                            this.Cases[epLineInt][epColInt].PieceColor = null;
+                            break;
+                        default:
+                            move = move.Replace(" ", "-");
+                            break;
+                    }                  
+
+                    // pour la gestion de la prise en passant
+                    if (Cases[startLine][startCol].Piece == PiecesType.PAWN && Math.Abs(startLine - endLine) == 2) // un pion qui a bougé de 2 cases
                     {
-                        move = move.Replace(" ", "-");
+                        enPassant = cases[1]; // case d'arrivée
                     }
 
                     Cases[endLine][endCol].HasMove = true;
@@ -112,6 +135,7 @@ namespace DaChess.Business
                     {
                         histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
                     }
+
                     int moveNumber = 0;
                     if (histo.Moves.Count() > 0)
                     {
@@ -137,6 +161,7 @@ namespace DaChess.Business
                     party.Board = this.ToJsonString();
                     party.WhiteTurn = !party.WhiteTurn;
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                    party.EnPassantCase = enPassant;
                     context.SaveChanges();
                 }
             }

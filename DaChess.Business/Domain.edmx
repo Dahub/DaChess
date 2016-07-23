@@ -27,6 +27,9 @@
           <Property Name="History" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="WhiteIsCheck" Type="bit" />
+          <Property Name="BlackIsCheck" Type="bit" />
+          <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Role="Board" Type="Self.Board" Multiplicity="1" />
@@ -84,6 +87,9 @@
           <Property Name="WhiteTurn" Type="Boolean" Nullable="false" />
           <Property Name="Seed" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BoardType" Relationship="ChessModel.fk_board_type" FromRole="Party" ToRole="Board" />
+          <Property Name="WhiteIsCheck" Type="Boolean" />
+          <Property Name="BlackIsCheck" Type="Boolean" />
+          <Property Name="EnPassantCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -115,6 +121,9 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="EnPassantCase" ColumnName="EnPassantCase" />
+                <ScalarProperty Name="BlackIsCheck" ColumnName="BlackIsCheck" />
+                <ScalarProperty Name="WhiteIsCheck" ColumnName="WhiteIsCheck" />
                 <ScalarProperty Name="Seed" ColumnName="Seed" />
                 <ScalarProperty Name="WhiteTurn" ColumnName="WhiteTurn" />
                 <ScalarProperty Name="History" ColumnName="History" />

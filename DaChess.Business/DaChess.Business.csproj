@@ -83,6 +83,7 @@
     <Compile Include="Interfaces\IBoardManager.cs" />
     <Compile Include="Interfaces\IPartyManager.cs" />
     <Compile Include="Interfaces\IPlayerManager.cs" />
+    <Compile Include="MovesType.cs" />
     <Compile Include="Party.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
