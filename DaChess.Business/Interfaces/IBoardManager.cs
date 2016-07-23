@@ -4,6 +4,6 @@
     {
         string ToJsonString();
         void Init(string jsonBoard);
-        void MakeMove(string move, string partyName, string playerToken);
+        string MakeMove(string move, string partyName, string playerToken);
     }
 }

@@ -123,7 +123,7 @@ namespace DaChess.Web.Controllers
             try
             {
                 IBoardManager manager = Factory.Instance.GetBoardManager();
-                manager.MakeMove(move, name, token);
+                toReturn.InfoMessage = manager.MakeMove(move, name, token);
                 toReturn.Board = manager.ToJsonString();
             }
             catch (DaChessException ex)

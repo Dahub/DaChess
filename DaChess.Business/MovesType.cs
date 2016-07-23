@@ -4,6 +4,9 @@
     {
         Classic,
         Capture,
-        EnPassant
+        EnPassant,
+        Check,
+        CheckMat,
+        Promote
     }
 }

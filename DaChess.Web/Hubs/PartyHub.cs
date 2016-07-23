@@ -28,5 +28,10 @@ namespace DaChess.Web.Hubs
         {
             Clients.Group(partyName).moveOver();
         }
+
+        public void NewInfo(string partyName, string info)
+        {
+            Clients.Group(partyName).sendInfo(info);
+        }
     }
 }

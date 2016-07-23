@@ -29,7 +29,7 @@ Aucune inscription nécessaire
 * Echec
 * Roque
 * Promotion
-* prise en passant
+* ~~prise en passant~~
 
 ### Gestion fin de partie
 * Mat

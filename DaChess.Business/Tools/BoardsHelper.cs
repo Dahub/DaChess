@@ -96,6 +96,71 @@ namespace DaChess.Business
             return true;
         }
 
+        internal static bool IsCheck(Colors kingColor, CaseInfo[][] board)
+        {
+            Coord king = new Coord();
+            IList<Coord> ennemies = new List<Coord>();
+
+            // on commence par récupérer récupérer ce qui nous intéresse
+            for(int line = 0; line < board.Length;line++)
+            {
+                for(int col = 0; col < board[line].Length; col++)
+                {
+                    if(board[line][col].Piece.HasValue)
+                    {
+                        if(board[line][col].Piece.Value == PiecesType.KING && board[line][col].PieceColor.Value == kingColor)
+                        {
+                            king = new Coord() { Line = line, Col = col };
+                        }
+                        else if(board[line][col].PieceColor.Value != kingColor)
+                        {
+                            ennemies.Add(new Coord() { Line = line, Col = col });
+                        }
+                    }
+                }
+            }
+            foreach(Coord c in ennemies)
+            {
+                switch(board[c.Line][c.Col].Piece.Value)
+                {
+                    case PiecesType.PAWN:
+                        if (board[c.Line][c.Col].PieceColor == Colors.WHITE)
+                        {
+                            if (king.Line == c.Line + 1 && Math.Abs(king.Col - c.Col) == 1)
+                                return true;
+                        }
+                        else
+                        {
+                            if (king.Line == c.Line - 1 && Math.Abs(king.Col - c.Col) == 1)
+                                return true;
+                        }                        
+                        break;
+                    case PiecesType.BISHOP:
+                        if (Math.Abs(king.Line - c.Line) == Math.Abs(king.Col - c.Col) && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                            return true;
+                        break;
+                    case PiecesType.KNIGHT:
+                        if (Math.Abs(c.Line - king.Line) == 2 && Math.Abs(c.Col - king.Col) == 1)
+                            return true;
+                        if (Math.Abs(c.Line - king.Line) == 1 && Math.Abs(c.Col - king.Col) == 2)
+                            return true;
+                        break;
+                    case PiecesType.QUEEN:
+                        if ((Math.Abs(king.Line - c.Line) == Math.Abs(king.Col - c.Col) || king.Line == c.Line ||king.Col == c.Col)
+                            && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                            return true;
+                        break;
+                    case PiecesType.ROOK:
+                        if ((king.Line == c.Line || king.Col == c.Col)
+                            && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                            return true;
+                        break;
+                }
+            }
+
+            return false;
+        }
+
         private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
         {
             int security = 0;

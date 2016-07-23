@@ -51,13 +51,15 @@ namespace DaChess.Business
         /// Un coup consiste en une case de départ et une d'arrivée séparées par un espace
         /// </summary>
         /// <param name="move"></param>
-        public void MakeMove(string move, string partyName, string playerToken)
+        public string MakeMove(string move, string partyName, string playerToken)
         {
+            string toReturn = String.Empty;
+
             try
             {
                 move = move.TrimEnd(' ');
 
-                Party party = PartyHelper.GetByName(partyName);
+                Party party = PartyHelper.GetByName(partyName);              
                 this.Init(party.Board);
 
                 if (!PartyHelper.IsPlayerInParty(partyName, playerToken))
@@ -72,6 +74,7 @@ namespace DaChess.Business
                 string col = cases[0].Substring(0, 1);
                 string line = cases[0].Substring(1, 1);
                 string enPassant = String.Empty;
+                bool isEnnemiCheck = false;
                 History histo = null;
 
                 int startLine = Int32.Parse(cases[0].Substring(1, 1)) - 1;
@@ -107,6 +110,7 @@ namespace DaChess.Business
                             this.Cases[epLineInt][epColInt].HasMove = null;
                             this.Cases[epLineInt][epColInt].Piece = null;
                             this.Cases[epLineInt][epColInt].PieceColor = null;
+                            toReturn = "Prise en passant !";
                             break;
                         default:
                             move = move.Replace(" ", "-");
@@ -124,37 +128,49 @@ namespace DaChess.Business
                     Cases[endLine][endCol].PieceColor = Cases[startLine][startCol].PieceColor;
                     Cases[startLine][startCol].HasMove = null;
                     Cases[startLine][startCol].Piece = null;
-                    Cases[startLine][startCol].PieceColor = null;              
-
-                    // mise à jour de l'historique        
-                    if (String.IsNullOrEmpty(party.History))
-                    {
-                        histo = new History();
-                    }
-                    else
-                    {
-                        histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
-                    }
-
-                    int moveNumber = 0;
-                    if (histo.Moves.Count() > 0)
-                    {
-                        moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
-                    }
-                    if (PartyHelper.GetPlayerColor(party, playerToken) == Colors.WHITE)
-                    {
-                        histo.Moves.Add(moveNumber + 1, move);
-                    }
-                    else
-                    {
-                        histo.Moves[moveNumber] += " " + move;
-                    }
+                    Cases[startLine][startCol].PieceColor = null;        
                 }
                 else
                 {
                     throw new DaChessException("Coup illégal, aucune pièce sur la case de départ");
                 }
 
+                // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup
+                Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                if (BoardsHelper.IsCheck(playerColor == Colors.BLACK?Colors.WHITE:Colors.BLACK, this.Cases))
+                {
+                    toReturn = "Echec !";
+                    isEnnemiCheck = true;
+                    move = String.Concat(move, "!");
+                }
+                if (BoardsHelper.IsCheck(playerColor, this.Cases))
+                    throw (new DaChessException("Coup impossible, échec !"));
+
+
+                // mise à jour de l'historique        
+                if (String.IsNullOrEmpty(party.History))
+                {
+                    histo = new History();
+                }
+                else
+                {
+                    histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
+                }
+
+                int moveNumber = 0;
+                if (histo.Moves.Count() > 0)
+                {
+                    moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
+                }
+                if (PartyHelper.GetPlayerColor(party, playerToken) == Colors.WHITE)
+                {
+                    histo.Moves.Add(moveNumber + 1, move);
+                }
+                else
+                {
+                    histo.Moves[moveNumber] += " " + move;
+                }
+                
                 using (var context = new ChessEntities())
                 {
                     context.Parties.Attach(party);
@@ -162,6 +178,8 @@ namespace DaChess.Business
                     party.WhiteTurn = !party.WhiteTurn;
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
+                    party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
+                    party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
                     context.SaveChanges();
                 }
             }
@@ -174,6 +192,8 @@ namespace DaChess.Business
                 throw new DaChessException(
                     String.Format("Erreur non gérée lors du coup {0}", move), ex);
             }
+
+            return toReturn;
         }
 
         public string ToJsonString()
@@ -286,5 +306,11 @@ namespace DaChess.Business
         public bool? HasMove { get; set; }
         public PiecesType? Piece {get;set;}
         public Colors? PieceColor { get; set; }
+    }
+
+    internal struct Coord
+    {
+        public int Line { get; set; }
+        public int Col { get; set; }
     }
 }

@@ -23,9 +23,19 @@
 <input type="hidden" id="isBlackPlayer" value="false" />
 <input type="hidden" id="token" value="" />
 
-<h2>Partie @Model</h2>
+<br />
 
 <!-- première ligne pour les infos -->
+<div class="row">
+    <div class="col-md-6">
+        <h1>Partie @Model</h1>
+    </div>
+    <div id="msgDivParent" class="col-md-6" style="display:none">
+        <div id="msgDiv" class="alert alert-warning" >Bienvenue</div>
+    </div>
+</div>
+<br />
+
 <div class="row">
     <div class="col-md-6 alignRight" id="whiteBtnDiv">
         <button type="button" id="whiteBtn" class="btn" disabled>Jouer avec les blancs</button><br />
@@ -35,13 +45,6 @@
     </div>
 </div>
 <br />
-<div class="row">
-    <div class="col-md-12">
-        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
-    </div>
-</div>
-<br />
-
 
 <script type="text/javascript">
     var party = {
@@ -190,6 +193,10 @@
             reloadParty();
         }
 
+        partyHub.client.SendInfo = function (info) {
+            setMsg(info);
+        }
+
         $('#displayname').val('Anonymous');
         $('#message').focus();
         $.connection.hub.start().done(function () {
@@ -207,6 +214,11 @@
     }
 
     function setMsg(msg) {
+        if (isEmpty(msg)) {
+            $('#msgDivParent').hide();
+        } else {
+            $('#msgDivParent').show();
+        }
         $('#msgDiv').html(msg);
     }
 
@@ -231,8 +243,7 @@
         });
     }
 
-    function refreshHistory()
-    {
+    function refreshHistory() {
         console.log(myHistory);
         console.log(myHistory.Moves);
         $('#moves').empty();
@@ -404,7 +415,7 @@
                             setMsg(data.ErrorMessage);
                         }
                         else {
-                            setMsg('');
+                            $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
                         }
                     });
                 }
