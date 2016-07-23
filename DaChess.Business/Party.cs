@@ -14,12 +14,6 @@ namespace DaChess.Business
     
     public partial class Party
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Party()
-        {
-            this.PartyMoves = new HashSet<PartyMove>();
-        }
-    
         public int Id { get; set; }
         public Nullable<System.DateTime> CreationDate { get; set; }
         public string WhiteLink { get; set; }
@@ -27,11 +21,10 @@ namespace DaChess.Business
         public string PartLink { get; set; }
         public int FK_Board_Type { get; set; }
         public string Board { get; set; }
+        public string History { get; set; }
         public bool WhiteTurn { get; set; }
         public string Seed { get; set; }
     
         public virtual Board BoardType { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PartyMove> PartyMoves { get; set; }
     }
 }

@@ -24,18 +24,9 @@
           <Property Name="PartLink" Type="nvarchar" MaxLength="256" />
           <Property Name="FK_Board_Type" Type="int" Nullable="false" />
           <Property Name="Board" Type="text" />
+          <Property Name="History" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
-        </EntityType>
-        <EntityType Name="PartyMove">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FK_Party" Type="int" Nullable="false" />
-          <Property Name="MoveDate" Type="datetime" Nullable="false" />
-          <Property Name="Move" Type="nvarchar" MaxLength="16" Nullable="false" />
-          <Property Name="MoveNumber" Type="int" Nullable="false" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Role="Board" Type="Self.Board" Multiplicity="1" />
@@ -49,29 +40,12 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_party">
-          <End Role="Party" Type="Self.Party" Multiplicity="1" />
-          <End Role="PartyMove" Type="Self.PartyMove" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Party">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="PartyMove">
-              <PropertyRef Name="FK_Party" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="Board" EntityType="Self.Board" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
-          <EntitySet Name="PartyMove" EntityType="Self.PartyMove" Schema="chess" store:Type="Tables" />
           <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
             <End Role="Board" EntitySet="Board" />
             <End Role="Party" EntitySet="Party" />
-          </AssociationSet>
-          <AssociationSet Name="fk_party" Association="Self.fk_party">
-            <End Role="Party" EntitySet="Party" />
-            <End Role="PartyMove" EntitySet="PartyMove" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -81,16 +55,11 @@
         <EntityContainer Name="ChessEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Boards" EntityType="ChessModel.Board" />
           <EntitySet Name="Parties" EntityType="ChessModel.Party" />
-          <EntitySet Name="PartyMoves" EntityType="ChessModel.PartyMove" />
           <AssociationSet Name="fk_board_type" Association="ChessModel.fk_board_type">
             <End Role="Board" EntitySet="Boards" />
             <End Role="Party" EntitySet="Parties" />
           </AssociationSet>
-          <AssociationSet Name="fk_party" Association="ChessModel.fk_party">
-            <End Role="Party" EntitySet="Parties" />
-            <End Role="PartyMove" EntitySet="PartyMoves" />
-          </AssociationSet>
-          </EntityContainer>
+        </EntityContainer>
         <EntityType Name="Board">
           <Key>
             <PropertyRef Name="Id" />
@@ -111,21 +80,10 @@
           <Property Name="PartLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="FK_Board_Type" Type="Int32" Nullable="false" />
           <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="History" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="WhiteTurn" Type="Boolean" Nullable="false" />
           <Property Name="Seed" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BoardType" Relationship="ChessModel.fk_board_type" FromRole="Party" ToRole="Board" />
-          <NavigationProperty Name="PartyMoves" Relationship="ChessModel.fk_party" FromRole="Party" ToRole="PartyMove" />
-          </EntityType>
-        <EntityType Name="PartyMove">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FK_Party" Type="Int32" Nullable="false" />
-          <Property Name="MoveDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Move" Type="String" Nullable="false" MaxLength="16" FixedLength="false" Unicode="true" />
-          <Property Name="MoveNumber" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Party" Relationship="ChessModel.fk_party" FromRole="PartyMove" ToRole="Party" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -136,18 +94,6 @@
             </Principal>
             <Dependent Role="Party">
               <PropertyRef Name="FK_Board_Type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_party">
-          <End Type="ChessModel.Party" Role="Party" Multiplicity="1" />
-          <End Type="ChessModel.PartyMove" Role="PartyMove" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Party">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="PartyMove">
-              <PropertyRef Name="FK_Party" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -171,23 +117,13 @@
               <MappingFragment StoreEntitySet="Party">
                 <ScalarProperty Name="Seed" ColumnName="Seed" />
                 <ScalarProperty Name="WhiteTurn" ColumnName="WhiteTurn" />
+                <ScalarProperty Name="History" ColumnName="History" />
                 <ScalarProperty Name="Board" ColumnName="Board" />
                 <ScalarProperty Name="FK_Board_Type" ColumnName="FK_Board_Type" />
                 <ScalarProperty Name="PartLink" ColumnName="PartLink" />
                 <ScalarProperty Name="BlackLink" ColumnName="BlackLink" />
                 <ScalarProperty Name="WhiteLink" ColumnName="WhiteLink" />
                 <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PartyMoves">
-            <EntityTypeMapping TypeName="ChessModel.PartyMove">
-              <MappingFragment StoreEntitySet="PartyMove">
-                <ScalarProperty Name="MoveNumber" ColumnName="MoveNumber" />
-                <ScalarProperty Name="Move" ColumnName="Move" />
-                <ScalarProperty Name="MoveDate" ColumnName="MoveDate" />
-                <ScalarProperty Name="FK_Party" ColumnName="FK_Party" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

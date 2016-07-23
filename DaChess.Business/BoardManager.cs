@@ -33,6 +33,8 @@ namespace DaChess.Business
         {
             try
             {
+                move = move.TrimEnd(' ');
+
                 Party party = PartyHelper.GetByName(partyName);
                 this.Init(party.Board);
 
@@ -47,6 +49,9 @@ namespace DaChess.Business
                 // on récupère la première pièce
                 string col = cases[0].Substring(0, 1);
                 string line = cases[0].Substring(1, 1);
+                //string history = party.History;
+                History histo = null;
+
                 BoardCase startCase = FindCase(col, line);
                 if (startCase != null)
                 {
@@ -54,24 +59,57 @@ namespace DaChess.Business
                     col = cases[1].Substring(0, 1);
                     line = cases[1].Substring(1, 1);
                     BoardCase endCase = FindCase(col, line);
-                    if(endCase == null)
+                    if (endCase == null)
                     {
-                        endCase = new BoardCase() { Col = col, Line = line  };
+                        endCase = new BoardCase() { Col = col, Line = line };
                         this.BoardCases.Add(endCase);
                     }
+                    if (!String.IsNullOrEmpty(endCase.Piece)) // si il y a une pièce, c'est une prise
+                    {
+                        move = move.Replace(" ", "x");
+                    }
+                    else
+                    {
+                        move = move.Replace(" ", "-");
+                    }
                     endCase.Piece = piece;
+                    endCase.HasMove = true;
                     this.BoardCases.Remove(startCase);
-                }     
+
+                    // mise à jour de l'historique        
+                    if (String.IsNullOrEmpty(party.History))
+                    {
+                        histo = new History();
+                    }
+                    else
+                    {
+                        histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
+                    }
+                    int moveNumber = 0;
+                    if(histo.Moves.Count() > 0)
+                    {
+                        moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
+                    }
+                    if (PartyHelper.GetPlayerColor(party, playerToken) == Colors.WHITE)
+                    {
+                        histo.Moves.Add(moveNumber + 1, move);
+                    }
+                    else
+                    {
+                        histo.Moves[moveNumber] += " " + move;
+                    }
+                }
                 else
                 {
                     throw new DaChessException("Coup illégal, aucune pièce sur la case de départ");
                 }
-               
+
                 using (var context = new ChessEntities())
                 {
                     context.Parties.Attach(party);
                     party.Board = this.ToJsonString();
                     party.WhiteTurn = !party.WhiteTurn;
+                    party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     context.SaveChanges();
                 }
             }
@@ -121,6 +159,16 @@ namespace DaChess.Business
         }
     }
 
+    internal class History
+    {
+        internal History()
+        {
+            Moves = new Dictionary<int, string>();
+        }
+
+        public Dictionary<int, string> Moves { get; set; }
+    }
+
     internal class BoardCase
     {
         internal BoardCase() { }
@@ -139,19 +187,25 @@ namespace DaChess.Business
             {
                 this.Piece = values["piece"].ToString();
             }
+            if (values.ContainsKey("hasMove"))
+            {
+                this.HasMove = Boolean.Parse(values["hasMove"].ToString());
+            }
         }
 
         public string Col { get; set; }
         public string Line { get; set; }
         public string Piece { get; set; }
+        public bool HasMove { get; set; }
 
         public string ToJsonString()
         {
             return string.Format(@"{{
                 ""col"" :""{0}"",
 				""line"" : ""{1}"",
-				""piece"" : ""{2}""
-            }}", this.Col, this.Line, this.Piece);
+				""piece"" : ""{2}"",
+                ""hasMove"" : ""{3}""
+            }}", this.Col, this.Line, this.Piece, this.HasMove.ToString());
         }
     }
 }

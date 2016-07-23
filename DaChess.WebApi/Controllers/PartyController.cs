@@ -29,6 +29,7 @@ namespace DaChess.WebApi.Controllers
                     BlackToken = myParty.BlackLink,
                     WhiteToken = myParty.WhiteLink,
                     WhiteTurn = myParty.WhiteTurn,
+                    History = myParty.History,
                     IsError = false,
                     ErrorMessage = String.Empty
                 };

@@ -7,6 +7,7 @@ namespace DaChess.WebApi.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Board { get; set; }
+        public string History { get; set; }
         public string WhiteToken { get; set; }
         public string BlackToken { get; set; }
         public bool WhiteTurn { get; set; }

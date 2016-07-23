@@ -48,6 +48,7 @@
         Id: 0,
         Name: '',
         Board: '',
+        History: '',
         WhiteToken: '',
         BlackToken: '',
         WhiteTurn: true,
@@ -65,6 +66,7 @@
     var moveStep = 0;
     var moveText = '';
     var myBoard;
+    var myHistory;
 
     $(document).ready(function () {
         // récupération de la partie
@@ -190,7 +192,6 @@
         $('#message').focus();
         $.connection.hub.start().done(function () {
             partyHub.server.joinParty('@Model');
-
             $('#sendmessage').click(function () {
                 partyHub.server.sendMessage('@Model', $('#displayname').val(), $('#message').val());
                 $('#message').val('').focus();
@@ -208,6 +209,8 @@
     }
 
     function reloadParty() {
+        console.log('reload de la partie');
+
         var partyName = { name: '@Model' };
         $.ajax({
             url: '@(String.Concat(ConfigurationWrapper.Instance.WebApiUrl, "/api/party"))',
@@ -220,7 +223,21 @@
             mapParty(data);
             RefreshPartyState();
             myBoard = JSON.parse(party.Board);
+            myHistory = JSON.parse(party.History);
             refreshCanvas();
+            refreshHistory();
+        });
+    }
+
+    function refreshHistory()
+    {
+        console.log(myHistory);
+        console.log(myHistory.Moves);
+        $('#moves').empty();
+        jQuery.each(myHistory.Moves, function (i, val) {
+
+            $('#moves').prepend('<li><strong>' + htmlEncode(i)
+               + '</strong>: ' + htmlEncode(val) + '</li>');
         });
     }
 
@@ -308,6 +325,7 @@
         party.BlackToken = data.BlackToken;
         party.WhiteTurn = data.WhiteTurn;
         party.IsReady = data.IsReady;
+        party.History = data.History;
     }
 
     function refreshCanvas() {

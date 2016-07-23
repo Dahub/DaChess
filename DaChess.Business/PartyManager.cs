@@ -135,7 +135,7 @@ namespace DaChess.Business
                 Seed = Guid.NewGuid().ToString(),
                 CreationDate = DateTime.Now,
                 WhiteTurn = true,
-                BoardType = Boards.Classic(context),
+                BoardType = BoardsHelper.GetClassic(context),
                 PartLink = DaTools.NameMaker.Creator.Build(DaTools.NameMaker.NameType.FIRST_NAMES, DaTools.NameMaker.NameType.FIRST_NAMES),
             };
             toReturn.Board = toReturn.BoardType.Content;
