@@ -86,6 +86,7 @@
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
     <Compile Include="PartyManager.cs" />
+    <Compile Include="PiecesType.cs" />
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\BoardsHelper.cs" />

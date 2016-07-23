@@ -52,18 +52,25 @@ namespace DaChess.Business
                 //string history = party.History;
                 History histo = null;
 
-                BoardCase startCase = FindCase(col, line);
+                BoardCase startCase = BoardsHelper.FindCase(col, line, this.BoardCases);
                 if (startCase != null)
                 {
                     string piece = startCase.Piece;
                     col = cases[1].Substring(0, 1);
                     line = cases[1].Substring(1, 1);
-                    BoardCase endCase = FindCase(col, line);
+                    BoardCase endCase = BoardsHelper.FindCase(col, line, this.BoardCases);
+
                     if (endCase == null)
                     {
                         endCase = new BoardCase() { Col = col, Line = line };
                         this.BoardCases.Add(endCase);
                     }
+
+                    if (!BoardsHelper.IsLegalMove(startCase, endCase, BoardCases))
+                    {
+                        throw new DaChessException("Coup illégal");
+                    }
+
                     if (!String.IsNullOrEmpty(endCase.Piece)) // si il y a une pièce, c'est une prise
                     {
                         move = move.Replace(" ", "x");
@@ -86,7 +93,7 @@ namespace DaChess.Business
                         histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
                     }
                     int moveNumber = 0;
-                    if(histo.Moves.Count() > 0)
+                    if (histo.Moves.Count() > 0)
                     {
                         moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
                     }
@@ -124,11 +131,6 @@ namespace DaChess.Business
             }
         }
 
-        private BoardCase FindCase(string col, string line)
-        {
-            return this.BoardCases.Where(b => b.Col.ToUpper().Equals(col.ToUpper()) && b.Line.ToUpper().Equals(line.ToUpper())).FirstOrDefault();
-        }
-
         public string ToJsonString()
         {
             string toReturn = @"{{
@@ -156,7 +158,7 @@ namespace DaChess.Business
                 return false;
 
             return true;
-        }
+        }        
     }
 
     internal class History
@@ -197,6 +199,38 @@ namespace DaChess.Business
         public string Line { get; set; }
         public string Piece { get; set; }
         public bool HasMove { get; set; }
+        public PiecesType PieceType
+        {
+            get
+            {
+                if (Piece.ToLower().Contains("paw"))
+                    return PiecesType.PAWN;
+                else if (Piece.ToLower().Contains("roo"))
+                    return PiecesType.ROOK;
+                else if (Piece.ToLower().Contains("kni"))
+                    return PiecesType.KNIGHT;
+                else if (Piece.ToLower().Contains("bis"))
+                    return PiecesType.BISHOP;
+                else if (Piece.ToLower().Contains("que"))
+                    return PiecesType.QUEEN;
+                else if (Piece.ToLower().Contains("kin"))
+                    return PiecesType.KING;
+
+                throw new DaChessException("Aucune pièce sur cette case");
+            }
+        }
+        public Colors PieceColor
+        {
+            get
+            {
+                if (Piece.ToLower().Contains("w_"))
+                    return Colors.WHITE;
+                else if (Piece.ToLower().Contains("b_"))
+                    return Colors.BLACK;
+
+                throw new DaChessException("Aucune pièce sur cette case");
+            }
+        }
 
         public string ToJsonString()
         {
