@@ -8,20 +8,42 @@ namespace DaChess.Business
 {
     internal class BoardManager : IBoardManager
     {
-        internal IList<BoardCase> BoardCases { get; set; }
+        private const int BOARD_CASE = 8;
 
-        internal BoardManager() { BoardCases = new List<BoardCase>(); }
+        internal CaseInfo[][] Cases { get; set; } // tableau de cases : ligne/ colonne
+
+        internal BoardManager()
+        {
+
+            Cases = new CaseInfo[BOARD_CASE][];
+            for(int i = 0;i< BOARD_CASE;i++)
+            {
+                Cases[i] = new CaseInfo[8];
+            }
+        }
 
         public void Init(string jsonBoard)
         {
-            BoardCases = new List<BoardCase>();
 
             JavaScriptSerializer json_serializer = new JavaScriptSerializer();
             var routes_list = (IDictionary<string, object>)json_serializer.DeserializeObject(jsonBoard);
             object[] cases = (object[])(routes_list["board"]);
-            for (int i = 0; i < cases.Length; i++)
+
+            for(int i = 0; i< cases.Length;i++)
             {
-                BoardCases.Add(new BoardCase((IDictionary<string, object>)(cases[i])));
+                IDictionary<string, object> myCase = (IDictionary<string, object>)cases[i];
+                   
+                int col = BoardsHelper.ColToInt(myCase["col"].ToString());
+                int line = Int32.Parse(myCase["line"].ToString());
+
+                CaseInfo toAdd = new CaseInfo()
+                {
+                    HasMove = Boolean.Parse(myCase["hasMove"].ToString()),
+                    Piece = GetPieceType(myCase["piece"].ToString().ToLower()),
+                    PieceColor = myCase["piece"].ToString().StartsWith("b") ? Colors.BLACK : Colors.WHITE
+                };
+
+                Cases[line - 1][col - 1] = toAdd;
             }
         }
 
@@ -52,26 +74,20 @@ namespace DaChess.Business
                 //string history = party.History;
                 History histo = null;
 
-                BoardCase startCase = BoardsHelper.FindCase(col, line, this.BoardCases);
-                if (startCase != null)
+                int startLine = Int32.Parse(cases[0].Substring(1, 1)) - 1;
+                int startCol = BoardsHelper.ColToInt(cases[0].Substring(0, 1)) -1;
+
+                if(Cases[startLine][startCol].Piece.HasValue)
                 {
-                    string piece = startCase.Piece;
-                    col = cases[1].Substring(0, 1);
-                    line = cases[1].Substring(1, 1);
-                    BoardCase endCase = BoardsHelper.FindCase(col, line, this.BoardCases);
+                    int endLine = Int32.Parse(cases[1].Substring(1, 1)) -1;
+                    int endCol = BoardsHelper.ColToInt(cases[1].Substring(0, 1)) -1;
 
-                    if (endCase == null)
-                    {
-                        endCase = new BoardCase() { Col = col, Line = line };
-                        this.BoardCases.Add(endCase);
-                    }
-
-                    if (!BoardsHelper.IsLegalMove(startCase, endCase, BoardCases))
+                    if (!BoardsHelper.IsLegalMove(Cases[startLine][startCol], Cases[endLine][endCol], Cases, startLine, endLine, startCol, endCol))
                     {
                         throw new DaChessException("Coup illégal");
                     }
 
-                    if (!String.IsNullOrEmpty(endCase.Piece)) // si il y a une pièce, c'est une prise
+                    if (Cases[endLine][endCol].Piece.HasValue) // si il y a une pièce, c'est une prise
                     {
                         move = move.Replace(" ", "x");
                     }
@@ -79,9 +95,13 @@ namespace DaChess.Business
                     {
                         move = move.Replace(" ", "-");
                     }
-                    endCase.Piece = piece;
-                    endCase.HasMove = true;
-                    this.BoardCases.Remove(startCase);
+
+                    Cases[endLine][endCol].HasMove = true;
+                    Cases[endLine][endCol].Piece = Cases[startLine][startCol].Piece;
+                    Cases[endLine][endCol].PieceColor = Cases[startLine][startCol].PieceColor;
+                    Cases[startLine][startCol].HasMove = null;
+                    Cases[startLine][startCol].Piece = null;
+                    Cases[startLine][startCol].PieceColor = null;              
 
                     // mise à jour de l'historique        
                     if (String.IsNullOrEmpty(party.History))
@@ -136,16 +156,34 @@ namespace DaChess.Business
             string toReturn = @"{{
 		        ""board"":[{0}]}}";
             StringBuilder innerString = new StringBuilder();
-            for (int i = 0; i < BoardCases.Count; i++)
-            {
 
-                innerString.Append(BoardCases[i].ToJsonString());
-                if (i != BoardCases.Count - 1)
+            bool removeLastChar = false;
+            for (int line = 0; line< Cases.Length; line++)
+            {
+                for(int col = 0; col<Cases[line].Length;col++)
                 {
-                    innerString.Append(',');
-                }
+                    if(Cases[line][col].Piece.HasValue)
+                    {
+                        innerString.Append(CaseInfoToJson(Cases[line][col], col, line));
+                        innerString.Append(',');
+                        removeLastChar = true;
+                    }
+                }               
             }
+            if (removeLastChar)
+                innerString.Remove(innerString.Length - 1, 1);
+       
             return string.Format(toReturn, innerString.ToString());
+        }
+
+        private string CaseInfoToJson(CaseInfo c, int col, int line)
+        {
+            return string.Format(@"{{
+                ""col"" :""{0}"",
+				""line"" : ""{1}"",
+				""piece"" : ""{2}"",
+                ""hasMove"" : ""{3}""
+            }}", BoardsHelper.IntToCol(col + 1), line + 1, this.PieceTypeToString(c.Piece.Value, c.PieceColor.Value), c.HasMove.ToString());
         }
 
         private bool IsMoveOk(string[] cases)
@@ -159,6 +197,53 @@ namespace DaChess.Business
 
             return true;
         }        
+
+        private PiecesType GetPieceType(string piece)
+        {
+            if (piece.Contains("paw"))
+                return PiecesType.PAWN;
+            else if (piece.Contains("roo"))
+                return PiecesType.ROOK;
+            else if (piece.Contains("kni"))
+                return PiecesType.KNIGHT;
+            else if (piece.Contains("bis"))
+                return PiecesType.BISHOP;
+            else if (piece.Contains("que"))
+                return PiecesType.QUEEN;
+            else if (piece.Contains("kin"))
+                return PiecesType.KING;
+
+            throw new DaChessException("Pièce inconnue");
+        }
+
+        private string PieceTypeToString(PiecesType pt, Colors c)
+        {
+            string toReturn = String.Empty;
+            string pattern = "{0}_{1}";
+            string color = c == Colors.BLACK ? "b" : "w";
+            switch(pt)
+            {
+                case PiecesType.BISHOP:
+                    toReturn = String.Format(pattern, color, "bishop");
+                    break;
+                case PiecesType.KING:
+                    toReturn = String.Format(pattern, color, "king");
+                    break;
+                case PiecesType.KNIGHT:
+                    toReturn = String.Format(pattern, color, "knight");
+                    break;
+                case PiecesType.PAWN:
+                    toReturn = String.Format(pattern, color, "pawn");
+                    break;
+                case PiecesType.QUEEN:
+                    toReturn = String.Format(pattern, color, "queen");
+                    break;
+                case PiecesType.ROOK:
+                    toReturn = String.Format(pattern, color, "rook");
+                    break;
+            }
+            return toReturn;
+        }
     }
 
     internal class History
@@ -171,75 +256,10 @@ namespace DaChess.Business
         public Dictionary<int, string> Moves { get; set; }
     }
 
-    internal class BoardCase
+    internal struct CaseInfo
     {
-        internal BoardCase() { }
-
-        internal BoardCase(IDictionary<string, object> values)
-        {
-            if (values.ContainsKey("col"))
-            {
-                this.Col = values["col"].ToString();
-            }
-            if (values.ContainsKey("line"))
-            {
-                this.Line = values["line"].ToString();
-            }
-            if (values.ContainsKey("piece"))
-            {
-                this.Piece = values["piece"].ToString();
-            }
-            if (values.ContainsKey("hasMove"))
-            {
-                this.HasMove = Boolean.Parse(values["hasMove"].ToString());
-            }
-        }
-
-        public string Col { get; set; }
-        public string Line { get; set; }
-        public string Piece { get; set; }
-        public bool HasMove { get; set; }
-        public PiecesType PieceType
-        {
-            get
-            {
-                if (Piece.ToLower().Contains("paw"))
-                    return PiecesType.PAWN;
-                else if (Piece.ToLower().Contains("roo"))
-                    return PiecesType.ROOK;
-                else if (Piece.ToLower().Contains("kni"))
-                    return PiecesType.KNIGHT;
-                else if (Piece.ToLower().Contains("bis"))
-                    return PiecesType.BISHOP;
-                else if (Piece.ToLower().Contains("que"))
-                    return PiecesType.QUEEN;
-                else if (Piece.ToLower().Contains("kin"))
-                    return PiecesType.KING;
-
-                throw new DaChessException("Aucune pièce sur cette case");
-            }
-        }
-        public Colors PieceColor
-        {
-            get
-            {
-                if (Piece.ToLower().Contains("w_"))
-                    return Colors.WHITE;
-                else if (Piece.ToLower().Contains("b_"))
-                    return Colors.BLACK;
-
-                throw new DaChessException("Aucune pièce sur cette case");
-            }
-        }
-
-        public string ToJsonString()
-        {
-            return string.Format(@"{{
-                ""col"" :""{0}"",
-				""line"" : ""{1}"",
-				""piece"" : ""{2}"",
-                ""hasMove"" : ""{3}""
-            }}", this.Col, this.Line, this.Piece, this.HasMove.ToString());
-        }
+        public bool? HasMove { get; set; }
+        public PiecesType? Piece {get;set;}
+        public Colors? PieceColor { get; set; }
     }
 }

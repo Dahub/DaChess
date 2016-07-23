@@ -131,7 +131,7 @@ namespace DaChess.Web.Controllers
                 toReturn.IsError = true;
                 toReturn.ErrorMessage = ex.Message;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 toReturn.IsError = true;
                 toReturn.ErrorMessage = "Erreur non gérée dans la l'application du coup";

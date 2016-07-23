@@ -11,21 +11,15 @@ namespace DaChess.Business
             return context.Boards.Where(b => b.Id.Equals(1)).FirstOrDefault();
         }
 
-        internal static bool IsLegalMove(BoardCase startCase, BoardCase endCase, IList<BoardCase> board)
+        internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol)
         {
-            if (!String.IsNullOrEmpty(endCase.Piece) && startCase.PieceColor == endCase.PieceColor)
-            {
+            if (endCase.Piece.HasValue && startCase.PieceColor == endCase.PieceColor)
                 return false;
-            }
 
-            int startLine = Int32.Parse(startCase.Line);
-            int endLine = Int32.Parse(endCase.Line);
-            int startCol = ColToInt(startCase.Col);
-            int endCol = ColToInt(endCase.Col);
-            switch (startCase.PieceType)
+            switch(startCase.Piece)
             {
                 case PiecesType.PAWN:
-                    if (String.IsNullOrEmpty(endCase.Piece) && startCol == endCol)
+                    if (!endCase.Piece.HasValue && startCol == endCol)
                     {
                         if (startCase.PieceColor == Colors.WHITE && endLine - startLine == 1)
                             return true;
@@ -33,14 +27,14 @@ namespace DaChess.Business
                             return true;
                         if (startCase.PieceColor == Colors.WHITE && endLine - startLine == 2
                             && startCase.HasMove == false
-                            && EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
+                            && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
                             return true;
                         if (startCase.PieceColor == Colors.BLACK && startLine - endLine == 2 && startCase.HasMove == false
-                            && EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
-                            return true;
+                            && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
+                        return true;
                         return false;
                     }
-                    else if (!String.IsNullOrEmpty(endCase.Piece) && Math.Abs(startCol - endCol) == 1)
+                    else if (endCase.Piece.HasValue && Math.Abs(startCol - endCol) == 1)
                     {
                         if (startCase.PieceColor == Colors.WHITE
                             && endLine - startLine == 1
@@ -55,7 +49,7 @@ namespace DaChess.Business
                 case PiecesType.ROOK:
                     if (startLine != endLine && startCol != endCol)
                         return false;
-                    if (!EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
+                    if (!EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
                         return false;
                     return true;
                 case PiecesType.KNIGHT:
@@ -69,13 +63,13 @@ namespace DaChess.Business
                         return false;
                     if (Math.Abs(endLine - startLine) != Math.Abs(endCol - startCol))
                         return false;
-                    if (!EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
+                    if (!EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
                         return false;
                     return true;
                 case PiecesType.QUEEN:
-                    if (startLine == endLine || startCol == endCol && EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
+                    if (startLine == endLine || startCol == endCol && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
                         return true;
-                    if (Math.Abs(endLine - startLine) == Math.Abs(endCol - startCol) && EmptyBeetwenToCases(startCase, endCase, board, startCol, endCol, startLine, endLine))
+                    if (Math.Abs(endLine - startLine) == Math.Abs(endCol - startCol) && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
                         return true;
                     return false;
                 case PiecesType.KING:
@@ -83,10 +77,11 @@ namespace DaChess.Business
                         return true;
                     return false;
             }
+
             return true;
         }
 
-        private static bool EmptyBeetwenToCases(BoardCase startCase, BoardCase endCase, IList<BoardCase> board, int startCol, int endCol, int startLine, int endLine)
+        private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
         {
             int security = 0;
 
@@ -111,8 +106,9 @@ namespace DaChess.Business
             while (linePoint != endLine || colPoint != endCol)
             {
                 security++;
-                BoardCase c = FindCase(IntToCol(colPoint), linePoint.ToString(), board);
-                if (c != null && !String.IsNullOrEmpty(c.Piece))
+                // BoardCase c = FindCase(IntToCol(colPoint), linePoint.ToString(), board);
+                CaseInfo c = board[linePoint][colPoint];
+                if (c.Piece.HasValue)
                     return false;
 
                 if (startLine < endLine)
@@ -134,7 +130,7 @@ namespace DaChess.Business
 
                 if (security > 26)
                 {
-                    throw new DaChessException("Erreur lors de l'analyse d'un trajet diagonal");
+                    throw new DaChessException("Erreur lors de l'analyse d'un trajet");
                 }
             }
             return true;
@@ -151,11 +147,6 @@ namespace DaChess.Business
         internal static string IntToCol(int col)
         {
             return ((char)(col + 96)).ToString();
-        }
-
-        internal static BoardCase FindCase(string col, string line, IList<BoardCase> cases)
-        {
-            return cases.Where(b => b.Col.ToUpper().Equals(col.ToUpper()) && b.Line.ToUpper().Equals(line.ToUpper())).FirstOrDefault();
         }
     }
 }
