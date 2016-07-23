@@ -18,7 +18,7 @@ Aucune inscription nécessaire
 * ~~gestion du moment ou la partie est prête à débuter~~
 
 ### Déroulement de la parie
-* ~~Déplacement du pion ~~
+* ~~Déplacement du pion~~
 * ~~Déplacement du cavalier~~
 * ~~Déplacement du fou~~
 * ~~Déplacement de la tour~~
