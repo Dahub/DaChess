@@ -13,15 +13,9 @@ end
 go
 
 /* Création des tables */
---if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyMove]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
---drop table [chess].[PartyMove]
---go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Party]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Party]
 go
---if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Player]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
---drop table [chess].[Player]
---go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Board]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Board]
 go
@@ -33,15 +27,6 @@ create table [chess].[Board]
 	Content text not null
 )
 go
-
---create table [chess].[Player]
---(
---	Id integer not null primary key identity(1,1),
---	FullName nvarchar(512) not null,
---	Login nvarchar(64) not null,
---	Password nvarchar(256) not null
---)
---go
 
 create table [chess].[Party]
 (
@@ -236,5 +221,5 @@ select * from [chess].[Board]
 select * from [chess].[Party]
 
 
-select EnPassant from [chess].[Party]
+select EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
 select History from [chess].[Party]

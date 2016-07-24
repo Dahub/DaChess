@@ -13,6 +13,8 @@ namespace DaChess.Web.Models
         public bool WhiteTurn { get; set; }
         public bool WhiteAskToPlay { get; set; }
         public bool BlackAskToPlay { get; set; }
+        public bool WhiteIsCheck { get; set; }
+        public bool BlackIsCheck { get; set; }
         public bool IsReady
         {
             get

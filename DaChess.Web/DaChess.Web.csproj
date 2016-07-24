@@ -194,7 +194,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Player\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DaChess.Business\DaChess.Business.csproj">

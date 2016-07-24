@@ -58,6 +58,8 @@ namespace DaChess.Web.Controllers
                     WhiteToken = myParty.WhiteLink,
                     WhiteTurn = myParty.WhiteTurn,
                     History = myParty.History,
+                    BlackIsCheck = myParty.BlackIsCheck.HasValue?myParty.BlackIsCheck.Value:false,
+                    WhiteIsCheck = myParty.WhiteIsCheck.HasValue?myParty.WhiteIsCheck.Value:false,
                     IsError = false,
                     ErrorMessage = String.Empty
                 };

@@ -31,7 +31,7 @@
         <h1>Partie @Model</h1>
     </div>
     <div id="msgDivParent" class="col-md-6" style="display:none">
-        <div id="msgDiv" class="alert alert-warning" >Bienvenue</div>
+        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
     </div>
 </div>
 <br />
@@ -58,6 +58,8 @@
         IsReady: false,
         WhiteAskToPlay: false,
         BlackAskToPlay: false,
+        WhiteIsCheck: false,
+        BlackIsCheck: false
     }
 
     var size = 400;
@@ -338,6 +340,8 @@
         party.WhiteTurn = data.WhiteTurn;
         party.IsReady = data.IsReady;
         party.History = data.History;
+        party.WhiteIsCheck = data.WhiteIsCheck;
+        party.BlackIsCheck = data.BlackIsCheck;
     }
 
     function refreshCanvas() {
@@ -368,6 +372,12 @@
                 var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
                 var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
                 ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
+                if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && $('#isWhitePlayer').val() == 'true')
+                    || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && $('#isBlackPlayer').val() == 'true')) {
+                    console.log("echec pour ce joueur");
+                    ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
+                    ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
+                }
             }
         }
     }

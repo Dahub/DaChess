@@ -2,11 +2,10 @@
 {
     internal enum MovesType
     {
-        Classic,
-        Capture,
-        EnPassant,
-        Check,
-        CheckMat,
-        Promote
+        CLASSIC,
+        CAPTURE,
+        EN_PASSANT,
+        CASTLING_SHORT,
+        CASTLING_LONG
     }
 }

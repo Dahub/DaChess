@@ -93,13 +93,13 @@ namespace DaChess.Business
 
                     switch(mt)
                     {
-                        case MovesType.Classic:
+                        case MovesType.CLASSIC:
                             move = move.Replace(" ", "-");
                             break;
-                        case MovesType.Capture:
+                        case MovesType.CAPTURE:
                             move = move.Replace(" ", "x");
                             break;
-                        case MovesType.EnPassant:
+                        case MovesType.EN_PASSANT:
                             move = move.Replace(" ", "x");
                             move = String.Concat(move, " e.p.");
                             // on enlève la pièce prise en passant
@@ -111,6 +111,26 @@ namespace DaChess.Business
                             this.Cases[epLineInt][epColInt].Piece = null;
                             this.Cases[epLineInt][epColInt].PieceColor = null;
                             toReturn = "Prise en passant !";
+                            break;
+                        case MovesType.CASTLING_SHORT:
+                            move = "O-O";                            
+                            this.Cases[startLine][endCol - 1].HasMove = true;
+                            this.Cases[startLine][endCol - 1].Piece = PiecesType.ROOK;
+                            this.Cases[startLine][endCol - 1].PieceColor = this.Cases[startLine][this.Cases[startLine].Length - 1].PieceColor;
+                            this.Cases[startLine][this.Cases[startLine].Length - 1].HasMove = null;
+                            this.Cases[startLine][this.Cases[startLine].Length - 1].Piece = null;
+                            this.Cases[startLine][this.Cases[startLine].Length - 1].PieceColor = null;
+                            toReturn = "Petit roque";
+                            break;
+                        case MovesType.CASTLING_LONG:
+                            move = "O-O-O";
+                            this.Cases[startLine][endCol + 1].HasMove = true;
+                            this.Cases[startLine][endCol + 1].Piece = PiecesType.ROOK;
+                            this.Cases[startLine][endCol + 1].PieceColor = this.Cases[startLine][0].PieceColor;
+                            this.Cases[startLine][0].HasMove = null;
+                            this.Cases[startLine][0].Piece = null;
+                            this.Cases[startLine][0].PieceColor = null;
+                            toReturn = "Grand roque";
                             break;
                         default:
                             move = move.Replace(" ", "-");

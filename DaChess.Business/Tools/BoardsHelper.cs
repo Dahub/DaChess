@@ -14,9 +14,9 @@ namespace DaChess.Business
         internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol, Party party, out MovesType moveType)
         {
             if(endCase.Piece.HasValue)
-                moveType = MovesType.Capture;
+                moveType = MovesType.CAPTURE;
             else
-                moveType = MovesType.Classic;
+                moveType = MovesType.CLASSIC;
 
             if (endCase.Piece.HasValue && startCase.PieceColor == endCase.PieceColor)
                 return false;
@@ -56,7 +56,7 @@ namespace DaChess.Business
                         CaseInfo epCase = board[epLineInt][epColInt];
                         if (epCase.Piece.HasValue && epCase.Piece == PiecesType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
                         {
-                            moveType = MovesType.EnPassant; 
+                            moveType = MovesType.EN_PASSANT; 
                             return true;
                         }
                     }
@@ -90,75 +90,123 @@ namespace DaChess.Business
                 case PiecesType.KING:
                     if (Math.Abs(endLine - startLine) <= 1 && Math.Abs(endCol - startCol) <= 1)
                         return true;
+                    // cas du roque
+                    if(endLine == startLine && board[startLine][endLine].HasMove == false && Math.Abs(startCol - endCol) == 2)
+                    {
+                        if(startCol < endCol) // petit roque
+                        {
+                            CaseInfo rookCase = board[startLine][board[startLine].Length - 1];
+                            if (rookCase.Piece.HasValue && rookCase.Piece.Value == PiecesType.ROOK && rookCase.HasMove.Value == false) // on a bien une tour sur la case attendue
+                            {
+                                if(EmptyBeetwenToCases(board, startCol, board[startLine].Length - 1, startLine, endLine)) // aucune case sur le chemin
+                                {
+                                    moveType = MovesType.CASTLING_SHORT;
+                                    return true;
+                                }
+                            }                            
+                        }
+                        else // grand roque
+                        {
+                            CaseInfo rookCase = board[startLine][0];
+                            if (rookCase.Piece.HasValue && rookCase.Piece.Value == PiecesType.ROOK && rookCase.HasMove.Value == false) // on a bien une tour sur la case attendue
+                            {
+                                if (EmptyBeetwenToCases(board, startCol, 0, startLine, endLine)) // aucune case sur le chemin
+                                {
+                                    moveType = MovesType.CASTLING_LONG;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
                     return false;
             }
 
             return true;
         }
 
-        internal static bool IsCheck(Colors kingColor, CaseInfo[][] board)
+        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board)
         {
-            Coord king = new Coord();
+            if (!board[toTest.Line][toTest.Col].Piece.HasValue)
+                return false;
+
             IList<Coord> ennemies = new List<Coord>();
+            Colors color = board[toTest.Line][toTest.Col].PieceColor.Value;
 
             // on commence par récupérer récupérer ce qui nous intéresse
-            for(int line = 0; line < board.Length;line++)
+            for (int line = 0; line < board.Length; line++)
             {
-                for(int col = 0; col < board[line].Length; col++)
+                for (int col = 0; col < board[line].Length; col++)
                 {
-                    if(board[line][col].Piece.HasValue)
+                    if (board[line][col].Piece.HasValue)
                     {
-                        if(board[line][col].Piece.Value == PiecesType.KING && board[line][col].PieceColor.Value == kingColor)
-                        {
-                            king = new Coord() { Line = line, Col = col };
-                        }
-                        else if(board[line][col].PieceColor.Value != kingColor)
+                        if (board[line][col].PieceColor.Value != color)
                         {
                             ennemies.Add(new Coord() { Line = line, Col = col });
                         }
                     }
                 }
             }
-            foreach(Coord c in ennemies)
+            foreach (Coord c in ennemies)
             {
-                switch(board[c.Line][c.Col].Piece.Value)
+                switch (board[c.Line][c.Col].Piece.Value)
                 {
                     case PiecesType.PAWN:
                         if (board[c.Line][c.Col].PieceColor == Colors.WHITE)
                         {
-                            if (king.Line == c.Line + 1 && Math.Abs(king.Col - c.Col) == 1)
+                            if (toTest.Line == c.Line + 1 && Math.Abs(toTest.Col - c.Col) == 1)
                                 return true;
                         }
                         else
                         {
-                            if (king.Line == c.Line - 1 && Math.Abs(king.Col - c.Col) == 1)
+                            if (toTest.Line == c.Line - 1 && Math.Abs(toTest.Col - c.Col) == 1)
                                 return true;
-                        }                        
+                        }
                         break;
                     case PiecesType.BISHOP:
-                        if (Math.Abs(king.Line - c.Line) == Math.Abs(king.Col - c.Col) && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                        if (Math.Abs(toTest.Line - c.Line) == Math.Abs(toTest.Col - c.Col) && EmptyBeetwenToCases(board, c.Col, toTest.Col, c.Line, toTest.Line))
                             return true;
                         break;
                     case PiecesType.KNIGHT:
-                        if (Math.Abs(c.Line - king.Line) == 2 && Math.Abs(c.Col - king.Col) == 1)
+                        if (Math.Abs(c.Line - toTest.Line) == 2 && Math.Abs(c.Col - toTest.Col) == 1)
                             return true;
-                        if (Math.Abs(c.Line - king.Line) == 1 && Math.Abs(c.Col - king.Col) == 2)
+                        if (Math.Abs(c.Line - toTest.Line) == 1 && Math.Abs(c.Col - toTest.Col) == 2)
                             return true;
                         break;
                     case PiecesType.QUEEN:
-                        if ((Math.Abs(king.Line - c.Line) == Math.Abs(king.Col - c.Col) || king.Line == c.Line ||king.Col == c.Col)
-                            && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                        if ((Math.Abs(toTest.Line - c.Line) == Math.Abs(toTest.Col - c.Col) || toTest.Line == c.Line || toTest.Col == c.Col)
+                            && EmptyBeetwenToCases(board, c.Col, toTest.Col, c.Line, toTest.Line))
                             return true;
                         break;
                     case PiecesType.ROOK:
-                        if ((king.Line == c.Line || king.Col == c.Col)
-                            && EmptyBeetwenToCases(board, c.Col, king.Col, c.Line, king.Line))
+                        if ((toTest.Line == c.Line || toTest.Col == c.Col)
+                            && EmptyBeetwenToCases(board, c.Col, toTest.Col, c.Line, toTest.Line))
                             return true;
                         break;
                 }
             }
 
             return false;
+        }
+
+        internal static bool IsCheck(Colors kingColor, CaseInfo[][] board)
+        {
+            Coord king = new Coord();
+            // on récupère la case du roi
+            for (int line = 0; line < board.Length; line++)
+            {
+                for (int col = 0; col < board[line].Length; col++)
+                {
+                    if (board[line][col].Piece.HasValue)
+                    {
+                        if (board[line][col].Piece.Value == PiecesType.KING && board[line][col].PieceColor.Value == kingColor)
+                        {
+                            king = new Coord() { Line = line, Col = col };
+                            break;
+                        }
+                    }
+                }
+            }
+            return IsCaseInCapture(king, board);
         }
 
         private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)

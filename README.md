@@ -26,8 +26,8 @@ Aucune inscription nécessaire
 * ~~Déplacement du roi~~
 
 #### Coups particuliers
-* Echec
-* Roque
+* ~~Echec~~
+* Roque : manque la gestion de pièce en échecs ou de case en prise sur le chemin
 * Promotion
 * ~~prise en passant~~
 
