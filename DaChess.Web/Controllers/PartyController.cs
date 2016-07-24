@@ -61,7 +61,9 @@ namespace DaChess.Web.Controllers
                     BlackIsCheck = myParty.BlackIsCheck.HasValue?myParty.BlackIsCheck.Value:false,
                     WhiteIsCheck = myParty.WhiteIsCheck.HasValue?myParty.WhiteIsCheck.Value:false,
                     BlackCanPromote = myParty.BlackCanPromote.HasValue?myParty.BlackCanPromote.Value:false,
-                    WhiteCanPromote = myParty.WhiteCanPromote.HasValue?myParty.WhiteCanPromote.Value:false,                    
+                    WhiteCanPromote = myParty.WhiteCanPromote.HasValue?myParty.WhiteCanPromote.Value:false,    
+                    BlackIsCheckMat = myParty.BlackIsCheckMat.HasValue?myParty.BlackIsCheckMat.Value:false,
+                    WhiteIsCheckMat = myParty.WhiteIsCheckMat.HasValue?myParty.WhiteIsCheckMat.Value:false,
                     IsError = false,
                     ErrorMessage = String.Empty
                 };

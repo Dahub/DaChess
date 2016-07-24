@@ -18,17 +18,19 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FK_Board_Type" Type="int" Nullable="false" />
           <Property Name="CreationDate" Type="datetime" />
           <Property Name="WhiteLink" Type="nvarchar" MaxLength="256" />
           <Property Name="BlackLink" Type="nvarchar" MaxLength="256" />
           <Property Name="PartLink" Type="nvarchar" MaxLength="256" />
-          <Property Name="FK_Board_Type" Type="int" Nullable="false" />
           <Property Name="Board" Type="text" />
           <Property Name="History" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
           <Property Name="WhiteIsCheck" Type="bit" />
           <Property Name="BlackIsCheck" Type="bit" />
+          <Property Name="WhiteIsCheckMat" Type="bit" />
+          <Property Name="BlackIsCheckMat" Type="bit" />
           <Property Name="WhiteCanPromote" Type="bit" />
           <Property Name="BlackCanPromote" Type="bit" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
@@ -94,6 +96,8 @@
           <Property Name="EnPassantCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
           <Property Name="WhiteCanPromote" Type="Boolean" />
           <Property Name="BlackCanPromote" Type="Boolean" />
+          <Property Name="WhiteIsCheckMat" Type="Boolean" />
+          <Property Name="BlackIsCheckMat" Type="Boolean" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -125,6 +129,8 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="BlackIsCheckMat" ColumnName="BlackIsCheckMat" />
+                <ScalarProperty Name="WhiteIsCheckMat" ColumnName="WhiteIsCheckMat" />
                 <ScalarProperty Name="BlackCanPromote" ColumnName="BlackCanPromote" />
                 <ScalarProperty Name="WhiteCanPromote" ColumnName="WhiteCanPromote" />
                 <ScalarProperty Name="EnPassantCase" ColumnName="EnPassantCase" />

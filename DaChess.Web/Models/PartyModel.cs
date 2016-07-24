@@ -17,6 +17,8 @@ namespace DaChess.Web.Models
         public bool BlackIsCheck { get; set; }
         public bool WhiteCanPromote { get; set; }
         public bool BlackCanPromote { get; set; }
+        public bool WhiteIsCheckMat { get; set; }
+        public bool BlackIsCheckMat { get; set; }
         public bool IsReady
         {
             get

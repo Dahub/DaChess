@@ -25,7 +25,7 @@ namespace DaChess.Business
             {
                 case PiecesType.PAWN:
                     // avons nous une promotion ?
-                    if (startCase.PieceColor == Colors.WHITE && endLine == board.Length -1 || startCase.PieceColor == Colors.BLACK && endLine == 0)
+                    if (startCase.PieceColor == Colors.WHITE && endLine == board.Length - 1 || startCase.PieceColor == Colors.BLACK && endLine == 0)
                     {
                         moveType = MovesType.PROMOTE;
                     }
@@ -64,7 +64,7 @@ namespace DaChess.Business
                             moveType = MovesType.EN_PASSANT;
                             return true;
                         }
-                    }                 
+                    }
 
                     return false;
                 case PiecesType.ROOK:
@@ -137,24 +137,16 @@ namespace DaChess.Business
             return true;
         }
 
-        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, Colors toTestColor)
+        /// <summary>
+        /// On connait déjà les pièces ennemies, pas besoin de les rechercher
+        /// utilisée pour savoir si il y a mat
+        /// </summary>
+        /// <param name="toTest"></param>
+        /// <param name="board"></param>
+        /// <param name="ennemies"></param>
+        /// <returns></returns>
+        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, IList<Coord> ennemies)
         {
-            IList<Coord> ennemies = new List<Coord>();
-
-            // on commence par les pièces ennemies ce qui nous intéresse
-            for (int line = 0; line < board.Length; line++)
-            {
-                for (int col = 0; col < board[line].Length; col++)
-                {
-                    if (board[line][col].Piece.HasValue)
-                    {
-                        if (board[line][col].PieceColor.Value != toTestColor)
-                        {
-                            ennemies.Add(new Coord() { Line = line, Col = col });
-                        }
-                    }
-                }
-            }
             foreach (Coord c in ennemies)
             {
                 switch (board[c.Line][c.Col].Piece.Value)
@@ -197,15 +189,187 @@ namespace DaChess.Business
             return false;
         }
 
+        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, Colors toTestColor)
+        {
+            IList<Coord> ennemies = BuildPieceList(board, toTestColor == Colors.WHITE ? Colors.BLACK : Colors.WHITE);
+            return IsCaseInCapture(toTest, board, ennemies);
+        }
+
         internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board)
         {
             if (!board[toTest.Line][toTest.Col].Piece.HasValue)
                 return false;
             Colors toTestColor = board[toTest.Line][toTest.Col].PieceColor.Value;
-            return IsCaseInCapture(toTest, board, toTestColor);          
+            return IsCaseInCapture(toTest, board, toTestColor);
         }
 
         internal static bool IsCheck(Colors kingColor, CaseInfo[][] board)
+        {
+            Coord king = ExtractKing(kingColor, board);
+            return IsCaseInCapture(king, board);
+        }
+
+        internal static bool IsCheckMat(Colors kingColor, CaseInfo[][] board)
+        {
+            Coord kingCoord = ExtractKing(kingColor, board);
+            IList<Coord> ennemies = BuildPieceList(board, kingColor == Colors.WHITE ? Colors.BLACK : Colors.WHITE);
+
+            // le roi ne doit pas pouvoir bouger on commence par tester le déplacement du roi en diagonal supérieur gauche, puis sens horaire
+            if (KingCanMove(ennemies, board, kingCoord))
+                return false;
+
+            // si on ne peut pas bouger le roi, il faut tester tous les coups possibles et voir si un d'eux annule l'échec
+            Coord cibleCase = new Coord();
+            int boardSize = board.Length;
+            foreach (var c in BuildPieceList(board, kingColor))
+            {
+                switch (board[c.Line][c.Col].Piece)
+                {
+                    case PiecesType.PAWN:
+                        if (board[c.Line][c.Col].PieceColor == Colors.WHITE)
+                        {
+                            // on tente d'avancer d'une case
+                            cibleCase.Col = c.Col;
+                            cibleCase.Line = c.Line + 1;
+                            if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                return false;
+
+                            // on regarde si on peut avancer de 2
+                            if (board[c.Line][c.Col].HasMove == false && IsEmpty(c.Line + 1, c.Col, board))
+                            {
+                                cibleCase.Col = c.Col;
+                                cibleCase.Line = c.Line + 2;
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+
+                            // on regarde la prise sur la gauche
+                            if (c.Col > 0)
+                            {
+                                cibleCase.Col = c.Col - 1;
+                                cibleCase.Line = c.Line + 1;
+                                if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
+                                {
+                                    if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                        return false;
+                                }
+                            }
+
+                            // puis sur la droite 
+                            if (c.Col < boardSize)
+                            {
+                                cibleCase.Col = c.Col + 1;
+                                cibleCase.Line = c.Line + 1;
+                                if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
+                                {
+                                    if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                        return false;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+
+
+            return true;
+        }
+
+        private static bool IsMoveCancelCheck(Coord startCase, Coord endCase, CaseInfo[][] board, Colors kingColor)
+        {
+            SimulateMove(startCase, endCase, board);
+            if (!IsCheck(kingColor, board))
+            {
+                return true;
+            }
+            SimulateMove(endCase, startCase, board);
+            return false;
+        }
+
+        private static void SimulateMove(Coord start, Coord end, CaseInfo[][] board)
+        {
+            board[end.Line][end.Col].HasMove = board[start.Line][start.Col].HasMove;
+            board[end.Line][end.Col].Piece = board[start.Line][start.Col].Piece;
+            board[end.Line][end.Col].PieceColor = board[start.Line][start.Col].PieceColor;
+            board[start.Line][start.Col].HasMove = null;
+            board[start.Line][start.Col].Piece = null;
+            board[start.Line][start.Col].PieceColor = null;
+        }
+
+        private static IList<Coord> BuildPieceList(CaseInfo[][] board, Colors toTestColor)
+        {
+            IList<Coord> ennemies = new List<Coord>();
+            for (int line = 0; line < board.Length; line++)
+            {
+                for (int col = 0; col < board[line].Length; col++)
+                {
+                    if (board[line][col].Piece.HasValue)
+                    {
+                        if (board[line][col].PieceColor.Value == toTestColor)
+                        {
+                            ennemies.Add(new Coord() { Line = line, Col = col });
+                        }
+                    }
+                }
+            }
+            return ennemies;
+        }
+
+        private static bool KingCanMove(IList<Coord> ennemies, CaseInfo[][] board, Coord kingCoord)
+        {
+            int boardSize = board.Length - 1;
+            int line = kingCoord.Line < boardSize ? kingCoord.Line + 1 : kingCoord.Line;
+            int col = kingCoord.Col > 0 ? kingCoord.Col - 1 : kingCoord.Col;
+            if (line > 0 && col < boardSize) // coin inférieur droit
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (col < boardSize)
+            {// case latérale droite
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (col < boardSize && line < boardSize) // coin supérieur droit
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (line < boardSize) // case supérieure
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col }, board, ennemies))
+                    return true;
+            }
+            if (line < boardSize && col > 0) // coin supérieur gauche
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (col > 0)// case latérale gauche
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (col > 0 && line > 0)// coin inférieur gauche
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (line > 0) // case inférieure
+            {
+                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col }, board, ennemies))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsEmpty(int line, int col, CaseInfo[][] board)
+        {
+            return !board[line][col].Piece.HasValue;
+        }
+
+        private static Coord ExtractKing(Colors kingColor, CaseInfo[][] board)
         {
             Coord king = new Coord();
             // on récupère la case du roi
@@ -218,12 +382,14 @@ namespace DaChess.Business
                         if (board[line][col].Piece.Value == PiecesType.KING && board[line][col].PieceColor.Value == kingColor)
                         {
                             king = new Coord() { Line = line, Col = col };
-                            break;
+                            line = board.Length; // break la première boucle
+                            break; // break la boucle imbriquée
                         }
                     }
                 }
             }
-            return IsCaseInCapture(king, board);
+
+            return king;
         }
 
         private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)

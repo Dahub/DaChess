@@ -31,17 +31,21 @@ go
 create table [chess].[Party]
 (
 	Id integer not null primary key identity(1,1),
+	FK_Board_Type integer not null constraint fk_board_type foreign key references [chess].[Board] (Id),
 	CreationDate datetime null default getdate(),
 	WhiteLink nvarchar(256) null,
 	BlackLink nvarchar(256) null,
-	PartLink nvarchar(256) null,
-	FK_Board_Type integer not null constraint fk_board_type foreign key references [chess].[Board] (Id),
+	PartLink nvarchar(256) null,	
 	Board text null,
 	History text null,
 	WhiteTurn bit not null default 1,
 	Seed nvarchar(64) not null,
 	WhiteIsCheck bit null default 0,
 	BlackIsCheck bit null default 0,
+	WhiteIsCheckMat bit default 0,
+	BlackIsCheckMat bit default 0,
+	WhiteCanPromote bit default 0,
+	BlackCanPromote bit default 0,	
 	EnPassantCase nvarchar(2) null
 )
 go
@@ -221,5 +225,5 @@ select * from [chess].[Board]
 select * from [chess].[Party]
 
 
-select EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
+select WhiteCanPromote, BlackCanPromote, EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
 select History from [chess].[Party]

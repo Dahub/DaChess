@@ -29,6 +29,8 @@ namespace DaChess.Business
         public string EnPassantCase { get; set; }
         public Nullable<bool> WhiteCanPromote { get; set; }
         public Nullable<bool> BlackCanPromote { get; set; }
+        public Nullable<bool> WhiteIsCheckMat { get; set; }
+        public Nullable<bool> BlackIsCheckMat { get; set; }
     
         public virtual Board BoardType { get; set; }
     }

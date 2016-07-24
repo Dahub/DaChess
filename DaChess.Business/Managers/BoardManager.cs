@@ -14,7 +14,6 @@ namespace DaChess.Business
 
         internal BoardManager()
         {
-
             Cases = new CaseInfo[BOARD_CASE][];
             for(int i = 0;i< BOARD_CASE;i++)
             {
@@ -165,6 +164,11 @@ namespace DaChess.Business
                 // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
                 if (BoardsHelper.IsCheck(playerColor == Colors.BLACK?Colors.WHITE:Colors.BLACK, this.Cases))
                 {
+                    // vérifier si on mat
+                    if(BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+                    {
+
+                    }
                     toReturn = "Echec !";
                     isEnnemiCheck = true;
                     move = String.Concat(move, "!");
@@ -267,6 +271,19 @@ namespace DaChess.Business
             }
             histo.Moves[lastMove] += toAdd;
 
+            bool isEnnemiCheck = false;
+            if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+            {
+                // vérifier si on mat
+                if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+                {
+
+                }
+
+                isEnnemiCheck = true;
+                histo.Moves[lastMove] += "!";
+            }
+
             // on sauvegarde la partie
             using (var context = new ChessEntities())
             {
@@ -276,6 +293,8 @@ namespace DaChess.Business
                 party.BlackCanPromote = false;
                 party.WhiteCanPromote = false;
                 party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
+                party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
                 context.SaveChanges();
             }
         }
