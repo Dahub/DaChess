@@ -5,5 +5,6 @@
         string ToJsonString();
         void Init(string jsonBoard);
         string MakeMove(string move, string partyName, string playerToken);
+        void PromotePiece(string partyName, string choisedPiece, string playerToken);
     }
 }

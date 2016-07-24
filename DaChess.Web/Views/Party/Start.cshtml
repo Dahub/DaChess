@@ -46,6 +46,66 @@
 </div>
 <br />
 
+<!-- Modal box pour la promotion -->
+<div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Choisissez une pièce</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/b_knight.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/w_bishops.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/b_rook.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/w_queen.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="knight" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="bishop" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="rook" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="queen" checked="checked" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validPromote" class="btn btn-primary" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     var party = {
         Id: 0,
@@ -59,7 +119,9 @@
         WhiteAskToPlay: false,
         BlackAskToPlay: false,
         WhiteIsCheck: false,
-        BlackIsCheck: false
+        BlackIsCheck: false,
+        WhiteCanPromote: false,
+        BlackCanPromote: false
     }
 
     var size = 400;
@@ -148,6 +210,25 @@
                 $('#sendmessage').click();
             }
         });
+
+        $('#validPromote').click(function () {
+            $.ajax({
+                url: '/Party/MakePromote',
+                data: { name: party.Name, piece: $('#promotedChoise:checked').val(), token: $('#token').val() },
+                cache: false,
+                type: 'GET',
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8'
+            }).done(function (data) {
+                $.connection.partyHub.server.newMove('@Model');
+                if (data.IsError == true) {
+                    setMsg(data.ErrorMessage);
+                }
+                else {
+                    $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
+                }
+            });
+        })
 
         // abonnements aux clics sur les boutons
         $("#whiteBtn").click(function () {
@@ -242,7 +323,17 @@
             myHistory = JSON.parse(party.History);
             refreshCanvas();
             refreshHistory();
+            checkPromote();
         });
+    }
+
+    function checkPromote() {
+        if (party.WhiteCanPromote && $('#isWhitePlayer').val() == 'true') {
+            $('#promoteModal').modal('show');
+        }
+        else if (party.BlackCanPromote && $('#isBlackPlayer').val() == 'true') {
+            $('#promoteModal').modal('show');
+        }
     }
 
     function refreshHistory() {
@@ -342,6 +433,8 @@
         party.History = data.History;
         party.WhiteIsCheck = data.WhiteIsCheck;
         party.BlackIsCheck = data.BlackIsCheck;
+        party.WhiteCanPromote = data.WhiteCanPromote;
+        party.BlackCanPromote = data.BlackCanPromote;
     }
 
     function refreshCanvas() {

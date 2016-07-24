@@ -29,6 +29,8 @@
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
           <Property Name="WhiteIsCheck" Type="bit" />
           <Property Name="BlackIsCheck" Type="bit" />
+          <Property Name="WhiteCanPromote" Type="bit" />
+          <Property Name="BlackCanPromote" Type="bit" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
         </EntityType>
         <Association Name="fk_board_type">
@@ -90,6 +92,8 @@
           <Property Name="WhiteIsCheck" Type="Boolean" />
           <Property Name="BlackIsCheck" Type="Boolean" />
           <Property Name="EnPassantCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="WhiteCanPromote" Type="Boolean" />
+          <Property Name="BlackCanPromote" Type="Boolean" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -121,6 +125,8 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="BlackCanPromote" ColumnName="BlackCanPromote" />
+                <ScalarProperty Name="WhiteCanPromote" ColumnName="WhiteCanPromote" />
                 <ScalarProperty Name="EnPassantCase" ColumnName="EnPassantCase" />
                 <ScalarProperty Name="BlackIsCheck" ColumnName="BlackIsCheck" />
                 <ScalarProperty Name="WhiteIsCheck" ColumnName="WhiteIsCheck" />

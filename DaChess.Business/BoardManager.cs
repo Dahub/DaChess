@@ -24,7 +24,6 @@ namespace DaChess.Business
 
         public void Init(string jsonBoard)
         {
-
             JavaScriptSerializer json_serializer = new JavaScriptSerializer();
             var routes_list = (IDictionary<string, object>)json_serializer.DeserializeObject(jsonBoard);
             object[] cases = (object[])(routes_list["board"]);
@@ -59,7 +58,8 @@ namespace DaChess.Business
             {
                 move = move.TrimEnd(' ');
 
-                Party party = PartyHelper.GetByName(partyName);              
+                Party party = PartyHelper.GetByName(partyName);
+                Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
                 this.Init(party.Board);
 
                 if (!PartyHelper.IsPlayerInParty(partyName, playerToken))
@@ -74,6 +74,7 @@ namespace DaChess.Business
                 string col = cases[0].Substring(0, 1);
                 string line = cases[0].Substring(1, 1);
                 string enPassant = String.Empty;
+                bool promotePawn = false;
                 bool isEnnemiCheck = false;
                 History histo = null;
 
@@ -94,7 +95,7 @@ namespace DaChess.Business
                     switch(mt)
                     {
                         case MovesType.CLASSIC:
-                            move = move.Replace(" ", "-");
+                            move = move.Replace(" ", String.Empty);
                             break;
                         case MovesType.CAPTURE:
                             move = move.Replace(" ", "x");
@@ -132,6 +133,12 @@ namespace DaChess.Business
                             this.Cases[startLine][0].PieceColor = null;
                             toReturn = "Grand roque";
                             break;
+                        case MovesType.PROMOTE:
+                            promotePawn = true;
+                            toReturn = "Promotion du pion";
+                            if(Cases[endLine][endCol].Piece.HasValue)
+                                move = move.Replace(" ", "x");
+                            break;
                         default:
                             move = move.Replace(" ", "-");
                             break;
@@ -155,8 +162,7 @@ namespace DaChess.Business
                     throw new DaChessException("Coup illégal, aucune pièce sur la case de départ");
                 }
 
-                // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup
-                Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
                 if (BoardsHelper.IsCheck(playerColor == Colors.BLACK?Colors.WHITE:Colors.BLACK, this.Cases))
                 {
                     toReturn = "Echec !";
@@ -195,11 +201,13 @@ namespace DaChess.Business
                 {
                     context.Parties.Attach(party);
                     party.Board = this.ToJsonString();
-                    party.WhiteTurn = !party.WhiteTurn;
+                    party.WhiteTurn = promotePawn == true?party.WhiteTurn:!party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
                     party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
                     party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
+                    party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
+                    party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
                     context.SaveChanges();
                 }
             }
@@ -214,6 +222,62 @@ namespace DaChess.Business
             }
 
             return toReturn;
+        }
+
+        public void PromotePiece(string partyName, string choisedPiece, string playerToken)
+        {
+            Party party = PartyHelper.GetByName(partyName);
+            Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+            this.Init(party.Board);
+
+            // on récupère le pion correspondant
+            int limitLine = 0;
+            if (playerColor == Colors.WHITE) // uniquement les lignes de fond de plateau
+                limitLine = this.Cases.Length - 1;
+
+            for(int col = 0; col<this.Cases[limitLine].Length; col++)
+            {
+                if(Cases[limitLine][col].Piece.HasValue 
+                    && Cases[limitLine][col].Piece.Value == PiecesType.PAWN 
+                    && Cases[limitLine][col].PieceColor == playerColor)
+                {
+                    Cases[limitLine][col].Piece = this.GetPieceType(choisedPiece);
+                    break;
+                }
+            }
+
+            // mise à jour de l'historique
+            History histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
+            int lastMove = histo.Moves.Select(m => m.Key).Max();
+            string toAdd = String.Empty;
+            switch(this.GetPieceType(choisedPiece))
+            {
+                case PiecesType.BISHOP:
+                    toAdd = "=B";
+                    break;
+                case PiecesType.KNIGHT:
+                    toAdd = "=N";
+                    break;
+                case PiecesType.ROOK:
+                    toAdd = "=R";
+                    break;
+                case PiecesType.QUEEN:
+                    toAdd = "=Q";
+                    break;
+            }
+            histo.Moves[lastMove] += toAdd;
+
+            // on sauvegarde la partie
+            using (var context = new ChessEntities())
+            {
+                context.Parties.Attach(party);
+                party.Board = this.ToJsonString();
+                party.WhiteTurn = !party.WhiteTurn; // on ne change de joueur après promotion
+                party.BlackCanPromote = false;
+                party.WhiteCanPromote = false;
+                party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                context.SaveChanges();
+            }
         }
 
         public string ToJsonString()

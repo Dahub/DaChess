@@ -60,6 +60,8 @@ namespace DaChess.Web.Controllers
                     History = myParty.History,
                     BlackIsCheck = myParty.BlackIsCheck.HasValue?myParty.BlackIsCheck.Value:false,
                     WhiteIsCheck = myParty.WhiteIsCheck.HasValue?myParty.WhiteIsCheck.Value:false,
+                    BlackCanPromote = myParty.BlackCanPromote.HasValue?myParty.BlackCanPromote.Value:false,
+                    WhiteCanPromote = myParty.WhiteCanPromote.HasValue?myParty.WhiteCanPromote.Value:false,                    
                     IsError = false,
                     ErrorMessage = String.Empty
                 };
@@ -116,10 +118,6 @@ namespace DaChess.Web.Controllers
 
         public JsonResult MakeMove(string name, string move, string token)
         {
-            //string partyName = request.GetQueryNameValuePairs().Where(k => k.Key.ToLower().Equals("name")).First().Value;
-            //string move = request.GetQueryNameValuePairs().Where(k => k.Key.ToLower().Equals("move")).First().Value;
-            //string token = request.GetQueryNameValuePairs().Where(k => k.Key.ToLower().Equals("token")).First().Value;
-
             MoveModel toReturn = new MoveModel();
 
             try
@@ -138,6 +136,30 @@ namespace DaChess.Web.Controllers
                 toReturn.IsError = true;
                 toReturn.ErrorMessage = "Erreur non gérée dans la l'application du coup";
             }
+
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult MakePromote(string name, string piece, string token)
+        {
+            PromoteModel toReturn = new PromoteModel();
+
+            try
+            {
+                IBoardManager manager = Factory.Instance.GetBoardManager();
+                manager.PromotePiece(name, piece, token);
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = "Erreur non gérée dans la promotion";
+            }
+        
 
             return Json(toReturn, JsonRequestBehavior.AllowGet);
         }

@@ -6,6 +6,7 @@
         CAPTURE,
         EN_PASSANT,
         CASTLING_SHORT,
-        CASTLING_LONG
+        CASTLING_LONG,
+        PROMOTE
     }
 }

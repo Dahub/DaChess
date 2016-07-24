@@ -13,7 +13,7 @@ namespace DaChess.Business
 
         internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol, Party party, out MovesType moveType)
         {
-            if(endCase.Piece.HasValue)
+            if (endCase.Piece.HasValue)
                 moveType = MovesType.CAPTURE;
             else
                 moveType = MovesType.CLASSIC;
@@ -21,9 +21,14 @@ namespace DaChess.Business
             if (endCase.Piece.HasValue && startCase.PieceColor == endCase.PieceColor)
                 return false;
 
-            switch(startCase.Piece)
+            switch (startCase.Piece)
             {
                 case PiecesType.PAWN:
+                    // avons nous une promotion ?
+                    if (startCase.PieceColor == Colors.WHITE && endLine == board.Length -1 || startCase.PieceColor == Colors.BLACK && endLine == 0)
+                    {
+                        moveType = MovesType.PROMOTE;
+                    }
                     if (!endCase.Piece.HasValue && startCol == endCol)
                     {
                         if (startCase.PieceColor == Colors.WHITE && endLine - startLine == 1)
@@ -56,10 +61,11 @@ namespace DaChess.Business
                         CaseInfo epCase = board[epLineInt][epColInt];
                         if (epCase.Piece.HasValue && epCase.Piece == PiecesType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
                         {
-                            moveType = MovesType.EN_PASSANT; 
+                            moveType = MovesType.EN_PASSANT;
                             return true;
                         }
-                    }
+                    }                 
+
                     return false;
                 case PiecesType.ROOK:
                     if (startLine != endLine && startCol != endCol)
@@ -91,19 +97,23 @@ namespace DaChess.Business
                     if (Math.Abs(endLine - startLine) <= 1 && Math.Abs(endCol - startCol) <= 1)
                         return true;
                     // cas du roque
-                    if(endLine == startLine && board[startLine][endLine].HasMove == false && Math.Abs(startCol - endCol) == 2)
+                    if (endLine == startLine && board[startLine][endLine].HasMove == false && Math.Abs(startCol - endCol) == 2)
                     {
-                        if(startCol < endCol) // petit roque
+                        if (startCol < endCol) // petit roque
                         {
                             CaseInfo rookCase = board[startLine][board[startLine].Length - 1];
                             if (rookCase.Piece.HasValue && rookCase.Piece.Value == PiecesType.ROOK && rookCase.HasMove.Value == false) // on a bien une tour sur la case attendue
                             {
-                                if(EmptyBeetwenToCases(board, startCol, board[startLine].Length - 1, startLine, endLine)) // aucune case sur le chemin
+                                if (EmptyBeetwenToCases(board, startCol, board[startLine].Length - 1, startLine, endLine)) // aucune case sur le chemin
                                 {
-                                    moveType = MovesType.CASTLING_SHORT;
-                                    return true;
+                                    // il faut vérifier que la case intermédiaire n'est pas en prise
+                                    if (!IsCaseInCapture(new Coord() { Line = startLine, Col = startCol + 1 }, board, rookCase.PieceColor.Value))
+                                    {
+                                        moveType = MovesType.CASTLING_SHORT;
+                                        return true;
+                                    }
                                 }
-                            }                            
+                            }
                         }
                         else // grand roque
                         {
@@ -112,8 +122,11 @@ namespace DaChess.Business
                             {
                                 if (EmptyBeetwenToCases(board, startCol, 0, startLine, endLine)) // aucune case sur le chemin
                                 {
-                                    moveType = MovesType.CASTLING_LONG;
-                                    return true;
+                                    if (!IsCaseInCapture(new Coord() { Line = startLine, Col = startCol - 1 }, board, rookCase.PieceColor.Value))
+                                    {
+                                        moveType = MovesType.CASTLING_LONG;
+                                        return true;
+                                    }
                                 }
                             }
                         }
@@ -124,22 +137,18 @@ namespace DaChess.Business
             return true;
         }
 
-        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board)
+        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, Colors toTestColor)
         {
-            if (!board[toTest.Line][toTest.Col].Piece.HasValue)
-                return false;
-
             IList<Coord> ennemies = new List<Coord>();
-            Colors color = board[toTest.Line][toTest.Col].PieceColor.Value;
 
-            // on commence par récupérer récupérer ce qui nous intéresse
+            // on commence par les pièces ennemies ce qui nous intéresse
             for (int line = 0; line < board.Length; line++)
             {
                 for (int col = 0; col < board[line].Length; col++)
                 {
                     if (board[line][col].Piece.HasValue)
                     {
-                        if (board[line][col].PieceColor.Value != color)
+                        if (board[line][col].PieceColor.Value != toTestColor)
                         {
                             ennemies.Add(new Coord() { Line = line, Col = col });
                         }
@@ -186,6 +195,14 @@ namespace DaChess.Business
             }
 
             return false;
+        }
+
+        internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board)
+        {
+            if (!board[toTest.Line][toTest.Col].Piece.HasValue)
+                return false;
+            Colors toTestColor = board[toTest.Line][toTest.Col].PieceColor.Value;
+            return IsCaseInCapture(toTest, board, toTestColor);          
         }
 
         internal static bool IsCheck(Colors kingColor, CaseInfo[][] board)

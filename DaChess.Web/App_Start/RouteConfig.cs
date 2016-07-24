@@ -10,6 +10,12 @@ namespace DaChess.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+               name: "MakePromote",
+               url: "Party/MakePromote/{name}/{piece}/{token}",
+               defaults: new { controller = "Party", action = "MakePromote", name = UrlParameter.Optional, piece = UrlParameter.Optional, token = UrlParameter.Optional }
+           );
+
+            routes.MapRoute(
                name: "MakeMove",
                url: "Party/MakeMove/{name}/{move}/{token}",
                defaults: new { controller = "Party", action = "MakeMove", name = UrlParameter.Optional, move = UrlParameter.Optional, token = UrlParameter.Optional }

@@ -27,13 +27,18 @@ Aucune inscription nécessaire
 
 #### Coups particuliers
 * ~~Echec~~
-* Roque : manque la gestion de pièce en échecs ou de case en prise sur le chemin
-* Promotion
+* ~~Roque~~
+* ~~Promotion~~
 * ~~prise en passant~~
 
 ### Gestion fin de partie
 * Mat
+* Pat
+* Abandon
 * Partie nulle
 * Abandon
 * 3 Positions répétitives
 * 40 coups sans mouvement de pion
+
+### V2
+* Gestion du temps
