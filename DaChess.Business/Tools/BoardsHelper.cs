@@ -229,13 +229,16 @@ namespace DaChess.Business
                         if (board[c.Line][c.Col].PieceColor == Colors.WHITE)
                         {
                             // on tente d'avancer d'une case
-                            cibleCase.Col = c.Col;
-                            cibleCase.Line = c.Line + 1;
-                            if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
-                                return false;
+                            if (IsEmpty(c.Line + 1, c.Col, board))
+                            {
+                                cibleCase.Col = c.Col;
+                                cibleCase.Line = c.Line + 1;
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
 
                             // on regarde si on peut avancer de 2
-                            if (board[c.Line][c.Col].HasMove == false && IsEmpty(c.Line + 1, c.Col, board))
+                            if (board[c.Line][c.Col].HasMove == false && IsEmpty(c.Line + 2, c.Col, board))
                             {
                                 cibleCase.Col = c.Col;
                                 cibleCase.Line = c.Line + 2;
@@ -277,12 +280,25 @@ namespace DaChess.Business
 
         private static bool IsMoveCancelCheck(Coord startCase, Coord endCase, CaseInfo[][] board, Colors kingColor)
         {
+            CaseInfo backUpStart = new CaseInfo()
+            {
+                HasMove = board[startCase.Line][startCase.Col].HasMove,
+                Piece = board[startCase.Line][startCase.Col].Piece,
+                PieceColor = board[startCase.Line][startCase.Col].PieceColor
+            };
+            CaseInfo backupEnd = new CaseInfo()
+            {
+                HasMove = board[endCase.Line][endCase.Col].HasMove,
+                Piece = board[endCase.Line][endCase.Col].Piece,
+                PieceColor = board[endCase.Line][endCase.Col].PieceColor
+            };
             SimulateMove(startCase, endCase, board);
             if (!IsCheck(kingColor, board))
             {
                 return true;
             }
-            SimulateMove(endCase, startCase, board);
+            board[startCase.Line][startCase.Col] = backUpStart;
+            board[endCase.Line][endCase.Col] = backupEnd;
             return false;
         }
 

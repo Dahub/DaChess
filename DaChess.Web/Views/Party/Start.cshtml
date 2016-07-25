@@ -138,9 +138,58 @@
     var myHistory;
 
     $(document).ready(function () {
+        $(function () {
+            var partyHub = $.connection.partyHub;
+
+            $('#displayname').val('Anonymous');
+            $('#message').focus();
+            $.connection.hub.start().done(function () {
+                partyHub.server.joinParty('@Model');
+                $('#sendmessage').click(function () {
+                    partyHub.server.sendMessage('@Model', $('#displayname').val(), $('#message').val());
+                    $('#message').val('').focus();
+                });
+            });
+
+            partyHub.client.addNewMessageToPage = function (name, message) {
+
+                if ($("#discussion li").length > 10) {
+                    $('#discussion li:last').remove();
+                }
+
+                $('#discussion').prepend('<li><strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };
+
+            partyHub.client.addPlayerWhite = function () {
+                $('#whiteBtn').prop('disabled', true);
+                $('#whiteBtn').html('Joueur connecté');
+                $('#whiteBtn').removeClass('btn-success');
+
+                // on recharge la partie
+                reloadParty();
+            };
+
+            partyHub.client.addPlayerBlack = function () {
+                $('#blackBtn').prop('disabled', true);
+                $('#blackBtn').html('Joueur connecté');
+                $('#blackBtn').removeClass('btn-success');
+
+                // on recharge la partie
+                reloadParty();
+            };
+
+            partyHub.client.moveOver = function () {
+                reloadParty();
+            }
+
+            partyHub.client.SendInfo = function (info) {
+                setMsg(info);
+            }           
+        });
+
         // récupération de la partie
         var partyName = { name: '@Model' };
-        console.log('plop');
         $.ajax({
             url: '/Party/Get',
             data: partyName,
@@ -149,11 +198,11 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            console.log(data);
             mapParty(data);
             myBoard = JSON.parse(party.Board);
             refreshCanvas();
             // on tente de voir si on a des données de cookies
+          
             $.ajax({
                 url: "/Player/GetPlayerPartyName",
                 type: "get",
@@ -162,9 +211,9 @@
                         $.ajax({
                             url: "/Player/GetPlayerToken",
                             type: "get",
-                            success: function (dataToken) {
+                            success: function (dataToken) {                                
                                 $('#token').val(dataToken);
-
+                               
                                 // on récupère la couleur via l'API
                                 $.ajax({
                                     url: '/Player/GetPlayerInfo',
@@ -173,7 +222,7 @@
                                     type: 'GET',
                                     dataType: "json",
                                     contentType: 'application/json; charset=utf-8'
-                                }).done(function (data) {
+                                }).done(function (data) {                                    
                                     if (data.IsWhite == true)
                                         ImWhitePlayer(dataToken);
                                     if (data.IsBlack == true)
@@ -203,7 +252,7 @@
                     }
                 }
             });
-
+            
             RefreshPartyState();
         });
 
@@ -242,56 +291,7 @@
             party.BlackAskToPlay = true;
             addPlayer('black');
         });
-    });
-
-    $(function () {
-        var partyHub = $.connection.partyHub;
-        partyHub.client.addNewMessageToPage = function (name, message) {
-
-            if ($("#discussion li").length > 10) {
-                $('#discussion li:last').remove();
-            }
-
-            $('#discussion').prepend('<li><strong>' + htmlEncode(name)
-                + '</strong>: ' + htmlEncode(message) + '</li>');
-        };
-
-        partyHub.client.addPlayerWhite = function () {
-            $('#whiteBtn').prop('disabled', true);
-            $('#whiteBtn').html('Joueur connecté');
-            $('#whiteBtn').removeClass('btn-success');
-
-            // on recharge la partie
-            reloadParty();
-        };
-
-        partyHub.client.addPlayerBlack = function () {
-            $('#blackBtn').prop('disabled', true);
-            $('#blackBtn').html('Joueur connecté');
-            $('#blackBtn').removeClass('btn-success');
-
-            // on recharge la partie
-            reloadParty();
-        };
-
-        partyHub.client.moveOver = function () {
-            reloadParty();
-        }
-
-        partyHub.client.SendInfo = function (info) {
-            setMsg(info);
-        }
-
-        $('#displayname').val('Anonymous');
-        $('#message').focus();
-        $.connection.hub.start().done(function () {
-            partyHub.server.joinParty('@Model');
-            $('#sendmessage').click(function () {
-                partyHub.server.sendMessage('@Model', $('#displayname').val(), $('#message').val());
-                $('#message').val('').focus();
-            });
-        });
-    });
+    });   
 
     function htmlEncode(value) {
         var encodedValue = $('<div />').text(value).html();
@@ -308,8 +308,6 @@
     }
 
     function reloadParty() {
-        console.log('reload de la partie');
-
         var partyName = { name: '@Model' };
         $.ajax({
             url: '/Party/Get',
@@ -339,13 +337,13 @@
     }
 
     function refreshHistory() {
-        console.log(myHistory);
-        console.log(myHistory.Moves);
         $('#moves').empty();
-        jQuery.each(myHistory.Moves, function (i, val) {
-            $('#moves').prepend('<li><strong>' + htmlEncode(i)
-               + '</strong>: ' + htmlEncode(val) + '</li>');
-        });
+        if (myHistory) {
+            jQuery.each(myHistory.Moves, function (i, val) {
+                $('#moves').prepend('<li><strong>' + htmlEncode(i)
+                   + '</strong>: ' + htmlEncode(val) + '</li>');
+            });
+        }
     }
 
     function addPlayer(color) {
@@ -463,15 +461,17 @@
             }
         }
 
-        for (var i = 0; i < myBoard.board.length; i++) {
+        for (var i = 0; i < myBoard.board.length; i++) {       
             if (isEmpty(myBoard.board[i].piece) == false) {
                 var xPos = ((letterToNumber(myBoard.board[i].col) - 1) * caseSize) + piecePadding;
                 var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
+
+
                 var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
-                ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
+                ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);                
+
                 if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && $('#isWhitePlayer').val() == 'true')
                     || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && $('#isBlackPlayer').val() == 'true')) {
-                    console.log("echec pour ce joueur");
                     ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
                     ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
                 }
