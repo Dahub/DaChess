@@ -226,60 +226,283 @@ namespace DaChess.Business
                 switch (board[c.Line][c.Col].Piece)
                 {
                     case PiecesType.PAWN:
-                        if (board[c.Line][c.Col].PieceColor == Colors.WHITE)
+                        int direction = board[c.Line][c.Col].PieceColor == Colors.WHITE ? 1 : -1;
+                        // on tente d'avancer d'une case
+                        if (IsEmpty(c.Line + 1 * direction, c.Col, board))
                         {
-                            // on tente d'avancer d'une case
-                            if (IsEmpty(c.Line + 1, c.Col, board))
+                            cibleCase.Col = c.Col;
+                            cibleCase.Line = c.Line + 1 * direction;
+                            if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                return false;
+                        }
+
+                        // on regarde si on peut avancer de 2
+                        if (board[c.Line][c.Col].HasMove == false && IsEmpty(c.Line + 1 * direction, c.Col, board) && IsEmpty(c.Line + 2 * direction, c.Col, board))
+                        {
+                            cibleCase.Col = c.Col;
+                            cibleCase.Line = c.Line + 2 * direction;
+                            if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                return false;
+                        }
+
+                        // on regarde la prise sur la gauche
+                        if (c.Col > 0)
+                        {
+                            cibleCase.Col = c.Col - 1;
+                            cibleCase.Line = c.Line + 1 * direction;
+                            if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
                             {
-                                cibleCase.Col = c.Col;
-                                cibleCase.Line = c.Line + 1;
                                 if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
                                     return false;
-                            }
-
-                            // on regarde si on peut avancer de 2
-                            if (board[c.Line][c.Col].HasMove == false && IsEmpty(c.Line + 2, c.Col, board))
-                            {
-                                cibleCase.Col = c.Col;
-                                cibleCase.Line = c.Line + 2;
-                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
-                                    return false;
-                            }
-
-                            // on regarde la prise sur la gauche
-                            if (c.Col > 0)
-                            {
-                                cibleCase.Col = c.Col - 1;
-                                cibleCase.Line = c.Line + 1;
-                                if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
-                                {
-                                    if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
-                                        return false;
-                                }
-                            }
-
-                            // puis sur la droite 
-                            if (c.Col < boardSize)
-                            {
-                                cibleCase.Col = c.Col + 1;
-                                cibleCase.Line = c.Line + 1;
-                                if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
-                                {
-                                    if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
-                                        return false;
-                                }
                             }
                         }
+
+                        // puis sur la droite 
+                        if (c.Col < boardSize - 1)
+                        {
+                            cibleCase.Col = c.Col + 1;
+                            cibleCase.Line = c.Line + 1 * direction;
+                            if (board[cibleCase.Line][cibleCase.Col].Piece.HasValue && board[cibleCase.Line][cibleCase.Col].PieceColor != kingColor) // on a une pièce à prendre
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+
+                        break;
+                    case PiecesType.KNIGHT:
+                        // 8 coups potentiellements possibles                       
+                        // haut + gauche
+                        if (c.Col > 0 && c.Line < board.Length - 2)
+                        {
+                            cibleCase.Col = c.Col - 1;
+                            cibleCase.Line = c.Line + 2;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // haut + droite
+                        if (c.Col < board.Length && c.Line < board.Length - 2)
+                        {
+                            cibleCase.Col = c.Col + 1;
+                            cibleCase.Line = c.Line + 2;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // droite + haut
+                        if (c.Col < board.Length - 2 && c.Line < board.Length - 1)
+                        {
+                            cibleCase.Col = c.Col + 2;
+                            cibleCase.Line = c.Line + 1;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // droite + bas
+                        if (c.Col < board.Length - 2 && c.Line > 0)
+                        {
+                            cibleCase.Col = c.Col + 2;
+                            cibleCase.Line = c.Line - 1;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // bas + droite
+                        if (c.Col < board.Length - 1 && c.Line > 1)
+                        {
+                            cibleCase.Col = c.Col + 1;
+                            cibleCase.Line = c.Line - 2;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // bas + gauche
+                        if (c.Col > 0 && c.Line > 1)
+                        {
+                            cibleCase.Col = c.Col - 1;
+                            cibleCase.Line = c.Line - 2;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // droite + bas
+                        if (c.Col > 1 && c.Line > 0)
+                        {
+                            cibleCase.Col = c.Col - 2;
+                            cibleCase.Line = c.Line - 1;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+                        // droite + haut
+                        if (c.Col > 1 && c.Line < board.Length - 1)
+                        {
+                            cibleCase.Col = c.Col - 2;
+                            cibleCase.Line = c.Line + 1;
+                            if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
+                            {
+                                if (IsMoveCancelCheck(c, cibleCase, board, kingColor))
+                                    return false;
+                            }
+                        }
+
+                        break;
+                    case PiecesType.BISHOP:
+                        // 4 directions
+                        // en haut à droite
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, +1, c, board, kingColor))
+                            return false;
+                        // en bas à droite
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, -1, c, board, kingColor))
+                            return false;
+                        // en haut à gauche
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, +1, c, board, kingColor))
+                            return false;
+                        // en bas à gauche
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, -1, c, board, kingColor))
+                            return false;
+                        break;
+                    case PiecesType.ROOK:
+                        // 4 directions aussi
+                        // en haut
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(0, +1, c, board, kingColor))
+                            return false;
+                        // en bas
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(0, -1, c, board, kingColor))
+                            return false;
+                        // à droite
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, 0, c, board, kingColor))
+                            return false;
+                        // à gauche
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, 0, c, board, kingColor))
+                            return false;
+                        break;
+                    case PiecesType.QUEEN:
+                        // 8 directions
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, +1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, -1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, +1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, -1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(0, +1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(0, -1, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(+1, 0, c, board, kingColor))
+                            return false;
+                        if (TryAllMoveDiagonalOrLateralToCancelCheck(-1, 0, c, board, kingColor))
+                            return false;
                         break;
                 }
             }
 
-
             return true;
+        }
+
+        private static bool TryAllMoveDiagonalOrLateralToCancelCheck(int colDirection, int lineDirection, Coord c, CaseInfo[][] board, Colors kingColor)
+        {
+            int col = c.Col;
+            int line = c.Line;
+            bool continueTest = true;
+            while (continueTest) 
+            {
+                col += colDirection; // on bouge d'une case
+                line += lineDirection;
+                if (col > 0 && line > 0 && col < board.Length - 1 && line < board.Length - 1) // tant qu'on n'a pas touché un bord 
+                {
+                    if (!board[line][col].Piece.HasValue || board[line][col].PieceColor != kingColor) // on avance tant que la cible est vide ou a une pièce d'une autre couleur
+                    {
+                        if (IsMoveCancelCheck(c, new Coord() { Col = col, Line = line }, board, kingColor))
+                            return true;
+
+                        if (board[line][col].PieceColor != kingColor) // c'était une prise, on arrête là
+                            continueTest = false;
+                    }
+                    else
+                    {
+                        continueTest = false;
+                    }
+                }
+                else
+                {
+                    continueTest = false;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool KingCanMove(IList<Coord> ennemies, CaseInfo[][] board, Coord kingCoord)
+        {
+            int boardSize = board.Length - 1;
+            int line = kingCoord.Line;
+            int col = kingCoord.Col;
+            if (line > 0 && col < boardSize) // coin inférieur droit
+            {
+                if (IsEmpty(line - 1, col + 1, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (col < boardSize)
+            {// case latérale droite
+                if (IsEmpty(line, col + 1, board) && !IsCaseInCapture(new Coord { Line = line, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (col < boardSize && line < boardSize) // coin supérieur droit
+            {
+                if (IsEmpty(line + 1, col + 1, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col + 1 }, board, ennemies))
+                    return true;
+            }
+            if (line < boardSize) // case supérieure
+            {
+                if (IsEmpty(line + 1, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col }, board, ennemies))
+                    return true;
+            }
+            if (line < boardSize && col > 0) // coin supérieur gauche
+            {
+                if (IsEmpty(line + 1, col - 1, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (col > 0)// case latérale gauche
+            {
+                if (IsEmpty(line, col - 1, board) && !IsCaseInCapture(new Coord { Line = line, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (col > 0 && line > 0)// coin inférieur gauche
+            {
+                if (IsEmpty(line - 1, col - 1, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col - 1 }, board, ennemies))
+                    return true;
+            }
+            if (line > 0) // case inférieure
+            {
+                if (IsEmpty(line - 1, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col }, board, ennemies))
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool IsMoveCancelCheck(Coord startCase, Coord endCase, CaseInfo[][] board, Colors kingColor)
         {
+            bool toReturn = false;
+
             CaseInfo backUpStart = new CaseInfo()
             {
                 HasMove = board[startCase.Line][startCase.Col].HasMove,
@@ -295,11 +518,11 @@ namespace DaChess.Business
             SimulateMove(startCase, endCase, board);
             if (!IsCheck(kingColor, board))
             {
-                return true;
+                toReturn = true;
             }
             board[startCase.Line][startCase.Col] = backUpStart;
             board[endCase.Line][endCase.Col] = backupEnd;
-            return false;
+            return toReturn;
         }
 
         private static void SimulateMove(Coord start, Coord end, CaseInfo[][] board)
@@ -329,55 +552,6 @@ namespace DaChess.Business
                 }
             }
             return ennemies;
-        }
-
-        private static bool KingCanMove(IList<Coord> ennemies, CaseInfo[][] board, Coord kingCoord)
-        {
-            int boardSize = board.Length - 1;
-            int line = kingCoord.Line < boardSize ? kingCoord.Line + 1 : kingCoord.Line;
-            int col = kingCoord.Col > 0 ? kingCoord.Col - 1 : kingCoord.Col;
-            if (line > 0 && col < boardSize) // coin inférieur droit
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col + 1 }, board, ennemies))
-                    return true;
-            }
-            if (col < boardSize)
-            {// case latérale droite
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line, Col = col + 1 }, board, ennemies))
-                    return true;
-            }
-            if (col < boardSize && line < boardSize) // coin supérieur droit
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col + 1 }, board, ennemies))
-                    return true;
-            }
-            if (line < boardSize) // case supérieure
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col }, board, ennemies))
-                    return true;
-            }
-            if (line < boardSize && col > 0) // coin supérieur gauche
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line + 1, Col = col - 1 }, board, ennemies))
-                    return true;
-            }
-            if (col > 0)// case latérale gauche
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line, Col = col - 1 }, board, ennemies))
-                    return true;
-            }
-            if (col > 0 && line > 0)// coin inférieur gauche
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col - 1 }, board, ennemies))
-                    return true;
-            }
-            if (line > 0) // case inférieure
-            {
-                if (IsEmpty(line, col, board) && !IsCaseInCapture(new Coord { Line = line - 1, Col = col }, board, ennemies))
-                    return true;
-            }
-
-            return false;
         }
 
         private static bool IsEmpty(int line, int col, CaseInfo[][] board)
