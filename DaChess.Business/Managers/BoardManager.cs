@@ -51,7 +51,7 @@ namespace DaChess.Business
         /// <param name="move"></param>
         public string MakeMove(string move, string partyName, string playerToken)
         {
-            string toReturn = String.Empty;
+            string resultText = String.Empty;
 
             try
             {
@@ -69,13 +69,9 @@ namespace DaChess.Business
                 if (!IsMoveOk(cases))
                     throw new DaChessException(String.Format("Le coup {0} est mal formaté", move));
 
-                // on récupère la première pièce
-                string col = cases[0].Substring(0, 1);
-                string line = cases[0].Substring(1, 1);
+                // on récupère la première pièce              
                 string enPassant = String.Empty;
                 bool promotePawn = false;
-                bool isEnnemiCheck = false;
-                bool isEnnemiCheckMat = false;
                 History histo = null;
 
                 int startLine = Int32.Parse(cases[0].Substring(1, 1)) - 1;
@@ -92,7 +88,7 @@ namespace DaChess.Business
                         throw new DaChessException("Coup illégal");
                     }
 
-                    switch (mt)
+                    switch (mt) // gestion de l'après déplacement
                     {
                         case MovesType.CLASSIC:
                             move = move.Replace(" ", String.Empty);
@@ -111,7 +107,7 @@ namespace DaChess.Business
                             this.Cases[epLineInt][epColInt].HasMove = null;
                             this.Cases[epLineInt][epColInt].Piece = null;
                             this.Cases[epLineInt][epColInt].PieceColor = null;
-                            toReturn = "Prise en passant !";
+                            resultText = "Prise en passant !";
                             break;
                         case MovesType.CASTLING_SHORT:
                             move = "O-O";
@@ -121,7 +117,7 @@ namespace DaChess.Business
                             this.Cases[startLine][this.Cases[startLine].Length - 1].HasMove = null;
                             this.Cases[startLine][this.Cases[startLine].Length - 1].Piece = null;
                             this.Cases[startLine][this.Cases[startLine].Length - 1].PieceColor = null;
-                            toReturn = "Petit roque";
+                            resultText = "Petit roque";
                             break;
                         case MovesType.CASTLING_LONG:
                             move = "O-O-O";
@@ -131,11 +127,11 @@ namespace DaChess.Business
                             this.Cases[startLine][0].HasMove = null;
                             this.Cases[startLine][0].Piece = null;
                             this.Cases[startLine][0].PieceColor = null;
-                            toReturn = "Grand roque";
+                            resultText = "Grand roque";
                             break;
                         case MovesType.PROMOTE:
                             promotePawn = true;
-                            toReturn = "Promotion du pion";
+                            resultText = "Promotion du pion";
                             if (Cases[endLine][endCol].Piece.HasValue)
                                 move = move.Replace(" ", "x");
                             break;
@@ -162,26 +158,10 @@ namespace DaChess.Business
                     throw new DaChessException("Coup illégal, aucune pièce sur la case de départ");
                 }
 
-                // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
-                if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-                {
-                    // vérifier si on mat
-                    if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-                    {
-                        toReturn = "Echec et Mat !";
-                        isEnnemiCheckMat = true;
-                        move = String.Concat(move, "!!");
-                    }
-                    else
-                    {
-                        toReturn = "Echec !";
-                        isEnnemiCheck = true;
-                        move = String.Concat(move, "!");
-                    }
-                }
+                PlayerState ennemiState = DefineEnnemiState(out resultText, out move, move, playerColor);
+
                 if (BoardsHelper.IsCheck(playerColor, this.Cases))
                     throw (new DaChessException("Coup impossible, échec !"));
-
 
                 // mise à jour de l'historique        
                 if (String.IsNullOrEmpty(party.History))
@@ -214,12 +194,15 @@ namespace DaChess.Business
                     party.WhiteTurn = promotePawn == true ? party.WhiteTurn : !party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
-                    party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
-                    party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
-                    party.BlackIsCheckMat = isEnnemiCheckMat && playerColor == Colors.WHITE;
-                    party.WhiteIsCheckMat = isEnnemiCheckMat && playerColor == Colors.BLACK;
+                    party.BlackIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.WHITE;
+                    party.WhiteIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.BLACK;
+                    party.BlackIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.WHITE;
+                    party.WhiteIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.BLACK;
+                    party.BlackIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.WHITE;
+                    party.WhiteIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.BLACK;
                     party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
                     party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
+
                     context.SaveChanges();
                 }
             }
@@ -233,78 +216,83 @@ namespace DaChess.Business
                     String.Format("Erreur non gérée lors du coup {0}", move), ex);
             }
 
-            return toReturn;
+            return resultText;
         }
 
         public void PromotePiece(string partyName, string choisedPiece, string playerToken)
         {
-            Party party = PartyHelper.GetByName(partyName);
-            Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
-            this.Init(party.Board);
-
-            // on récupère le pion correspondant
-            int limitLine = 0;
-            if (playerColor == Colors.WHITE) // uniquement les lignes de fond de plateau
-                limitLine = this.Cases.Length - 1;
-
-            for (int col = 0; col < this.Cases[limitLine].Length; col++)
+            try
             {
-                if (Cases[limitLine][col].Piece.HasValue
-                    && Cases[limitLine][col].Piece.Value == PiecesType.PAWN
-                    && Cases[limitLine][col].PieceColor == playerColor)
+                Party party = PartyHelper.GetByName(partyName);
+                Colors playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                this.Init(party.Board);
+
+                // on récupère le pion correspondant
+                int limitLine = 0;
+                if (playerColor == Colors.WHITE) // uniquement les lignes de fond de plateau
+                    limitLine = this.Cases.Length - 1;
+
+                for (int col = 0; col < this.Cases[limitLine].Length; col++)
                 {
-                    Cases[limitLine][col].Piece = this.GetPieceType(choisedPiece);
-                    break;
-                }
-            }
-
-            // mise à jour de l'historique
-            History histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
-            int lastMove = histo.Moves.Select(m => m.Key).Max();
-            string toAdd = String.Empty;
-            switch (this.GetPieceType(choisedPiece))
-            {
-                case PiecesType.BISHOP:
-                    toAdd = "=B";
-                    break;
-                case PiecesType.KNIGHT:
-                    toAdd = "=N";
-                    break;
-                case PiecesType.ROOK:
-                    toAdd = "=R";
-                    break;
-                case PiecesType.QUEEN:
-                    toAdd = "=Q";
-                    break;
-            }
-            histo.Moves[lastMove] += toAdd;
-
-            bool isEnnemiCheck = false;
-            if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-            {
-                // vérifier si on mat
-                if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-                {
-
+                    if (Cases[limitLine][col].Piece.HasValue
+                        && Cases[limitLine][col].Piece.Value == PiecesType.PAWN
+                        && Cases[limitLine][col].PieceColor == playerColor)
+                    {
+                        Cases[limitLine][col].Piece = this.GetPieceType(choisedPiece);
+                        break;
+                    }
                 }
 
-                isEnnemiCheck = true;
-                histo.Moves[lastMove] += "!";
+                // mise à jour de l'historique
+                History histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
+                int lastMove = histo.Moves.Select(m => m.Key).Max();
+                string toAdd = String.Empty;
+                switch (this.GetPieceType(choisedPiece))
+                {
+                    case PiecesType.BISHOP:
+                        toAdd = "=B";
+                        break;
+                    case PiecesType.KNIGHT:
+                        toAdd = "=N";
+                        break;
+                    case PiecesType.ROOK:
+                        toAdd = "=R";
+                        break;
+                    case PiecesType.QUEEN:
+                        toAdd = "=Q";
+                        break;
+                }
+                histo.Moves[lastMove] += toAdd;
+
+                PlayerState ennemiState = DefineEnnemiState(playerColor);
+
+                // on sauvegarde la partie
+                using (var context = new ChessEntities())
+                {
+                    context.Parties.Attach(party);
+                    party.Board = this.ToJsonString();
+                    party.WhiteTurn = !party.WhiteTurn; // on ne change de joueur après promotion
+                    party.BlackCanPromote = false;
+                    party.WhiteCanPromote = false;
+                    party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                    party.BlackIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.WHITE;
+                    party.WhiteIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.BLACK;
+                    party.BlackIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.WHITE;
+                    party.WhiteIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.BLACK;
+                    party.BlackIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.WHITE;
+                    party.WhiteIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.BLACK;
+                    context.SaveChanges();
+                }
+            }
+            catch (DaChessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DaChessException("Erreur non gérée lors de la promotion", ex);
             }
 
-            // on sauvegarde la partie
-            using (var context = new ChessEntities())
-            {
-                context.Parties.Attach(party);
-                party.Board = this.ToJsonString();
-                party.WhiteTurn = !party.WhiteTurn; // on ne change de joueur après promotion
-                party.BlackCanPromote = false;
-                party.WhiteCanPromote = false;
-                party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
-                party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
-                party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
-                context.SaveChanges();
-            }
         }
 
         public string ToJsonString()
@@ -330,6 +318,52 @@ namespace DaChess.Business
                 innerString.Remove(innerString.Length - 1, 1);
 
             return string.Format(toReturn, innerString.ToString());
+        }
+
+        private PlayerState DefineEnnemiState(Colors playerColor)
+        {
+            PlayerState toReturn = PlayerState.UNDEFINE;
+
+            // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
+            if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+            {
+                // vérifier si on mat
+                if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+                    toReturn = PlayerState.CHECKMAT;
+                else
+                    toReturn = PlayerState.CHECK;
+            }
+            else if (BoardsHelper.IsPat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+                toReturn = PlayerState.PAT;
+
+            if (BoardsHelper.IsCheck(playerColor, this.Cases))
+                throw (new DaChessException("Coup impossible, échec !"));
+
+            return toReturn;
+        }
+
+        private PlayerState DefineEnnemiState(out string resultText, out string moveResult, string move, Colors playerColor)
+        {
+            PlayerState toReturn = DefineEnnemiState(playerColor);
+
+            resultText = String.Empty;
+            moveResult = move;
+            switch (toReturn)
+            {
+                case PlayerState.CHECK:
+                    resultText = "Echec !";
+                    moveResult = String.Concat(move, "+");
+                    break;
+                case PlayerState.CHECKMAT:
+                    resultText = "Echec et Mat !";
+                    moveResult = String.Concat(move, "++");
+                    break;
+                case PlayerState.PAT:
+                    resultText = "Pat !";
+                    break;
+            }
+
+            return toReturn;
         }
 
         private string CaseInfoToJson(CaseInfo c, int col, int line)

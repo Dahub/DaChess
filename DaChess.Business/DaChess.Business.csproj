@@ -63,6 +63,7 @@
     <Compile Include="Board.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
+    <Compile Include="Enum\PlayerState.cs" />
     <Compile Include="Managers\BoardManager.cs" />
     <Compile Include="Enum\Colors.cs" />
     <Compile Include="Domain.Context.cs">

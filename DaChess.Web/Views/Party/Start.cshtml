@@ -146,7 +146,9 @@
         WhiteCanPromote: false,
         BlackCanPromote: false,
         WhiteIsCheckMat: false,
-        BlackIsCheckMat: false
+        BlackIsCheckMat: false,
+        WhiteIsPat: false,
+        BlackIsPat: false
     }
 
     var size = 400;
@@ -476,6 +478,8 @@
         party.BlackCanPromote = data.BlackCanPromote;
         party.WhiteIsCheckMat = data.WhiteIsCheckMat;
         party.BlackIsCheckMat = data.BlackIsCheckMat;
+        party.BlackIsPat = data.BlackIsPat;
+        party.WhiteIsPat = data.WhiteIsPat;
     }
 
     function refreshCanvas() {

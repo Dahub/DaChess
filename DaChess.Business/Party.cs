@@ -31,6 +31,8 @@ namespace DaChess.Business
         public Nullable<bool> BlackCanPromote { get; set; }
         public Nullable<bool> WhiteIsCheckMat { get; set; }
         public Nullable<bool> BlackIsCheckMat { get; set; }
+        public Nullable<bool> WhiteIsPat { get; set; }
+        public Nullable<bool> BlackIsPat { get; set; }
     
         public virtual Board BoardType { get; set; }
     }

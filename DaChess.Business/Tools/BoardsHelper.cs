@@ -417,6 +417,31 @@ namespace DaChess.Business
             return true;
         }
 
+        internal static bool IsPat(Colors kingColor, CaseInfo[][] board)
+        {
+            // on est pat si on ne peut jouer le roi sans être échec
+            Coord kingCoord = ExtractKing(kingColor, board);
+            IList<Coord> ennemies = BuildPieceList(board, kingColor == Colors.WHITE ? Colors.BLACK : Colors.WHITE);
+
+            // le roi ne doit pas pouvoir bouger on commence par tester le déplacement du roi en diagonal supérieur gauche, puis sens horaire
+            if (KingCanMove(ennemies, board, kingCoord))
+                return false;
+
+            // on regarde si on peut bouger une pièce
+            IList<Coord> pieces = BuildPieceList(board, kingColor);
+
+            // on vérifie les pions : déplacement + prise
+            int direction = 1;
+            if (kingColor == Colors.BLACK)
+                direction = -1;
+            
+
+
+            // ensuite les autres pièces, déplacement d'1 case suffit (avec prise)
+
+            return true;
+        }
+
         private static bool TryAllMoveDiagonalOrLateralToCancelCheck(int colDirection, int lineDirection, Coord c, CaseInfo[][] board, Colors kingColor)
         {
             int col = c.Col;
