@@ -46,6 +46,29 @@
 </div>
 <br />
 
+<!-- Modal box pour le mat -->
+<div class="modal fade" id="matModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Echec et Mat !</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div id="matText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validMat" class="btn btn-primary" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal box pour la promotion -->
 <div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -137,6 +160,8 @@
     var myBoard;
     var myHistory;
 
+    var partyOver = false;
+
     $(document).ready(function () {
         $(function () {
             var partyHub = $.connection.partyHub;
@@ -152,7 +177,6 @@
             });
 
             partyHub.client.addNewMessageToPage = function (name, message) {
-
                 if ($("#discussion li").length > 10) {
                     $('#discussion li:last').remove();
                 }
@@ -185,7 +209,7 @@
 
             partyHub.client.SendInfo = function (info) {
                 setMsg(info);
-            }           
+            }
         });
 
         // récupération de la partie
@@ -202,7 +226,7 @@
             myBoard = JSON.parse(party.Board);
             refreshCanvas();
             // on tente de voir si on a des données de cookies
-          
+
             $.ajax({
                 url: "/Player/GetPlayerPartyName",
                 type: "get",
@@ -211,9 +235,9 @@
                         $.ajax({
                             url: "/Player/GetPlayerToken",
                             type: "get",
-                            success: function (dataToken) {                                
+                            success: function (dataToken) {
                                 $('#token').val(dataToken);
-                               
+
                                 // on récupère la couleur via l'API
                                 $.ajax({
                                     url: '/Player/GetPlayerInfo',
@@ -222,7 +246,7 @@
                                     type: 'GET',
                                     dataType: "json",
                                     contentType: 'application/json; charset=utf-8'
-                                }).done(function (data) {                                    
+                                }).done(function (data) {
                                     if (data.IsWhite == true)
                                         ImWhitePlayer(dataToken);
                                     if (data.IsBlack == true)
@@ -252,7 +276,7 @@
                     }
                 }
             });
-            
+
             RefreshPartyState();
         });
 
@@ -291,7 +315,7 @@
             party.BlackAskToPlay = true;
             addPlayer('black');
         });
-    });   
+    });
 
     function htmlEncode(value) {
         var encodedValue = $('<div />').text(value).html();
@@ -324,7 +348,22 @@
             refreshCanvas();
             refreshHistory();
             checkPromote();
+            checkCheckMat();
         });
+    }
+
+    function checkCheckMat() {
+        if ((party.WhiteIsCheckMat || party.BlackIsCheckMat) && partyOver == false) {
+            if ($('#isWhitePlayer').val() == 'true' && party.BlackIsCheckMat == true
+                || $('#isBlackPlayer').val() == 'true' && party.WhiteIsCheckMat == true) {
+                $('#matText').html('<h3>Vous avez gagné</h3>')
+            }
+            else {
+                $('#matText').html('<h3>Vous avez perdu :(</h3>')
+            }
+            partyOver = true;
+            $('#matModal').modal('show');
+        }
     }
 
     function checkPromote() {
@@ -461,14 +500,14 @@
             }
         }
 
-        for (var i = 0; i < myBoard.board.length; i++) {       
+        for (var i = 0; i < myBoard.board.length; i++) {
             if (isEmpty(myBoard.board[i].piece) == false) {
                 var xPos = ((letterToNumber(myBoard.board[i].col) - 1) * caseSize) + piecePadding;
                 var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
 
 
                 var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
-                ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);                
+                ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
 
                 if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && $('#isWhitePlayer').val() == 'true')
                     || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && $('#isBlackPlayer').val() == 'true')) {
@@ -597,7 +636,6 @@
         return (!str || 0 === str.length);
     }
 </script>
-
 <!-- ligne avec les coups, le plateau et le tchat -->
 <div class="row">
     <div class="col-md-3" id="moveDiv">

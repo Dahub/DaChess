@@ -15,7 +15,7 @@ namespace DaChess.Business
         internal BoardManager()
         {
             Cases = new CaseInfo[BOARD_CASE][];
-            for(int i = 0;i< BOARD_CASE;i++)
+            for (int i = 0; i < BOARD_CASE; i++)
             {
                 Cases[i] = new CaseInfo[8];
             }
@@ -27,10 +27,10 @@ namespace DaChess.Business
             var routes_list = (IDictionary<string, object>)json_serializer.DeserializeObject(jsonBoard);
             object[] cases = (object[])(routes_list["board"]);
 
-            for(int i = 0; i< cases.Length;i++)
+            for (int i = 0; i < cases.Length; i++)
             {
                 IDictionary<string, object> myCase = (IDictionary<string, object>)cases[i];
-                   
+
                 int col = BoardsHelper.ColToInt(myCase["col"].ToString());
                 int line = Int32.Parse(myCase["line"].ToString());
 
@@ -75,15 +75,16 @@ namespace DaChess.Business
                 string enPassant = String.Empty;
                 bool promotePawn = false;
                 bool isEnnemiCheck = false;
+                bool isEnnemiCheckMat = false;
                 History histo = null;
 
                 int startLine = Int32.Parse(cases[0].Substring(1, 1)) - 1;
-                int startCol = BoardsHelper.ColToInt(cases[0].Substring(0, 1)) -1;
+                int startCol = BoardsHelper.ColToInt(cases[0].Substring(0, 1)) - 1;
 
-                if(Cases[startLine][startCol].Piece.HasValue)
+                if (Cases[startLine][startCol].Piece.HasValue)
                 {
-                    int endLine = Int32.Parse(cases[1].Substring(1, 1)) -1;
-                    int endCol = BoardsHelper.ColToInt(cases[1].Substring(0, 1)) -1;
+                    int endLine = Int32.Parse(cases[1].Substring(1, 1)) - 1;
+                    int endCol = BoardsHelper.ColToInt(cases[1].Substring(0, 1)) - 1;
                     MovesType mt;
 
                     if (!BoardsHelper.IsLegalMove(Cases[startLine][startCol], Cases[endLine][endCol], Cases, startLine, endLine, startCol, endCol, party, out mt))
@@ -91,7 +92,7 @@ namespace DaChess.Business
                         throw new DaChessException("Coup illégal");
                     }
 
-                    switch(mt)
+                    switch (mt)
                     {
                         case MovesType.CLASSIC:
                             move = move.Replace(" ", String.Empty);
@@ -113,7 +114,7 @@ namespace DaChess.Business
                             toReturn = "Prise en passant !";
                             break;
                         case MovesType.CASTLING_SHORT:
-                            move = "O-O";                            
+                            move = "O-O";
                             this.Cases[startLine][endCol - 1].HasMove = true;
                             this.Cases[startLine][endCol - 1].Piece = PiecesType.ROOK;
                             this.Cases[startLine][endCol - 1].PieceColor = this.Cases[startLine][this.Cases[startLine].Length - 1].PieceColor;
@@ -135,13 +136,13 @@ namespace DaChess.Business
                         case MovesType.PROMOTE:
                             promotePawn = true;
                             toReturn = "Promotion du pion";
-                            if(Cases[endLine][endCol].Piece.HasValue)
+                            if (Cases[endLine][endCol].Piece.HasValue)
                                 move = move.Replace(" ", "x");
                             break;
                         default:
                             move = move.Replace(" ", "-");
                             break;
-                    }                  
+                    }
 
                     // pour la gestion de la prise en passant
                     if (Cases[startLine][startCol].Piece == PiecesType.PAWN && Math.Abs(startLine - endLine) == 2) // un pion qui a bougé de 2 cases
@@ -154,7 +155,7 @@ namespace DaChess.Business
                     Cases[endLine][endCol].PieceColor = Cases[startLine][startCol].PieceColor;
                     Cases[startLine][startCol].HasMove = null;
                     Cases[startLine][startCol].Piece = null;
-                    Cases[startLine][startCol].PieceColor = null;        
+                    Cases[startLine][startCol].PieceColor = null;
                 }
                 else
                 {
@@ -162,16 +163,21 @@ namespace DaChess.Business
                 }
 
                 // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
-                if (BoardsHelper.IsCheck(playerColor == Colors.BLACK?Colors.WHITE:Colors.BLACK, this.Cases))
+                if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
                 {
                     // vérifier si on mat
-                    if(BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
+                    if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
                     {
-
+                        toReturn = "Echec et Mat !";
+                        isEnnemiCheckMat = true;
+                        move = String.Concat(move, "!!");
                     }
-                    toReturn = "Echec !";
-                    isEnnemiCheck = true;
-                    move = String.Concat(move, "!");
+                    else
+                    {
+                        toReturn = "Echec !";
+                        isEnnemiCheck = true;
+                        move = String.Concat(move, "!");
+                    }
                 }
                 if (BoardsHelper.IsCheck(playerColor, this.Cases))
                     throw (new DaChessException("Coup impossible, échec !"));
@@ -200,16 +206,18 @@ namespace DaChess.Business
                 {
                     histo.Moves[moveNumber] += " " + move;
                 }
-                
+
                 using (var context = new ChessEntities())
                 {
                     context.Parties.Attach(party);
                     party.Board = this.ToJsonString();
-                    party.WhiteTurn = promotePawn == true?party.WhiteTurn:!party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
+                    party.WhiteTurn = promotePawn == true ? party.WhiteTurn : !party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
                     party.BlackIsCheck = isEnnemiCheck && playerColor == Colors.WHITE;
                     party.WhiteIsCheck = isEnnemiCheck && playerColor == Colors.BLACK;
+                    party.BlackIsCheckMat = isEnnemiCheckMat && playerColor == Colors.WHITE;
+                    party.WhiteIsCheckMat = isEnnemiCheckMat && playerColor == Colors.BLACK;
                     party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
                     party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
                     context.SaveChanges();
@@ -239,10 +247,10 @@ namespace DaChess.Business
             if (playerColor == Colors.WHITE) // uniquement les lignes de fond de plateau
                 limitLine = this.Cases.Length - 1;
 
-            for(int col = 0; col<this.Cases[limitLine].Length; col++)
+            for (int col = 0; col < this.Cases[limitLine].Length; col++)
             {
-                if(Cases[limitLine][col].Piece.HasValue 
-                    && Cases[limitLine][col].Piece.Value == PiecesType.PAWN 
+                if (Cases[limitLine][col].Piece.HasValue
+                    && Cases[limitLine][col].Piece.Value == PiecesType.PAWN
                     && Cases[limitLine][col].PieceColor == playerColor)
                 {
                     Cases[limitLine][col].Piece = this.GetPieceType(choisedPiece);
@@ -254,7 +262,7 @@ namespace DaChess.Business
             History histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
             int lastMove = histo.Moves.Select(m => m.Key).Max();
             string toAdd = String.Empty;
-            switch(this.GetPieceType(choisedPiece))
+            switch (this.GetPieceType(choisedPiece))
             {
                 case PiecesType.BISHOP:
                     toAdd = "=B";
@@ -306,21 +314,21 @@ namespace DaChess.Business
             StringBuilder innerString = new StringBuilder();
 
             bool removeLastChar = false;
-            for (int line = 0; line< Cases.Length; line++)
+            for (int line = 0; line < Cases.Length; line++)
             {
-                for(int col = 0; col<Cases[line].Length;col++)
+                for (int col = 0; col < Cases[line].Length; col++)
                 {
-                    if(Cases[line][col].Piece.HasValue)
+                    if (Cases[line][col].Piece.HasValue)
                     {
                         innerString.Append(CaseInfoToJson(Cases[line][col], col, line));
                         innerString.Append(',');
                         removeLastChar = true;
                     }
-                }               
+                }
             }
             if (removeLastChar)
                 innerString.Remove(innerString.Length - 1, 1);
-       
+
             return string.Format(toReturn, innerString.ToString());
         }
 
@@ -344,7 +352,7 @@ namespace DaChess.Business
                 return false;
 
             return true;
-        }        
+        }
 
         private PiecesType GetPieceType(string piece)
         {
@@ -369,7 +377,7 @@ namespace DaChess.Business
             string toReturn = String.Empty;
             string pattern = "{0}_{1}";
             string color = c == Colors.BLACK ? "b" : "w";
-            switch(pt)
+            switch (pt)
             {
                 case PiecesType.BISHOP:
                     toReturn = String.Format(pattern, color, "bishop");
@@ -407,7 +415,7 @@ namespace DaChess.Business
     internal struct CaseInfo
     {
         public bool? HasMove { get; set; }
-        public PiecesType? Piece {get;set;}
+        public PiecesType? Piece { get; set; }
         public Colors? PieceColor { get; set; }
     }
 
