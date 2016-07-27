@@ -16,8 +16,6 @@ namespace DaChess.Business
     {
         public int Id { get; set; }
         public Nullable<System.DateTime> CreationDate { get; set; }
-        public string WhiteLink { get; set; }
-        public string BlackLink { get; set; }
         public string PartLink { get; set; }
         public int FK_Board_Type { get; set; }
         public string Board { get; set; }
@@ -33,6 +31,8 @@ namespace DaChess.Business
         public Nullable<bool> BlackIsCheckMat { get; set; }
         public Nullable<bool> WhiteIsPat { get; set; }
         public Nullable<bool> BlackIsPat { get; set; }
+        public string WhiteToken { get; set; }
+        public string BlackToken { get; set; }
     
         public virtual Board BoardType { get; set; }
     }

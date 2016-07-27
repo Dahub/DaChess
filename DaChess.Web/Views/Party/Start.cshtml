@@ -69,6 +69,30 @@
     </div>
 </div>
 
+<!-- Modal box pour le pat -->
+<div class="modal fade" id="patModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pat</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div id="patText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validPat" class="btn btn-primary" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal box pour la promotion -->
 <div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -351,7 +375,22 @@
             refreshHistory();
             checkPromote();
             checkCheckMat();
+            checkPat();
         });
+    }
+
+    function checkPat() {
+        if ((party.WhiteIsPat || party.BlackIsPat) && partyOver == false) {
+            if ($('#isWhitePlayer').val() == 'true' && party.BlackIsPat == true
+               || $('#isBlackPlayer').val() == 'true' && party.WhiteIsPat == true) {
+                $('#patText').html('<h3>Le roi adverse est Pat</h3>')
+            }
+            else {
+                $('#patText').html('<h3>Vous êtes Pat</h3>')
+            }
+            partyOver = true;
+            $('#patModal').modal('show');
+        }
     }
 
     function checkCheckMat() {

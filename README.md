@@ -32,13 +32,14 @@ Aucune inscription nécessaire
 * ~~prise en passant~~
 
 ### Gestion fin de partie
-* Mat
-* Pat
+* ~~Mat~~
+* ~~Pat~~
 * Abandon
-* Partie nulle
+* Proposer la nulle / accepter
 * Abandon
 * 3 Positions répétitives
 * 40 coups sans mouvement de pion
+* Reprise de l'historique
 
 ### V2
 * Gestion du temps

@@ -33,8 +33,8 @@ create table [chess].[Party]
 	Id integer not null primary key identity(1,1),
 	FK_Board_Type integer not null constraint fk_board_type foreign key references [chess].[Board] (Id),
 	CreationDate datetime null default getdate(),
-	WhiteLink nvarchar(256) null,
-	BlackLink nvarchar(256) null,
+	WhiteToken nvarchar(256) null,
+	BlackToken nvarchar(256) null,
 	PartLink nvarchar(256) null,	
 	Board text null,
 	History text null,
@@ -44,6 +44,8 @@ create table [chess].[Party]
 	BlackIsCheck bit null default 0,
 	WhiteIsCheckMat bit default 0,
 	BlackIsCheckMat bit default 0,
+	WhiteIsPat bit default 0,
+	BlackIsPat bit default 0,
 	WhiteCanPromote bit default 0,
 	BlackCanPromote bit default 0,	
 	EnPassantCase nvarchar(2) null
@@ -225,5 +227,76 @@ select * from [chess].[Board]
 select * from [chess].[Party]
 
 
-select WhiteCanPromote, BlackCanPromote, EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
+select BlackIsPat, WhiteIsPat, WhiteCanPromote, BlackCanPromote, EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
 select History from [chess].[Party]
+/*
+
+{
+		        "board":[{
+                "col" :"c",
+				"line" : "1",
+				"piece" : "w_king",
+                "hasMove" : "True"
+            },{
+                "col" :"f",
+				"line" : "2",
+				"piece" : "b_pawn",
+                "hasMove" : "True"
+            },{
+                "col" :"f",
+				"line" : "3",
+				"piece" : "b_knight",
+                "hasMove" : "True"
+            },{
+                "col" :"f",
+				"line" : "4",
+				"piece" : "b_knight",
+                "hasMove" : "True"
+            },{
+                "col" :"d",
+				"line" : "6",
+				"piece" : "w_pawn",
+                "hasMove" : "True"
+            },{
+                "col" :"e",
+				"line" : "6",
+				"piece" : "b_king",
+                "hasMove" : "True"
+            },{
+                "col" :"f",
+				"line" : "6",
+				"piece" : "b_queen",
+                "hasMove" : "True"
+            },{
+                "col" :"h",
+				"line" : "6",
+				"piece" : "b_bishop",
+                "hasMove" : "True"
+            },{
+                "col" :"a",
+				"line" : "7",
+				"piece" : "b_pawn",
+                "hasMove" : "False"
+            },{
+                "col" :"d",
+				"line" : "7",
+				"piece" : "b_pawn",
+                "hasMove" : "False"
+            },{
+                "col" :"h",
+				"line" : "7",
+				"piece" : "b_pawn",
+                "hasMove" : "False"
+            },{
+                "col" :"c",
+				"line" : "8",
+				"piece" : "b_rook",
+                "hasMove" : "True"
+            },{
+                "col" :"f",
+				"line" : "8",
+				"piece" : "b_rook",
+                "hasMove" : "True"
+            }]}
+
+			*/

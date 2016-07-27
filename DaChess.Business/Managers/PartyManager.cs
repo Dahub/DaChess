@@ -85,10 +85,10 @@ namespace DaChess.Business
                     if (toReturn == null)
                         throw new DaChessException(String.Format("Impossible de trouver la partie d'id {0}", partyId));
 
-                    if (!String.IsNullOrEmpty(toReturn.BlackLink) && playerColor == Colors.BLACK)
+                    if (!String.IsNullOrEmpty(toReturn.BlackToken) && playerColor == Colors.BLACK)
                         throw new DaChessException("La partie a déjà un jouer noir inscrit");
 
-                    if (!String.IsNullOrEmpty(toReturn.WhiteLink) && playerColor == Colors.WHITE)
+                    if (!String.IsNullOrEmpty(toReturn.WhiteToken) && playerColor == Colors.WHITE)
                         throw new DaChessException("La partie a déjà un jouer blanc inscrit");
 
                     // on génère le lien
@@ -98,15 +98,15 @@ namespace DaChess.Business
                     switch (playerColor)
                     {
                         case Colors.BLACK:
-                            if (String.IsNullOrEmpty(toReturn.BlackLink))
+                            if (String.IsNullOrEmpty(toReturn.BlackToken))
                             {
-                                toReturn.BlackLink = link;
+                                toReturn.BlackToken = link;
                             }
                             break;
                         case Colors.WHITE:
-                            if (String.IsNullOrEmpty(toReturn.WhiteLink))
+                            if (String.IsNullOrEmpty(toReturn.WhiteToken))
                             {
-                                toReturn.WhiteLink = link;
+                                toReturn.WhiteToken = link;
                             }
                             break;
                     }

@@ -20,8 +20,8 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FK_Board_Type" Type="int" Nullable="false" />
           <Property Name="CreationDate" Type="datetime" />
-          <Property Name="WhiteLink" Type="nvarchar" MaxLength="256" />
-          <Property Name="BlackLink" Type="nvarchar" MaxLength="256" />
+          <Property Name="WhiteToken" Type="nvarchar" MaxLength="256" />
+          <Property Name="BlackToken" Type="nvarchar" MaxLength="256" />
           <Property Name="PartLink" Type="nvarchar" MaxLength="256" />
           <Property Name="Board" Type="text" />
           <Property Name="History" Type="text" />
@@ -84,8 +84,6 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="CreationDate" Type="DateTime" Precision="3" />
-          <Property Name="WhiteLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="BlackLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="PartLink" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="FK_Board_Type" Type="Int32" Nullable="false" />
           <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
@@ -102,6 +100,8 @@
           <Property Name="BlackIsCheckMat" Type="Boolean" />
           <Property Name="WhiteIsPat" Type="Boolean" />
           <Property Name="BlackIsPat" Type="Boolean" />
+          <Property Name="WhiteToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="BlackToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -133,6 +133,8 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="BlackToken" ColumnName="BlackToken" />
+                <ScalarProperty Name="WhiteToken" ColumnName="WhiteToken" />
                 <ScalarProperty Name="BlackIsPat" ColumnName="BlackIsPat" />
                 <ScalarProperty Name="WhiteIsPat" ColumnName="WhiteIsPat" />
                 <ScalarProperty Name="BlackIsCheckMat" ColumnName="BlackIsCheckMat" />
@@ -148,8 +150,6 @@
                 <ScalarProperty Name="Board" ColumnName="Board" />
                 <ScalarProperty Name="FK_Board_Type" ColumnName="FK_Board_Type" />
                 <ScalarProperty Name="PartLink" ColumnName="PartLink" />
-                <ScalarProperty Name="BlackLink" ColumnName="BlackLink" />
-                <ScalarProperty Name="WhiteLink" ColumnName="WhiteLink" />
                 <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>

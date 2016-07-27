@@ -455,6 +455,12 @@ namespace DaChess.Business
 
     internal struct Coord
     {
+        public Coord(int l, int c)
+        {
+            Line = l;
+            Col = c;
+        }
+
         public int Line { get; set; }
         public int Col { get; set; }
     }

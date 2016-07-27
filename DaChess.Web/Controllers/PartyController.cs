@@ -54,8 +54,8 @@ namespace DaChess.Web.Controllers
                     Id = myParty.Id,
                     Board = myParty.Board,
                     Name = myParty.PartLink,
-                    BlackToken = myParty.BlackLink,
-                    WhiteToken = myParty.WhiteLink,
+                    BlackToken = myParty.BlackToken,
+                    WhiteToken = myParty.WhiteToken,
                     WhiteTurn = myParty.WhiteTurn,
                     History = myParty.History,
                     BlackIsCheck = myParty.BlackIsCheck.HasValue?myParty.BlackIsCheck.Value:false,
@@ -64,6 +64,8 @@ namespace DaChess.Web.Controllers
                     WhiteCanPromote = myParty.WhiteCanPromote.HasValue?myParty.WhiteCanPromote.Value:false,    
                     BlackIsCheckMat = myParty.BlackIsCheckMat.HasValue?myParty.BlackIsCheckMat.Value:false,
                     WhiteIsCheckMat = myParty.WhiteIsCheckMat.HasValue?myParty.WhiteIsCheckMat.Value:false,
+                    WhiteIsPat = myParty.WhiteIsPat.HasValue?myParty.WhiteIsPat.Value:false,
+                    BlackIsPat = myParty.BlackIsPat.HasValue?myParty.BlackIsPat.Value:false,
                     IsError = false,
                     ErrorMessage = String.Empty
                 };
@@ -96,12 +98,12 @@ namespace DaChess.Web.Controllers
                 if (party.WhiteAskToPlay && String.IsNullOrEmpty(party.WhiteToken))
                 {
                     var myParty = Factory.Instance.GetPartyManager().AddPlayerToParty(party.Id, Colors.WHITE);
-                    party.WhiteToken = myParty.WhiteLink;
+                    party.WhiteToken = myParty.WhiteToken;
                 }
                 else if (party.BlackAskToPlay && String.IsNullOrEmpty(party.BlackToken))
                 {
                     var myParty = Factory.Instance.GetPartyManager().AddPlayerToParty(party.Id, Colors.BLACK);
-                    party.BlackToken = myParty.BlackLink;
+                    party.BlackToken = myParty.BlackToken;
                 }
             }
             catch (DaChessException ex)

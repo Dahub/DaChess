@@ -33,7 +33,7 @@ namespace DaChess.Business
 
         internal static bool IsPlayerInParty(Party party, string token)
         {
-            if (party.WhiteLink == token || party.BlackLink == token)
+            if (party.WhiteToken == token || party.BlackToken == token)
                 return true;
             return false;
         }
