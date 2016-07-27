@@ -158,7 +158,7 @@ namespace DaChess.Business
                     throw new DaChessException("Coup illégal, aucune pièce sur la case de départ");
                 }
 
-                PlayerState ennemiState = DefineEnnemiState(out resultText, out move, move, playerColor);
+                PlayerStateEnum ennemiState = DefineEnnemiState(out resultText, out move, move, playerColor);
 
                 if (BoardsHelper.IsCheck(playerColor, this.Cases))
                     throw (new DaChessException("Coup impossible, échec !"));
@@ -194,12 +194,16 @@ namespace DaChess.Business
                     party.WhiteTurn = promotePawn == true ? party.WhiteTurn : !party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
-                    party.BlackIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.WHITE;
-                    party.WhiteIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.BLACK;
-                    party.BlackIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.WHITE;
-                    party.WhiteIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.BLACK;
-                    party.BlackIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.WHITE;
-                    party.WhiteIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.BLACK;
+                    if (playerColor == Colors.WHITE)
+                    { 
+                        party.FK_Black_Player_Stat = (int)ennemiState;
+                        party.FK_White_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
+                    }
+                    else
+                    {                        
+                        party.FK_White_Player_Stat = (int)ennemiState;
+                        party.FK_Black_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
+                    }                  
                     party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
                     party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
 
@@ -264,7 +268,7 @@ namespace DaChess.Business
                 }
                 histo.Moves[lastMove] += toAdd;
 
-                PlayerState ennemiState = DefineEnnemiState(playerColor);
+                PlayerStateEnum ennemiState = DefineEnnemiState(playerColor);
 
                 // on sauvegarde la partie
                 using (var context = new ChessEntities())
@@ -275,12 +279,16 @@ namespace DaChess.Business
                     party.BlackCanPromote = false;
                     party.WhiteCanPromote = false;
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
-                    party.BlackIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.WHITE;
-                    party.WhiteIsCheck = ennemiState == PlayerState.CHECK && playerColor == Colors.BLACK;
-                    party.BlackIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.WHITE;
-                    party.WhiteIsCheckMat = ennemiState == PlayerState.CHECKMAT && playerColor == Colors.BLACK;
-                    party.BlackIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.WHITE;
-                    party.WhiteIsPat = ennemiState == PlayerState.PAT && playerColor == Colors.BLACK;
+                    if (playerColor == Colors.WHITE)
+                    {
+                        party.FK_Black_Player_Stat = (int)ennemiState;
+                        party.FK_White_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
+                    }
+                    else
+                    {
+                        party.FK_White_Player_Stat = (int)ennemiState;
+                        party.FK_Black_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
+                    }
                     context.SaveChanges();
                 }
             }
@@ -320,21 +328,21 @@ namespace DaChess.Business
             return string.Format(toReturn, innerString.ToString());
         }
 
-        private PlayerState DefineEnnemiState(Colors playerColor)
+        private PlayerStateEnum DefineEnnemiState(Colors playerColor)
         {
-            PlayerState toReturn = PlayerState.UNDEFINE;
+            PlayerStateEnum toReturn = PlayerStateEnum.UNDEFINE;
 
             // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
             if (BoardsHelper.IsCheck(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
             {
                 // vérifier si on mat
                 if (BoardsHelper.IsCheckMat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-                    toReturn = PlayerState.CHECKMAT;
+                    toReturn = PlayerStateEnum.CHECKMAT;
                 else
-                    toReturn = PlayerState.CHECK;
+                    toReturn = PlayerStateEnum.CHECK;
             }
             else if (BoardsHelper.IsPat(playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, this.Cases))
-                toReturn = PlayerState.PAT;
+                toReturn = PlayerStateEnum.PAT;
 
             if (BoardsHelper.IsCheck(playerColor, this.Cases))
                 throw (new DaChessException("Coup impossible, échec !"));
@@ -342,23 +350,23 @@ namespace DaChess.Business
             return toReturn;
         }
 
-        private PlayerState DefineEnnemiState(out string resultText, out string moveResult, string move, Colors playerColor)
+        private PlayerStateEnum DefineEnnemiState(out string resultText, out string moveResult, string move, Colors playerColor)
         {
-            PlayerState toReturn = DefineEnnemiState(playerColor);
+            PlayerStateEnum toReturn = DefineEnnemiState(playerColor);
 
             resultText = String.Empty;
             moveResult = move;
             switch (toReturn)
             {
-                case PlayerState.CHECK:
+                case PlayerStateEnum.CHECK:
                     resultText = "Echec !";
                     moveResult = String.Concat(move, "+");
                     break;
-                case PlayerState.CHECKMAT:
+                case PlayerStateEnum.CHECKMAT:
                     resultText = "Echec et Mat !";
                     moveResult = String.Concat(move, "++");
                     break;
-                case PlayerState.PAT:
+                case PlayerStateEnum.PAT:
                     resultText = "Pat !";
                     break;
             }

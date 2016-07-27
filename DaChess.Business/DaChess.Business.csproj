@@ -63,7 +63,7 @@
     <Compile Include="Board.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>
-    <Compile Include="Enum\PlayerState.cs" />
+    <Compile Include="Enum\PlayerStateEnum.cs" />
     <Compile Include="Managers\BoardManager.cs" />
     <Compile Include="Enum\Colors.cs" />
     <Compile Include="Domain.Context.cs">
@@ -91,6 +91,9 @@
     <Compile Include="Managers\PartyManager.cs" />
     <Compile Include="Enum\PiecesType.cs" />
     <Compile Include="Managers\PlayerManager.cs" />
+    <Compile Include="PlayerState.cs">
+      <DependentUpon>Domain.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\BoardsHelper.cs" />
     <Compile Include="Tools\CryptoHelper.cs" />

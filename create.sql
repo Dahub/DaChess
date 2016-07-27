@@ -19,6 +19,16 @@ go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Board]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Board]
 go
+if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PlayerState]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [chess].[PlayerState]
+go
+
+create table [chess].[PlayerState]
+(
+	Id integer not null primary key identity(1,1),
+	Wording nvarchar(32)
+)
+go
 
 create table [chess].[Board]
 (
@@ -40,18 +50,18 @@ create table [chess].[Party]
 	History text null,
 	WhiteTurn bit not null default 1,
 	Seed nvarchar(64) not null,
-	WhiteIsCheck bit null default 0,
-	BlackIsCheck bit null default 0,
-	WhiteIsCheckMat bit default 0,
-	BlackIsCheckMat bit default 0,
-	WhiteIsPat bit default 0,
-	BlackIsPat bit default 0,
+	FK_White_Player_Stat integer not null constraint fk_white_player_state foreign key references [chess].[PlayerState] (id) default 1,
+	FK_Black_Player_Stat integer not null constraint fk_black_player_state foreign key references [chess].[PlayerState] (id) default 1,	
 	WhiteCanPromote bit default 0,
 	BlackCanPromote bit default 0,	
 	EnPassantCase nvarchar(2) null
 )
 go
 
+insert into [chess].[PlayerState] (wording) values ('Undefined')
+insert into [chess].[PlayerState] (wording) values ('Check')
+insert into [chess].[PlayerState] (wording) values ('Pat')
+insert into [chess].[PlayerState] (wording) values ('CheckMat')
 
 insert into [chess].[Board] (Wording, Content) values
 ('Classic',
@@ -222,6 +232,7 @@ insert into [chess].[Board] (Wording, Content) values
 ')
 go
 
+/*
 
 select * from [chess].[Board]
 select * from [chess].[Party]
@@ -229,7 +240,6 @@ select * from [chess].[Party]
 
 select BlackIsPat, WhiteIsPat, WhiteCanPromote, BlackCanPromote, EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]
 select History from [chess].[Party]
-/*
 
 {
 		        "board":[{

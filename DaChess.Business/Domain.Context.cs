@@ -27,5 +27,6 @@ namespace DaChess.Business
     
         public virtual DbSet<Board> Boards { get; set; }
         public virtual DbSet<Party> Parties { get; set; }
+        public virtual DbSet<PlayerState> PlayerStates { get; set; }
     }
 }

@@ -22,18 +22,16 @@ namespace DaChess.Business
         public string History { get; set; }
         public bool WhiteTurn { get; set; }
         public string Seed { get; set; }
-        public Nullable<bool> WhiteIsCheck { get; set; }
-        public Nullable<bool> BlackIsCheck { get; set; }
         public string EnPassantCase { get; set; }
         public Nullable<bool> WhiteCanPromote { get; set; }
         public Nullable<bool> BlackCanPromote { get; set; }
-        public Nullable<bool> WhiteIsCheckMat { get; set; }
-        public Nullable<bool> BlackIsCheckMat { get; set; }
-        public Nullable<bool> WhiteIsPat { get; set; }
-        public Nullable<bool> BlackIsPat { get; set; }
         public string WhiteToken { get; set; }
         public string BlackToken { get; set; }
+        public int FK_White_Player_Stat { get; set; }
+        public int FK_Black_Player_Stat { get; set; }
     
         public virtual Board BoardType { get; set; }
+        public virtual PlayerState BlackPlayerState { get; set; }
+        public virtual PlayerState WhitePlayerState { get; set; }
     }
 }

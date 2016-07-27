@@ -27,16 +27,31 @@
           <Property Name="History" Type="text" />
           <Property Name="WhiteTurn" Type="bit" Nullable="false" />
           <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
-          <Property Name="WhiteIsCheck" Type="bit" />
-          <Property Name="BlackIsCheck" Type="bit" />
-          <Property Name="WhiteIsCheckMat" Type="bit" />
-          <Property Name="BlackIsCheckMat" Type="bit" />
-          <Property Name="WhiteIsPat" Type="bit" />
-          <Property Name="BlackIsPat" Type="bit" />
+          <Property Name="FK_White_Player_Stat" Type="int" Nullable="false" />
+          <Property Name="FK_Black_Player_Stat" Type="int" Nullable="false" />
           <Property Name="WhiteCanPromote" Type="bit" />
           <Property Name="BlackCanPromote" Type="bit" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
         </EntityType>
+        <EntityType Name="PlayerState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="32" />
+        </EntityType>
+        <Association Name="fk_black_player_state">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_Black_Player_Stat" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_board_type">
           <End Role="Board" Type="Self.Board" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
@@ -49,11 +64,32 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_white_player_state">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_White_Player_Stat" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="Board" EntityType="Self.Board" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="PlayerState" EntityType="Self.PlayerState" Schema="chess" store:Type="Tables" />
+          <AssociationSet Name="fk_black_player_state" Association="Self.fk_black_player_state">
+            <End Role="PlayerState" EntitySet="PlayerState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
           <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
             <End Role="Board" EntitySet="Board" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_white_player_state" Association="Self.fk_white_player_state">
+            <End Role="PlayerState" EntitySet="PlayerState" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
         </EntityContainer>
@@ -66,6 +102,15 @@
           <EntitySet Name="Parties" EntityType="ChessModel.Party" />
           <AssociationSet Name="fk_board_type" Association="ChessModel.fk_board_type">
             <End Role="Board" EntitySet="Boards" />
+            <End Role="Party" EntitySet="Parties" />
+          </AssociationSet>
+          <EntitySet Name="PlayerStates" EntityType="ChessModel.PlayerState" />
+          <AssociationSet Name="fk_black_player_state" Association="ChessModel.fk_black_player_state">
+            <End Role="PlayerState" EntitySet="PlayerStates" />
+            <End Role="Party" EntitySet="Parties" />
+          </AssociationSet>
+          <AssociationSet Name="fk_white_player_state" Association="ChessModel.fk_white_player_state">
+            <End Role="PlayerState" EntitySet="PlayerStates" />
             <End Role="Party" EntitySet="Parties" />
           </AssociationSet>
         </EntityContainer>
@@ -91,17 +136,15 @@
           <Property Name="WhiteTurn" Type="Boolean" Nullable="false" />
           <Property Name="Seed" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BoardType" Relationship="ChessModel.fk_board_type" FromRole="Party" ToRole="Board" />
-          <Property Name="WhiteIsCheck" Type="Boolean" />
-          <Property Name="BlackIsCheck" Type="Boolean" />
           <Property Name="EnPassantCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
           <Property Name="WhiteCanPromote" Type="Boolean" />
           <Property Name="BlackCanPromote" Type="Boolean" />
-          <Property Name="WhiteIsCheckMat" Type="Boolean" />
-          <Property Name="BlackIsCheckMat" Type="Boolean" />
-          <Property Name="WhiteIsPat" Type="Boolean" />
-          <Property Name="BlackIsPat" Type="Boolean" />
           <Property Name="WhiteToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="BlackToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="FK_White_Player_Stat" Type="Int32" Nullable="false" />
+          <Property Name="FK_Black_Player_Stat" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="BlackPlayerState" Relationship="ChessModel.fk_black_player_state" FromRole="Party" ToRole="PlayerState" />
+          <NavigationProperty Name="WhitePlayerState" Relationship="ChessModel.fk_white_player_state" FromRole="Party" ToRole="PlayerState" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -112,6 +155,39 @@
             </Principal>
             <Dependent Role="Party">
               <PropertyRef Name="FK_Board_Type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="PlayerState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" MaxLength="32" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Parties" Relationship="ChessModel.fk_black_player_state" FromRole="PlayerState" ToRole="Party" />
+          <NavigationProperty Name="Parties1" Relationship="ChessModel.fk_white_player_state" FromRole="PlayerState" ToRole="Party" />
+        </EntityType>
+        <Association Name="fk_black_player_state">
+          <End Type="ChessModel.PlayerState" Role="PlayerState" Multiplicity="1" />
+          <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_Black_Player_Stat" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_white_player_state">
+          <End Type="ChessModel.PlayerState" Role="PlayerState" Multiplicity="1" />
+          <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_White_Player_Stat" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -133,17 +209,13 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="FK_Black_Player_Stat" ColumnName="FK_Black_Player_Stat" />
+                <ScalarProperty Name="FK_White_Player_Stat" ColumnName="FK_White_Player_Stat" />
                 <ScalarProperty Name="BlackToken" ColumnName="BlackToken" />
                 <ScalarProperty Name="WhiteToken" ColumnName="WhiteToken" />
-                <ScalarProperty Name="BlackIsPat" ColumnName="BlackIsPat" />
-                <ScalarProperty Name="WhiteIsPat" ColumnName="WhiteIsPat" />
-                <ScalarProperty Name="BlackIsCheckMat" ColumnName="BlackIsCheckMat" />
-                <ScalarProperty Name="WhiteIsCheckMat" ColumnName="WhiteIsCheckMat" />
                 <ScalarProperty Name="BlackCanPromote" ColumnName="BlackCanPromote" />
                 <ScalarProperty Name="WhiteCanPromote" ColumnName="WhiteCanPromote" />
                 <ScalarProperty Name="EnPassantCase" ColumnName="EnPassantCase" />
-                <ScalarProperty Name="BlackIsCheck" ColumnName="BlackIsCheck" />
-                <ScalarProperty Name="WhiteIsCheck" ColumnName="WhiteIsCheck" />
                 <ScalarProperty Name="Seed" ColumnName="Seed" />
                 <ScalarProperty Name="WhiteTurn" ColumnName="WhiteTurn" />
                 <ScalarProperty Name="History" ColumnName="History" />
@@ -151,6 +223,14 @@
                 <ScalarProperty Name="FK_Board_Type" ColumnName="FK_Board_Type" />
                 <ScalarProperty Name="PartLink" ColumnName="PartLink" />
                 <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PlayerStates">
+            <EntityTypeMapping TypeName="ChessModel.PlayerState">
+              <MappingFragment StoreEntitySet="PlayerState">
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

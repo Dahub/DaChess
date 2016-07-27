@@ -307,7 +307,7 @@ namespace DaChess.Business
                         // bas + gauche
                         if (c.Col > 0 && c.Line > 1)
                         {
-                            cibleCase = new Coord(c.Line - 2, c.Col - 2);
+                            cibleCase = new Coord(c.Line - 2, c.Col - 1);
                             if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
                             {
                                 if (!IsKingInCheckAfterMove(c, cibleCase, board, kingColor))
