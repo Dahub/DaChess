@@ -92,7 +92,6 @@
     </div>
 </div>
 
-
 <!-- Modal box pour la promotion -->
 <div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -153,6 +152,9 @@
     </div>
 </div>
 
+<script src="/scripts/daChess/dachess.tools.js"></script>
+<script src="/scripts/daChess/dachess.party.js"></script>
+
 <script type="text/javascript">
     var party = {
         Id: 0,
@@ -180,12 +182,10 @@
     var caseSize = size / caseNumber;
     var pieceSize = (4 * caseSize) / 5;
     var piecePadding = caseSize / 10;
-
     var moveStep = 0;
     var moveText = '';
     var myBoard;
     var myHistory;
-
     var partyOver = false;
 
     $(document).ready(function () {
@@ -194,6 +194,23 @@
 
             $('#displayname').val('Anonymous');
             $('#message').focus();
+            $('#message').on('keyup', function (e) {
+                if (e.keyCode === 13) {
+                    $('#sendmessage').click();
+                }
+            });
+
+            // abonnements aux clics sur les boutons
+            $("#whiteBtn").click(function () {
+                party.WhiteAskToPlay = true;
+                addPlayer('white');
+            });
+
+            $("#blackBtn").click(function () {
+                party.BlackAskToPlay = true;
+                addPlayer('black');
+            });
+
             $.connection.hub.start().done(function () {
                 partyHub.server.joinParty('@Model');
                 $('#sendmessage').click(function () {
@@ -239,114 +256,9 @@
         });
 
         // récupération de la partie
-        var partyName = { name: '@Model' };
-        $.ajax({
-            url: '/Party/Get',
-            data: partyName,
-            cache: false,
-            type: 'GET',
-            dataType: "json",
-            contentType: 'application/json; charset=utf-8'
-        }).done(function (data) {
-            mapParty(data);
-            myBoard = JSON.parse(party.Board);
-            refreshCanvas();
-            // on tente de voir si on a des données de cookies
-
-            $.ajax({
-                url: "/Player/GetPlayerPartyName",
-                type: "get",
-                success: function (dataPartyName) {
-                    if (dataPartyName == partyName.name) {
-                        $.ajax({
-                            url: "/Player/GetPlayerToken",
-                            type: "get",
-                            success: function (dataToken) {
-                                $('#token').val(dataToken);
-
-                                // on récupère la couleur via l'API
-                                $.ajax({
-                                    url: '/Player/GetPlayerInfo',
-                                    data: { partyName: party.Name, token: dataToken },
-                                    cache: false,
-                                    type: 'GET',
-                                    dataType: "json",
-                                    contentType: 'application/json; charset=utf-8'
-                                }).done(function (data) {
-                                    if (data.IsWhite == true)
-                                        ImWhitePlayer(dataToken);
-                                    if (data.IsBlack == true)
-                                        ImBlackPlayer(dataToken);
-                                });
-                            }
-                        });
-                    }
-                    else {
-                        if (false == isEmpty(party.WhiteToken)) {
-                            $('#whiteBtn').prop('disabled', true);
-                            $('#whiteBtn').removeClass('btn-success');
-                        }
-                        else {
-                            $('#whiteBtn').prop('disabled', false);
-                            $('#whiteBtn').addClass('btn-success');
-                        }
-
-                        if (false == isEmpty(party.BlackToken)) {
-                            $('#blackBtn').prop('disabled', true);
-                            $('#blackBtn').removeClass('btn-success');
-                        }
-                        else {
-                            $('#blackBtn').prop('disabled', false);
-                            $('#blackBtn').addClass('btn-success');
-                        }
-                    }
-                }
-            });
-
-            RefreshPartyState();
-        });
-
-        $('#message').on('keyup', function (e) {
-            if (e.keyCode === 13) {
-                $('#sendmessage').click();
-            }
-        });
-
-        $('#validPromote').click(function () {
-            $.ajax({
-                url: '/Party/MakePromote',
-                data: { name: party.Name, piece: $('#promotedChoise:checked').val(), token: $('#token').val() },
-                cache: false,
-                type: 'GET',
-                dataType: "json",
-                contentType: 'application/json; charset=utf-8'
-            }).done(function (data) {
-                $.connection.partyHub.server.newMove('@Model');
-                if (data.IsError == true) {
-                    setMsg(data.ErrorMessage);
-                }
-                else {
-                    $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
-                }
-            });
-        })
-
-        // abonnements aux clics sur les boutons
-        $("#whiteBtn").click(function () {
-            party.WhiteAskToPlay = true;
-            addPlayer('white');
-        });
-
-        $("#blackBtn").click(function () {
-            party.BlackAskToPlay = true;
-            addPlayer('black');
-        });
-    });
-
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
-    }
+        initPartyInfo('@Model');
+        addPromoteValidation('@Model');    
+    });   
 
     function setMsg(msg) {
         if (isEmpty(msg)) {
@@ -367,7 +279,7 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            mapParty(data);
+            party = mapParty(data, party);
             RefreshPartyState();
             myBoard = JSON.parse(party.Board);
             myHistory = JSON.parse(party.History);
@@ -435,7 +347,7 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            mapParty(data);
+            party = mapParty(data, party);
             RefreshPartyState();
 
             if (color == 'white') {
@@ -492,7 +404,6 @@
         else {
             $('#infoDiv').html('En attente de joueurs');
         }
-
         $('#turnDiv').html('');
         if (party.WhiteTurn == true) {
             $('#turnDiv').html('Aux blancs de jouer');
@@ -500,25 +411,6 @@
         else {
             $('#turnDiv').html('Aux noirs de jouer');
         }
-    }
-
-    function mapParty(data) {
-        party.Id = data.Id;
-        party.Name = data.Name;
-        party.Board = data.Board;
-        party.WhiteToken = data.WhiteToken;
-        party.BlackToken = data.BlackToken;
-        party.WhiteTurn = data.WhiteTurn;
-        party.IsReady = data.IsReady;
-        party.History = data.History;
-        party.WhiteIsCheck = data.WhiteIsCheck;
-        party.BlackIsCheck = data.BlackIsCheck;
-        party.WhiteCanPromote = data.WhiteCanPromote;
-        party.BlackCanPromote = data.BlackCanPromote;
-        party.WhiteIsCheckMat = data.WhiteIsCheckMat;
-        party.BlackIsCheckMat = data.BlackIsCheckMat;
-        party.BlackIsPat = data.BlackIsPat;
-        party.WhiteIsPat = data.WhiteIsPat;
     }
 
     function refreshCanvas() {
@@ -547,11 +439,8 @@
             if (isEmpty(myBoard.board[i].piece) == false) {
                 var xPos = ((letterToNumber(myBoard.board[i].col) - 1) * caseSize) + piecePadding;
                 var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
-
-
                 var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
                 ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
-
                 if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && $('#isWhitePlayer').val() == 'true')
                     || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && $('#isBlackPlayer').val() == 'true')) {
                     ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
@@ -670,15 +559,8 @@
             return true;
         }
     }
-
-    function letterToNumber(letter) {
-        return letter.charCodeAt(0) - 96;
-    }
-
-    function isEmpty(str) {
-        return (!str || 0 === str.length);
-    }
 </script>
+
 <!-- ligne avec les coups, le plateau et le tchat -->
 <div class="row">
     <div class="col-md-3" id="moveDiv">

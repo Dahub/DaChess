@@ -16,6 +16,7 @@ Aucune inscription nécessaire
 * ~~revoir mise en page générale~~
 * ~~textes des boutons à modifier pour + de cohérence~~
 * ~~gestion du moment ou la partie est prête à débuter~~
+* précharger les images avant d'afficher le canvas
 
 ### Déroulement de la parie
 * ~~Déplacement du pion~~
@@ -24,6 +25,7 @@ Aucune inscription nécessaire
 * ~~Déplacement de la tour~~
 * ~~Déplacement de la reine~~
 * ~~Déplacement du roi~~
+* Revoir notation historique 
 
 #### Coups particuliers
 * ~~Echec~~

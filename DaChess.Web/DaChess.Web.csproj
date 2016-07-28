@@ -136,6 +136,8 @@
     <Content Include="scripts\bootstrap.min.js" />
     <None Include="Properties\PublishProfiles\IKoula.pubxml" />
     <None Include="scripts\jquery-1.10.2-vsdoc.js" />
+    <Content Include="scripts\daChess\dachess.party.js" />
+    <Content Include="scripts\daChess\dachess.tools.js" />
     <Content Include="scripts\jquery-1.10.2.js" />
     <Content Include="scripts\jquery-1.10.2.min.js" />
     <Content Include="scripts\jquery.signalR-2.2.0.min.js" />
