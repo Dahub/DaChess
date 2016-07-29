@@ -1,25 +1,4 @@
-﻿function mapParty(data, partyInfo) {
-    partyInfo.Id = data.Id;
-    partyInfo.Name = data.Name;
-    partyInfo.Board = data.Board;
-    partyInfo.WhiteToken = data.WhiteToken;
-    partyInfo.BlackToken = data.BlackToken;
-    partyInfo.WhiteTurn = data.WhiteTurn;
-    partyInfo.IsReady = data.IsReady;
-    partyInfo.History = data.History;
-    partyInfo.WhiteIsCheck = data.WhiteIsCheck;
-    partyInfo.BlackIsCheck = data.BlackIsCheck;
-    partyInfo.WhiteCanPromote = data.WhiteCanPromote;
-    partyInfo.BlackCanPromote = data.BlackCanPromote;
-    partyInfo.WhiteIsCheckMat = data.WhiteIsCheckMat;
-    partyInfo.BlackIsCheckMat = data.BlackIsCheckMat;
-    partyInfo.BlackIsPat = data.BlackIsPat;
-    partyInfo.WhiteIsPat = data.WhiteIsPat;
-
-    return partyInfo;
-}
-
-function addPromoteValidation(partyName)
+﻿function addPromoteValidation(partyName)
 {
     $('#validPromote').click(function () {
         $.ajax({
@@ -51,7 +30,7 @@ function initPartyInfo(partyName) {
         dataType: "json",
         contentType: 'application/json; charset=utf-8'
     }).done(function (data) {
-        party = mapParty(data, party);
+        party = data;
         myBoard = JSON.parse(party.Board);
         refreshCanvas();
         // on tente de voir si on a des données de cookies
@@ -108,4 +87,22 @@ function initPartyInfo(partyName) {
 
         RefreshPartyState();
     });
+}
+
+function playerTurn(myParty, isWhite, isBlack) {
+    if (myParty.IsReady == false) {
+        return false;
+    }
+    else if (myParty.WhiteTurn == true && isBlack == true) {
+        return false;
+    }
+    else if (myParty.WhiteTurn == false && isWhite == true) {
+        return false;
+    }
+    else if (isBlack == false && isWhite == false) {
+        return false;
+    }
+    else {
+        return true;
+    }
 }

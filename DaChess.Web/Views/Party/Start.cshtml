@@ -19,8 +19,6 @@
     <img id="w_pawn" src="/Content/Images/Pieces/w_pawn.svg" style="visibility:hidden" />
 </div>
 
-<input type="hidden" id="isWhitePlayer" value="false" />
-<input type="hidden" id="isBlackPlayer" value="false" />
 <input type="hidden" id="token" value="" />
 
 <br />
@@ -156,27 +154,7 @@
 <script src="/scripts/daChess/dachess.party.js"></script>
 
 <script type="text/javascript">
-    var party = {
-        Id: 0,
-        Name: '',
-        Board: '',
-        History: '',
-        WhiteToken: '',
-        BlackToken: '',
-        WhiteTurn: true,
-        IsReady: false,
-        WhiteAskToPlay: false,
-        BlackAskToPlay: false,
-        WhiteIsCheck: false,
-        BlackIsCheck: false,
-        WhiteCanPromote: false,
-        BlackCanPromote: false,
-        WhiteIsCheckMat: false,
-        BlackIsCheckMat: false,
-        WhiteIsPat: false,
-        BlackIsPat: false
-    }
-
+    var party;
     var size = 400;
     var caseNumber = 8;
     var caseSize = size / caseNumber;
@@ -187,6 +165,8 @@
     var myBoard;
     var myHistory;
     var partyOver = false;
+    var isWhitePlayer = false;
+    var isBlackPlayer = false;
 
     $(document).ready(function () {
         $(function () {
@@ -279,7 +259,7 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            party = mapParty(data, party);
+            party = data;
             RefreshPartyState();
             myBoard = JSON.parse(party.Board);
             myHistory = JSON.parse(party.History);
@@ -293,8 +273,8 @@
 
     function checkPat() {
         if ((party.WhiteIsPat || party.BlackIsPat) && partyOver == false) {
-            if ($('#isWhitePlayer').val() == 'true' && party.BlackIsPat == true
-               || $('#isBlackPlayer').val() == 'true' && party.WhiteIsPat == true) {
+            if (isWhitePlayer == true && party.BlackIsPat == true
+               || isBlackPlayer == true && party.WhiteIsPat == true) {
                 $('#patText').html('<h3>Le roi adverse est Pat</h3>')
             }
             else {
@@ -307,8 +287,8 @@
 
     function checkCheckMat() {
         if ((party.WhiteIsCheckMat || party.BlackIsCheckMat) && partyOver == false) {
-            if ($('#isWhitePlayer').val() == 'true' && party.BlackIsCheckMat == true
-                || $('#isBlackPlayer').val() == 'true' && party.WhiteIsCheckMat == true) {
+            if (isWhitePlayer == true && party.BlackIsCheckMat == true
+                || isBlackPlayer == true && party.WhiteIsCheckMat == true) {
                 $('#matText').html('<h3>Vous avez gagné</h3>')
             }
             else {
@@ -320,10 +300,10 @@
     }
 
     function checkPromote() {
-        if (party.WhiteCanPromote && $('#isWhitePlayer').val() == 'true') {
+        if (party.WhiteCanPromote && isWhitePlayer == true) {
             $('#promoteModal').modal('show');
         }
-        else if (party.BlackCanPromote && $('#isBlackPlayer').val() == 'true') {
+        else if (party.BlackCanPromote && isBlackPlayer == true) {
             $('#promoteModal').modal('show');
         }
     }
@@ -347,7 +327,7 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            party = mapParty(data, party);
+            party = data; 
             RefreshPartyState();
 
             if (color == 'white') {
@@ -369,7 +349,7 @@
     function ImBlackPlayer(token) {
         var partyHub = $.connection.partyHub;
         $('#displayname').val('Noirs');
-        $('#isBlackPlayer').val('true');
+        isBlackPlayer = true;
         $('#token').val(token);
         $('#colorDiv').html('Vous jouez les noirs');
         $('#whiteBtn').addClass('hidden');
@@ -381,7 +361,7 @@
     function ImWhitePlayer(token) {
         var partyHub = $.connection.partyHub;
         $('#displayname').val('Blancs');
-        $('#isWhitePlayer').val('true');
+        isWhitePlayer = true;
         $('#token').val(token);
         $('#colorDiv').html('Vous jouez les blancs');
         $('#whiteBtn').addClass('hidden');
@@ -441,8 +421,8 @@
                 var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
                 var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
                 ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
-                if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && $('#isWhitePlayer').val() == 'true')
-                    || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && $('#isBlackPlayer').val() == 'true')) {
+                if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && isWhitePlayer == true)
+                    || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && isBlackPlayer == true)) {
                     ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
                     ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
                 }
@@ -451,7 +431,7 @@
     }
 
     function getMousePos(canvas, evt) {
-        if (playerTurn() == true) {
+        if (playerTurn(party, isWhitePlayer, isBlackPlayer) == true) {
             if (moveStep == 2) {
                 resetCanvasMove();
             }
@@ -517,15 +497,15 @@
                 if (moveStep == 1 && isEmpty(myBoard.board[i].piece))
                     return false;
                 if (moveStep == 1) {
-                    if ($('#isBlackPlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'w')
+                    if (isBlackPlayer == true && myBoard.board[i].piece.charAt(0) == 'w')
                         return false;
-                    if ($('#isWhitePlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'b')
+                    if (isWhitePlayer == true && myBoard.board[i].piece.charAt(0) == 'b')
                         return false;
                 }
                 else if (moveStep == 2) {
-                    if ($('#isBlackPlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'b')
+                    if (isBlackPlayer == true && myBoard.board[i].piece.charAt(0) == 'b')
                         return false;
-                    if ($('#isWhitePlayer').val() == 'true' && myBoard.board[i].piece.charAt(0) == 'w')
+                    if (isWhitePlayer == true && myBoard.board[i].piece.charAt(0) == 'w')
                         return false;
                 }
             }
@@ -540,24 +520,6 @@
         refreshCanvas();
         moveStep = 0;
         moveText = '';
-    }
-
-    function playerTurn() {
-        if (party.IsReady == false) {
-            return false;
-        }
-        else if (party.WhiteTurn == true && $('#isBlackPlayer').val() == 'true') {
-            return false;
-        }
-        else if (party.WhiteTurn == false && $('#isWhitePlayer').val() == 'true') {
-            return false;
-        }
-        else if ($('#isBlackPlayer').val() == 'false' && $('#isWhitePlayer').val() == 'false') {
-            return false;
-        }
-        else {
-            return true;
-        }
     }
 </script>
 
