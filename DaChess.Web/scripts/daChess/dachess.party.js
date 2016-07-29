@@ -32,7 +32,7 @@ function initPartyInfo(partyName) {
     }).done(function (data) {
         party = data;
         myBoard = JSON.parse(party.Board);
-        refreshCanvas();
+        refreshCanvas(myBoard.board);
         // on tente de voir si on a des données de cookies
 
         $.ajax({

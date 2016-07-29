@@ -152,6 +152,7 @@
 
 <script src="/scripts/daChess/dachess.tools.js"></script>
 <script src="/scripts/daChess/dachess.party.js"></script>
+<script src="/scripts/daChess/dachess.canvas.js"></script>
 
 <script type="text/javascript">
     var party;
@@ -263,7 +264,7 @@
             RefreshPartyState();
             myBoard = JSON.parse(party.Board);
             myHistory = JSON.parse(party.History);
-            refreshCanvas();
+            refreshCanvas(myBoard.board);
             refreshHistory();
             checkPromote();
             checkCheckMat();
@@ -393,50 +394,13 @@
         }
     }
 
-    function refreshCanvas() {
-        var c = $("#canvas");
-        var ctx = c[0].getContext('2d');
-        ctx.clearRect(0, 0, size, size);
-
-        ctx.fillStyle = "#ffff99";
-        ctx.fillRect(0, 0, size, size);
-
-        ctx.fillStyle = "#cc6600";
-        var startCase = 1;
-        for (posY = 0; posY < caseNumber; posY = posY + 1) {
-            for (posX = startCase; posX < caseNumber; posX = posX + 2) {
-                ctx.fillRect(posX * caseSize, posY * caseSize, caseSize, caseSize);
-            }
-            if (startCase == 1) {
-                startCase = 0;
-            }
-            else {
-                startCase = 1;
-            }
-        }
-
-        for (var i = 0; i < myBoard.board.length; i++) {
-            if (isEmpty(myBoard.board[i].piece) == false) {
-                var xPos = ((letterToNumber(myBoard.board[i].col) - 1) * caseSize) + piecePadding;
-                var yPos = ((caseNumber - myBoard.board[i].line) * caseSize) + piecePadding;
-                var myImage = document.querySelector('#' + myBoard.board[i].piece + '');
-                ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
-                if ((myBoard.board[i].piece == 'w_king' && party.WhiteIsCheck && isWhitePlayer == true)
-                    || (myBoard.board[i].piece == 'b_king' && party.BlackIsCheck && isBlackPlayer == true)) {
-                    ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
-                    ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
-                }
-            }
-        }
-    }
-
-    function getMousePos(canvas, evt) {
+    function getMousePos(canvas, evt) {       
         if (playerTurn(party, isWhitePlayer, isBlackPlayer) == true) {
             if (moveStep == 2) {
-                resetCanvasMove();
+                resetCanvasMove(myBoard.board);
             }
             moveStep++;
-
+           
             var rect = canvas.getBoundingClientRect();
             var xcord = evt.clientX - rect.left
             var ycord = evt.clientY - rect.top
@@ -444,13 +408,13 @@
             // y => chiffres
             ycord = caseNumber - Math.trunc(ycord / caseSize);
             xcord = Math.trunc(xcord / caseSize);
-            var result = String.fromCharCode(97 + xcord) + ycord.toString();
+            var result = String.fromCharCode(97 + xcord) + ycord.toString();      
 
             if (moveText == result + ' ') // clic sur la même case, on reprends à 0
             {
-                resetCanvasMove();
-            }
-            else if (isLegalCase(result) == true) {
+                resetCanvasMove(myBoard.board);
+            }          
+            else if (isLegalCase(result, myBoard.board) == true) {
                 var c = $("#canvas");
                 var ctx = c[0].getContext('2d');
 
@@ -482,45 +446,7 @@
                 moveStep--;
             }
         }
-    }
-
-    // on vérifie qu'on a bien sélectionné une case valide
-    // par exemple : une pièce de la couleur du joueur pour la case de départ
-    function isLegalCase(myCase) {
-        var col = myCase.charAt(0);
-        var line = myCase.charAt(1);
-        var caseFind = false;
-
-        for (var i = 0; i < myBoard.board.length; i++) {
-            if (myBoard.board[i].col == col && myBoard.board[i].line == line) {
-                caseFind = true;
-                if (moveStep == 1 && isEmpty(myBoard.board[i].piece))
-                    return false;
-                if (moveStep == 1) {
-                    if (isBlackPlayer == true && myBoard.board[i].piece.charAt(0) == 'w')
-                        return false;
-                    if (isWhitePlayer == true && myBoard.board[i].piece.charAt(0) == 'b')
-                        return false;
-                }
-                else if (moveStep == 2) {
-                    if (isBlackPlayer == true && myBoard.board[i].piece.charAt(0) == 'b')
-                        return false;
-                    if (isWhitePlayer == true && myBoard.board[i].piece.charAt(0) == 'w')
-                        return false;
-                }
-            }
-        }
-        if (moveStep == 1 && caseFind == false)
-            return false;
-
-        return true;
-    }
-
-    function resetCanvasMove() {
-        refreshCanvas();
-        moveStep = 0;
-        moveText = '';
-    }
+    }  
 </script>
 
 <!-- ligne avec les coups, le plateau et le tchat -->

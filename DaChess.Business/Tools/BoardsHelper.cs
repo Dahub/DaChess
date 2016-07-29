@@ -58,14 +58,12 @@ namespace DaChess.Business
                         string epLine = party.EnPassantCase.Substring(1, 1);
                         int epColInt = ColToInt(epCol) - 1;
                         int epLineInt = Int32.Parse(epLine) - 1;
-                        CaseInfo epCase = board[epLineInt][epColInt];
-                        if (epCase.Piece.HasValue && epCase.Piece == PiecesType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
+                        if (board[epLineInt][epColInt].Piece.HasValue && board[epLineInt][epColInt].Piece == PiecesType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
                         {
                             moveType = MovesType.EN_PASSANT;
                             return true;
                         }
                     }
-
                     return false;
                 case PiecesType.ROOK:
                     if (startLine != endLine && startCol != endCol)
@@ -297,7 +295,7 @@ namespace DaChess.Business
                         // bas + droite
                         if (c.Col < board.Length - 1 && c.Line > 1)
                         {
-                            cibleCase = new Coord(c.Line - 2, c.Col + 2);
+                            cibleCase = new Coord(c.Line - 2, c.Col + 1);
                             if (!board[cibleCase.Line][cibleCase.Col].Piece.HasValue || board[cibleCase.Line][cibleCase.Col].PieceColor.Value != kingColor)
                             {
                                 if (!IsKingInCheckAfterMove(c, cibleCase, board, kingColor))
@@ -737,9 +735,8 @@ namespace DaChess.Business
             while (linePoint != endLine || colPoint != endCol)
             {
                 security++;
-                // BoardCase c = FindCase(IntToCol(colPoint), linePoint.ToString(), board);
-                CaseInfo c = board[linePoint][colPoint];
-                if (c.Piece.HasValue)
+
+                if (board[linePoint][colPoint].Piece.HasValue)
                     return false;
 
                 if (startLine < endLine)
@@ -758,7 +755,6 @@ namespace DaChess.Business
                 {
                     colPoint--;
                 }
-
                 if (security > 26)
                 {
                     throw new DaChessException("Erreur lors de l'analyse d'un trajet");
