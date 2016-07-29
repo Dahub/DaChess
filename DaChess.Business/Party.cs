@@ -29,6 +29,7 @@ namespace DaChess.Business
         public string BlackToken { get; set; }
         public int FK_White_Player_Stat { get; set; }
         public int FK_Black_Player_Stat { get; set; }
+        public string LastMoveCase { get; set; }
     
         public virtual Board BoardType { get; set; }
         public virtual PlayerState BlackPlayerState { get; set; }

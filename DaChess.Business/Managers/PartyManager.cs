@@ -138,7 +138,8 @@ namespace DaChess.Business
                 BoardType = BoardsHelper.GetClassic(context),
                 PartLink = DaTools.NameMaker.Creator.Build(DaTools.NameMaker.NameType.FIRST_NAMES, DaTools.NameMaker.NameType.FIRST_NAMES),
                 FK_Black_Player_Stat = (int)PlayerStateEnum.UNDEFINE,
-                FK_White_Player_Stat = (int)PlayerStateEnum.UNDEFINE
+                FK_White_Player_Stat = (int)PlayerStateEnum.UNDEFINE,
+                LastMoveCase = String.Empty
             };
             toReturn.Board = toReturn.BoardType.Content;
 

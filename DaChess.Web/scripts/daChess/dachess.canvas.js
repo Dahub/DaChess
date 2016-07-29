@@ -1,4 +1,7 @@
 ﻿function refreshCanvas(board) {
+
+    console.log(party.LastMoveCase);
+
     var c = $("#canvas");
     var ctx = c[0].getContext('2d');
     ctx.clearRect(0, 0, size, size);
@@ -32,6 +35,14 @@
                 ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
             }
         }
+    }
+
+    // on colore la dernière case ou une pièce à bougé
+    if (isEmpty(party.LastMoveCase == false)) {
+        var xPos = ((letterToNumber(party.LastMoveCase.charAt(0)) - 1) * caseSize) + piecePadding;
+        var yPos = ((caseNumber - party.LastMoveCase.charAt(1)) * caseSize) + piecePadding;
+        ctx.fillStyle = 'rgba(102, 255, 51, 0.5)';
+        ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
     }
 }
 

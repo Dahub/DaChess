@@ -54,7 +54,8 @@ create table [chess].[Party]
 	FK_Black_Player_Stat integer not null constraint fk_black_player_state foreign key references [chess].[PlayerState] (id) default 1,	
 	WhiteCanPromote bit default 0,
 	BlackCanPromote bit default 0,	
-	EnPassantCase nvarchar(2) null
+	EnPassantCase nvarchar(2) null,
+	LastMoveCase nvarchar(2) null
 )
 go
 

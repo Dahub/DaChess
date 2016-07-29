@@ -66,6 +66,7 @@ namespace DaChess.Web.Controllers
                     WhiteIsCheckMat = myParty.FK_White_Player_Stat == (int)PlayerStateEnum.CHECKMAT,
                     WhiteIsPat = myParty.FK_White_Player_Stat == (int)PlayerStateEnum.PAT,
                     BlackIsPat = myParty.FK_Black_Player_Stat == (int)PlayerStateEnum.PAT,
+                    LastMoveCase = myParty.LastMoveCase,
                     IsError = false,
                     ErrorMessage = String.Empty
                 };

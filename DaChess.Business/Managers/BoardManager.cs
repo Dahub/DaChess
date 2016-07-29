@@ -71,6 +71,7 @@ namespace DaChess.Business
 
                 // on récupère la première pièce              
                 string enPassant = String.Empty;
+                string lastMoveCase = String.Empty;
                 bool promotePawn = false;
                 History histo = null;
 
@@ -87,6 +88,9 @@ namespace DaChess.Business
                     {
                         throw new DaChessException("Coup illégal");
                     }
+
+                    // on stocke la case d'arrivée
+                    lastMoveCase = String.Concat(BoardsHelper.IntToCol(endCol + 1), endLine + 1);
 
                     switch (mt) // gestion de l'après déplacement
                     {
@@ -194,6 +198,7 @@ namespace DaChess.Business
                     party.WhiteTurn = promotePawn == true ? party.WhiteTurn : !party.WhiteTurn; // on ne change de joueur que si il n'y a pas de promotion de pion à faire
                     party.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
                     party.EnPassantCase = enPassant;
+                    party.LastMoveCase = lastMoveCase;
                     if (playerColor == Colors.WHITE)
                     { 
                         party.FK_Black_Player_Stat = (int)ennemiState;

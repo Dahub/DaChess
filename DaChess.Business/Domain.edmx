@@ -32,6 +32,7 @@
           <Property Name="WhiteCanPromote" Type="bit" />
           <Property Name="BlackCanPromote" Type="bit" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
+          <Property Name="LastMoveCase" Type="nvarchar" MaxLength="2" />
         </EntityType>
         <EntityType Name="PlayerState">
           <Key>
@@ -145,6 +146,7 @@
           <Property Name="FK_Black_Player_Stat" Type="Int32" Nullable="false" />
           <NavigationProperty Name="BlackPlayerState" Relationship="ChessModel.fk_black_player_state" FromRole="Party" ToRole="PlayerState" />
           <NavigationProperty Name="WhitePlayerState" Relationship="ChessModel.fk_white_player_state" FromRole="Party" ToRole="PlayerState" />
+          <Property Name="LastMoveCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="fk_board_type">
           <End Type="ChessModel.Board" Role="Board" Multiplicity="1" />
@@ -209,6 +211,7 @@
           <EntitySetMapping Name="Parties">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="LastMoveCase" ColumnName="LastMoveCase" />
                 <ScalarProperty Name="FK_Black_Player_Stat" ColumnName="FK_Black_Player_Stat" />
                 <ScalarProperty Name="FK_White_Player_Stat" ColumnName="FK_White_Player_Stat" />
                 <ScalarProperty Name="BlackToken" ColumnName="BlackToken" />
