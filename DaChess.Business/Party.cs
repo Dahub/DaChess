@@ -30,6 +30,7 @@ namespace DaChess.Business
         public int FK_White_Player_Stat { get; set; }
         public int FK_Black_Player_Stat { get; set; }
         public string LastMoveCase { get; set; }
+        public bool PartyOver { get; set; }
     
         public virtual Board BoardType { get; set; }
         public virtual PlayerState BlackPlayerState { get; set; }

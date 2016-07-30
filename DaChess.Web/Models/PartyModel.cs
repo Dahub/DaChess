@@ -22,6 +22,7 @@ namespace DaChess.Web.Models
         public bool WhiteIsPat { get; set; }
         public bool BlackIsPat { get; set; }
         public string LastMoveCase { get; set; }
+        public bool PartyOver { get; set; }
         public bool IsReady
         {
             get

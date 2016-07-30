@@ -48,28 +48,7 @@ namespace DaChess.Web.Controllers
             try
             {
                 Party myParty = Factory.Instance.GetPartyManager().GetByName(name);
-
-                toReturn = new PartyModel()
-                {
-                    Id = myParty.Id,
-                    Board = myParty.Board,
-                    Name = myParty.PartLink,
-                    BlackToken = myParty.BlackToken,
-                    WhiteToken = myParty.WhiteToken,
-                    WhiteTurn = myParty.WhiteTurn,
-                    History = myParty.History,
-                    BlackIsCheck = myParty.FK_Black_Player_Stat == (int)PlayerStateEnum.CHECK,
-                    WhiteIsCheck = myParty.FK_White_Player_Stat == (int)PlayerStateEnum.CHECK,
-                    BlackCanPromote = myParty.BlackCanPromote.HasValue?myParty.BlackCanPromote.Value:false,
-                    WhiteCanPromote = myParty.WhiteCanPromote.HasValue?myParty.WhiteCanPromote.Value:false,    
-                    BlackIsCheckMat = myParty.FK_Black_Player_Stat == (int)PlayerStateEnum.CHECKMAT,
-                    WhiteIsCheckMat = myParty.FK_White_Player_Stat == (int)PlayerStateEnum.CHECKMAT,
-                    WhiteIsPat = myParty.FK_White_Player_Stat == (int)PlayerStateEnum.PAT,
-                    BlackIsPat = myParty.FK_Black_Player_Stat == (int)PlayerStateEnum.PAT,
-                    LastMoveCase = myParty.LastMoveCase,
-                    IsError = false,
-                    ErrorMessage = String.Empty
-                };
+                toReturn = myParty.ToPartyModel();
             }
             catch (DaChessException ex)
             {
@@ -119,6 +98,29 @@ namespace DaChess.Web.Controllers
             }
 
             return Json(party);
+        }
+
+        public JsonResult Resign(string name, string token)
+        {
+            ResignModel toReturn = new ResignModel();
+
+            try
+            {
+                toReturn.InfoMessage = Factory.Instance.GetPartyManager().Resign(name, token);
+                toReturn.IsError = false;
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = "Erreur non gérée lors de l'abandon du joueur";
+            }            
+
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult MakeMove(string name, string move, string token)

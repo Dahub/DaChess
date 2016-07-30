@@ -8,7 +8,7 @@ namespace DaChess.Web.Hubs
         {
             Groups.Add(Context.ConnectionId, partyName);
         }
-
+        
         public void SendMessage(string partyName, string name, string message)
         {
             Clients.Group(partyName).addNewMessageToPage(name, message);
@@ -32,6 +32,11 @@ namespace DaChess.Web.Hubs
         public void NewInfo(string partyName, string info)
         {
             Clients.Group(partyName).sendInfo(info);
+        }
+
+        public void APlayerResign(string partyName)
+        {
+            Clients.Group(partyName).playerResign();
         }
     }
 }

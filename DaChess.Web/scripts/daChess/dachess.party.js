@@ -10,14 +10,14 @@
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
             $.connection.partyHub.server.newMove(partyName);
-            if (data.IsError == true) {
+            if (data.IsError === true) {
                 setMsg(data.ErrorMessage);
             }
             else {
                 $.connection.partyHub.server.newInfo(partyName, data.InfoMessage);
             }
         });
-    })
+    });
 }
 
 function initPartyInfo(partyName) {
@@ -34,12 +34,11 @@ function initPartyInfo(partyName) {
         myBoard = JSON.parse(party.Board);
         refreshCanvas(myBoard.board);
         // on tente de voir si on a des données de cookies
-
         $.ajax({
             url: "/Player/GetPlayerPartyName",
             type: "get",
             success: function (dataPartyName) {
-                if (dataPartyName == p.name) {
+                if (dataPartyName === p.name) {
                     $.ajax({
                         url: "/Player/GetPlayerToken",
                         type: "get",
@@ -55,16 +54,16 @@ function initPartyInfo(partyName) {
                                 dataType: "json",
                                 contentType: 'application/json; charset=utf-8'
                             }).done(function (data) {
-                                if (data.IsWhite == true)
+                                if (data.IsWhite === true)
                                     ImWhitePlayer(dataToken);
-                                if (data.IsBlack == true)
+                                if (data.IsBlack === true)
                                     ImBlackPlayer(dataToken);
                             });
                         }
                     });
                 }
                 else {
-                    if (false == isEmpty(party.WhiteToken)) {
+                    if (false === isEmpty(party.WhiteToken)) {
                         $('#whiteBtn').prop('disabled', true);
                         $('#whiteBtn').removeClass('btn-success');
                     }
@@ -73,7 +72,7 @@ function initPartyInfo(partyName) {
                         $('#whiteBtn').addClass('btn-success');
                     }
 
-                    if (false == isEmpty(party.BlackToken)) {
+                    if (false === isEmpty(party.BlackToken)) {
                         $('#blackBtn').prop('disabled', true);
                         $('#blackBtn').removeClass('btn-success');
                     }
@@ -90,16 +89,16 @@ function initPartyInfo(partyName) {
 }
 
 function playerTurn(myParty, isWhite, isBlack) {
-    if (myParty.IsReady == false) {
+    if (myParty.IsReady === false) {
         return false;
     }
-    else if (myParty.WhiteTurn == true && isBlack == true) {
+    else if (myParty.WhiteTurn === true && isBlack === true) {
         return false;
     }
-    else if (myParty.WhiteTurn == false && isWhite == true) {
+    else if (myParty.WhiteTurn === false && isWhite === true) {
         return false;
     }
-    else if (isBlack == false && isWhite == false) {
+    else if (isBlack === false && isWhite === false) {
         return false;
     }
     else {

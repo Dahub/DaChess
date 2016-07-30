@@ -128,6 +128,7 @@
     <Content Include="scripts\ai.0.22.9-build00167.min.js" />
     <Content Include="scripts\bootstrap.js" />
     <Content Include="scripts\bootstrap.min.js" />
+    <Compile Include="Models\ResignModel.cs" />
     <None Include="Properties\PublishProfiles\IKoula.pubxml" />
     <None Include="scripts\jquery-1.10.2-vsdoc.js" />
     <Content Include="scripts\daChess\dachess.canvas.js" />
@@ -164,6 +165,7 @@
     <Compile Include="Models\PromoteModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Tools\ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />

@@ -168,28 +168,7 @@ namespace DaChess.Business
                     throw (new DaChessException("Coup impossible, échec !"));
 
                 // mise à jour de l'historique        
-                if (String.IsNullOrEmpty(party.History))
-                {
-                    histo = new History();
-                }
-                else
-                {
-                    histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
-                }
-
-                int moveNumber = 0;
-                if (histo.Moves.Count() > 0)
-                {
-                    moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
-                }
-                if (PartyHelper.GetPlayerColor(party, playerToken) == Colors.WHITE)
-                {
-                    histo.Moves.Add(moveNumber + 1, move);
-                }
-                else
-                {
-                    histo.Moves[moveNumber] += " " + move;
-                }
+                histo = UpdateHistorique(move, party, playerColor, ennemiState);
 
                 using (var context = new ChessEntities())
                 {
@@ -200,17 +179,18 @@ namespace DaChess.Business
                     party.EnPassantCase = enPassant;
                     party.LastMoveCase = lastMoveCase;
                     if (playerColor == Colors.WHITE)
-                    { 
+                    {
                         party.FK_Black_Player_Stat = (int)ennemiState;
                         party.FK_White_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
                     }
                     else
-                    {                        
+                    {
                         party.FK_White_Player_Stat = (int)ennemiState;
                         party.FK_Black_Player_Stat = (int)PlayerStateEnum.UNDEFINE;
-                    }                  
+                    }
                     party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
                     party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
+                    party.PartyOver = ennemiState == PlayerStateEnum.CHECKMAT || ennemiState == PlayerStateEnum.PAT;
 
                     context.SaveChanges();
                 }
@@ -331,6 +311,59 @@ namespace DaChess.Business
                 innerString.Remove(innerString.Length - 1, 1);
 
             return string.Format(toReturn, innerString.ToString());
+        }
+
+        public static History UpdateHistorique(string move, Party party, Colors playerColor, PlayerStateEnum ennemiState)
+        {
+            History histo;
+            if (String.IsNullOrEmpty(party.History))
+            {
+                histo = new History();
+            }
+            else
+            {
+                histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.History);
+            }
+
+            int moveNumber = 0;
+            if (histo.Moves.Count() > 0)
+            {
+                moveNumber = histo.Moves.OrderByDescending(h => h.Key).First().Key;
+            }
+            if (playerColor == Colors.WHITE)
+            {
+                histo.Moves.Add(moveNumber + 1, move);
+            }
+            else
+            {
+                if (histo.Moves.Count == 0) // cas de l'abandon des blancs avant le premier coup
+                    histo.Moves.Add(1, String.Empty);
+                else
+                    histo.Moves[moveNumber] += " " + move;
+            }
+
+            // on vérifie si la partie est terminée
+            if (ennemiState == PlayerStateEnum.PAT && playerColor == Colors.WHITE)
+            {
+                histo.Moves[moveNumber + 1] += " 1/2-1/2";
+            }
+            else if (ennemiState == PlayerStateEnum.PAT && playerColor == Colors.BLACK)
+            {
+                histo.Moves[moveNumber] += " 1/2-1/2";
+            }
+            else if ((ennemiState == PlayerStateEnum.CHECKMAT || ennemiState == PlayerStateEnum.RESIGN) && playerColor == Colors.WHITE)
+            {
+                histo.Moves[moveNumber + 1] += " 1-0";
+            }
+            else if ((ennemiState == PlayerStateEnum.CHECKMAT || ennemiState == PlayerStateEnum.RESIGN) && playerColor == Colors.BLACK)
+            {
+                if (moveNumber == 0) // cas de l'abandon des blancs avant le premier coup
+                    histo.Moves[1] += " 0-1";
+                else
+                    histo.Moves[moveNumber] += " 0-1";
+            }
+
+            return histo;
         }
 
         private PlayerStateEnum DefineEnnemiState(Colors playerColor)

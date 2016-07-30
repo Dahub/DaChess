@@ -95,7 +95,7 @@ namespace DaChess.Business
                     if (Math.Abs(endLine - startLine) <= 1 && Math.Abs(endCol - startCol) <= 1)
                         return true;
                     // cas du roque
-                    if (endLine == startLine && board[startLine][endLine].HasMove == false && Math.Abs(startCol - endCol) == 2)
+                    if (endLine == startLine && board[startLine][startCol].HasMove == false && Math.Abs(startCol - endCol) == 2)
                     {
                         if (startCol < endCol) // petit roque
                         {
@@ -419,15 +419,15 @@ namespace DaChess.Business
 
                     // prise à gauche
                     endCase = new Coord(c.Line + direction, c.Col - 1);
-                    if (endCase.Line < board.Length && endCase.Line >= 0 && // on ne sort pas du plateau
-                        board[endCase.Line][endCase.Col].PieceColor.HasValue && board[endCase.Line][endCase.Col].PieceColor != kingColor // pièce en prise à l'arrivée
+                    if (endCase.Line < board.Length && endCase.Line >= 0 && endCase.Col > 0 && endCase.Col < board.Length // on ne sort pas du plateau
+                        && board[endCase.Line][endCase.Col].PieceColor.HasValue && board[endCase.Line][endCase.Col].PieceColor != kingColor // pièce en prise à l'arrivée
                         && !IsKingInCheckAfterMove(c, endCase, board, kingColor)) // on ne déclenche pas mat
                         return false;
 
                     // priseà droite
                     endCase = new Coord(c.Line + direction, c.Col + 1);
-                    if (endCase.Line < board.Length && endCase.Line >= 0 && // on ne sort pas du plateau
-                        board[endCase.Line][endCase.Col].PieceColor.HasValue && board[endCase.Line][endCase.Col].PieceColor != kingColor // pièce en prise à l'arrivée
+                    if (endCase.Line < board.Length && endCase.Line >= 0 && endCase.Col > 0 && endCase.Col < board.Length // on ne sort pas du plateau
+                        && board[endCase.Line][endCase.Col].PieceColor.HasValue && board[endCase.Line][endCase.Col].PieceColor != kingColor // pièce en prise à l'arrivée
                         && !IsKingInCheckAfterMove(c, endCase, board, kingColor)) // on ne déclenche pas mat
                         return false;
                 }

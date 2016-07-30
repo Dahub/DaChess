@@ -126,6 +126,26 @@ namespace DaChess.Business
             return toReturn;
         }
 
+        public string Resign(string name, string token)
+        {
+            Party myParty = PartyHelper.GetByName(name);
+            string result = String.Empty;
+            Colors playerColor = new PlayerManager().GetPlayerColor(token, name);
+            History histo = BoardManager.UpdateHistorique(String.Empty, myParty, playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, PlayerStateEnum.RESIGN);
+            myParty.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+            myParty.PartyOver = true;
+            // update de la party
+            this.Update(myParty);
+
+            string infoMsg = String.Empty;
+            if (playerColor == Colors.WHITE)
+                infoMsg = "Le joueur blanc abandonne";
+            else
+                infoMsg = "Le joueur noir abandonne";
+
+            return infoMsg;
+        }
+
         private static Party InitParty(ChessEntities context)
         {
             Party toReturn;

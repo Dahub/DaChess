@@ -9,18 +9,16 @@ namespace DaChess.Business
             int color = 0;
 
             try
-            { 
-            Party p = PartyHelper.GetByName(partyName);
-
-            string[] infos = CryptoHelper.Decrypt(token, p.Seed).Split("#;#".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            color = (Int32.Parse(infos[1]));
+            {
+                Party p = PartyHelper.GetByName(partyName);
+                string[] infos = CryptoHelper.Decrypt(token, p.Seed).Split("#;#".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                color = (Int32.Parse(infos[1]));
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }
-            
+
 
             return (Colors)color;
         }

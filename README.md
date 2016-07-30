@@ -25,7 +25,7 @@ Aucune inscription nécessaire
 * ~~Déplacement de la tour~~
 * ~~Déplacement de la reine~~
 * ~~Déplacement du roi~~
-* Revoir notation historique 
+* ~~Revoir notation historique~~ 
 
 #### Coups particuliers
 * ~~Echec~~

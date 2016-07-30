@@ -5,6 +5,7 @@
         UNDEFINE = 1,
         CHECK = 2,
         PAT = 3,
-        CHECKMAT = 4
+        CHECKMAT = 4,
+        RESIGN = 5
     }
 }

@@ -150,6 +150,71 @@
     </div>
 </div>
 
+<!-- Modal de confirmation -->
+<div id="confirm" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Etes vous sur ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmBtn">Oui</button>
+                <button type="button" data-dismiss="modal" class="btn">Non</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ligne avec les coups, le plateau et le tchat -->
+<div class="row">
+    <div class="col-md-3" id="moveDiv">
+        <div class="panel panel-default">
+            <div class="panel-heading">Infos</div>
+            <div class="panel-body">
+                <div id="infoDiv"></div><br />
+                <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                <span id="colorDiv"></span>
+                <br /><br />
+                <span id="btnDiv" style="display:none">
+                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs">Abandonner</button>
+                    <button type="button" class="btn btn-default btn-xs">Proposer la nulle</button>
+                </span>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Historique</div>
+            <div class="panel-body">
+                <ul id="moves"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="turnDiv"></div>
+            <div class="panel-body">
+                <div class="centerBlock">
+                    <canvas id="canvas" width="400" height="400" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Tchat</div>
+            <div class="panel-body">
+                <textarea id="message" rows="2" cols="40"></textarea>
+                <input type="button" id="sendmessage" value="Ok" />
+                <input type="hidden" id="displayname" value="Lurker" />
+                <br /><br />
+                <ul id="discussion"></ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <script src="/scripts/daChess/dachess.tools.js"></script>
 <script src="/scripts/daChess/dachess.party.js"></script>
 <script src="/scripts/daChess/dachess.canvas.js"></script>
@@ -190,6 +255,25 @@
             $("#blackBtn").click(function () {
                 party.BlackAskToPlay = true;
                 addPlayer('black');
+            });
+
+            $('button[name="btnResign"]').on('click', function (e) {
+                e.preventDefault();
+                $('#confirm').modal({ backdrop: 'static', keyboard: false })
+                    .one('click', '#confirmBtn', function (e) {                        
+                        // abandon du joueur
+                        $.ajax({
+                            url: '/Party/Resign',
+                            data: { name: party.Name, token: $('#token').val() },
+                            cache: false,
+                            type: 'GET',
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8'
+                        }).done(function (data) {
+                            $.connection.partyHub.server.aPlayerResign('@Model');                            
+                            $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
+                        });
+                    });
             });
 
             $.connection.hub.start().done(function () {
@@ -234,12 +318,16 @@
             partyHub.client.SendInfo = function (info) {
                 setMsg(info);
             }
+
+            partyHub.client.playerResign = function () {
+                reloadParty();
+            }
         });
 
         // récupération de la partie
         initPartyInfo('@Model');
-        addPromoteValidation('@Model');    
-    });   
+        addPromoteValidation('@Model');
+    });
 
     function setMsg(msg) {
         if (isEmpty(msg)) {
@@ -328,7 +416,7 @@
             dataType: "json",
             contentType: 'application/json; charset=utf-8'
         }).done(function (data) {
-            party = data; 
+            party = data;
             RefreshPartyState();
 
             if (color == 'white') {
@@ -392,15 +480,21 @@
         else {
             $('#turnDiv').html('Aux noirs de jouer');
         }
+        if (party.IsReady && (isBlackPlayer == true || isWhitePlayer == true)) {
+            $('#btnDiv').show();
+        }
+        else {
+            $('#btnDiv').hide();
+        }
     }
 
-    function getMousePos(canvas, evt) {       
+    function getMousePos(canvas, evt) {
         if (playerTurn(party, isWhitePlayer, isBlackPlayer) == true) {
             if (moveStep == 2) {
                 resetCanvasMove(myBoard.board);
             }
             moveStep++;
-           
+
             var rect = canvas.getBoundingClientRect();
             var xcord = evt.clientX - rect.left
             var ycord = evt.clientY - rect.top
@@ -408,12 +502,12 @@
             // y => chiffres
             ycord = caseNumber - Math.trunc(ycord / caseSize);
             xcord = Math.trunc(xcord / caseSize);
-            var result = String.fromCharCode(97 + xcord) + ycord.toString();      
+            var result = String.fromCharCode(97 + xcord) + ycord.toString();
 
             if (moveText == result + ' ') // clic sur la même case, on reprends à 0
             {
                 resetCanvasMove(myBoard.board);
-            }          
+            }
             else if (isLegalCase(result, myBoard.board) == true) {
                 var c = $("#canvas");
                 var ctx = c[0].getContext('2d');
@@ -446,53 +540,5 @@
                 moveStep--;
             }
         }
-    }  
+    }
 </script>
-
-<!-- ligne avec les coups, le plateau et le tchat -->
-<div class="row">
-    <div class="col-md-3" id="moveDiv">
-        <div class="panel panel-default">
-            <div class="panel-heading">Infos</div>
-            <div class="panel-body">
-                <div id="infoDiv"></div><br />
-                <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
-                <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
-                <span id="colorDiv"></span>
-
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Historique</div>
-            <div class="panel-body">
-                <ul id="moves"></ul>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="panel panel-default">
-            <div class="panel-heading" id="turnDiv"></div>
-            <div class="panel-body">
-                <div class="centerBlock">
-                    <canvas id="canvas" width="400" height="400" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">Tchat</div>
-            <div class="panel-body">
-                <textarea id="message" rows="2" cols="40"></textarea>
-                <input type="button" id="sendmessage" value="Ok" />
-                <input type="hidden" id="displayname" value="Lurker" />
-                <br /><br />
-                <ul id="discussion"></ul>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-

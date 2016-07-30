@@ -6,5 +6,6 @@
         Party GetByName(string name);
         Party AddPlayerToParty(int partyId, Colors playerColor);
         Party Update(Party toUpdate);
+        string Resign(string name, string token);
     }
 }

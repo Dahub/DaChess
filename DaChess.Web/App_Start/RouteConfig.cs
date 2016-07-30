@@ -16,6 +16,12 @@ namespace DaChess.Web
            );
 
             routes.MapRoute(
+              name: "Resign",
+              url: "Party/Resign/{name}/{token}",
+              defaults: new { controller = "Party", action = "Resign", name = UrlParameter.Optional, token = UrlParameter.Optional }
+          );
+
+            routes.MapRoute(
                name: "MakeMove",
                url: "Party/MakeMove/{name}/{move}/{token}",
                defaults: new { controller = "Party", action = "MakeMove", name = UrlParameter.Optional, move = UrlParameter.Optional, token = UrlParameter.Optional }
@@ -27,17 +33,17 @@ namespace DaChess.Web
                 defaults: new { controller = "Player", action = "GetPlayerInfo", token = UrlParameter.Optional, partyName = UrlParameter.Optional }
             );
 
-                routes.MapRoute(
-                name: "AddplayerToParty",
-                url: "Party/AddPlayerToParty/{id}",
-                defaults: new { controller = "Party", action = "AddPlayerToParty", id = UrlParameter.Optional }
-            );
+            routes.MapRoute(
+            name: "AddplayerToParty",
+            url: "Party/AddPlayerToParty/{id}",
+            defaults: new { controller = "Party", action = "AddPlayerToParty", id = UrlParameter.Optional }
+        );
 
-                routes.MapRoute(
-                 name: "GetParty",
-                 url: "Party/Get/{name}",
-                 defaults: new { controller = "Party", action = "Get", name = UrlParameter.Optional }
-            );
+            routes.MapRoute(
+             name: "GetParty",
+             url: "Party/Get/{name}",
+             defaults: new { controller = "Party", action = "Get", name = UrlParameter.Optional }
+        );
 
             routes.MapRoute(
                name: "PostParty",
