@@ -4,21 +4,6 @@
     ViewBag.Title = "Start";
 }
 
-<div style="display:none">
-    <img id="b_rook" src="/Content/Images/Pieces/b_rook.svg" style="visibility:hidden" />
-    <img id="b_knight" src="/Content/Images/Pieces/b_knight.svg" style="visibility:hidden" />
-    <img id="b_bishop" src="/Content/Images/Pieces/b_bishops.svg" style="visibility:hidden" />
-    <img id="b_queen" src="/Content/Images/Pieces/b_queen.svg" style="visibility:hidden" />
-    <img id="b_king" src="/Content/Images/Pieces/b_king.svg" style="visibility:hidden" />
-    <img id="b_pawn" src="/Content/Images/Pieces/b_pawn.svg" style="visibility:hidden" />
-    <img id="w_rook" src="/Content/Images/Pieces/w_rook.svg" style="visibility:hidden" />
-    <img id="w_knight" src="/Content/Images/Pieces/w_knight.svg" style="visibility:hidden" />
-    <img id="w_bishop" src="/Content/Images/Pieces/w_bishops.svg" style="visibility:hidden" />
-    <img id="w_queen" src="/Content/Images/Pieces/w_queen.svg" style="visibility:hidden" />
-    <img id="w_king" src="/Content/Images/Pieces/w_king.svg" style="visibility:hidden" />
-    <img id="w_pawn" src="/Content/Images/Pieces/w_pawn.svg" style="visibility:hidden" />
-</div>
-
 <input type="hidden" id="token" value="" />
 
 <br />
@@ -233,100 +218,119 @@
     var partyOver = false;
     var isWhitePlayer = false;
     var isBlackPlayer = false;
+    var images = {};
+
+    var sources = {
+        b_rook: '/Content/Images/Pieces/b_rook.svg',
+        b_knight: '/Content/Images/Pieces/b_knight.svg',
+        b_bishop: '/Content/Images/Pieces/b_bishops.svg',
+        b_queen: '/Content/Images/Pieces/b_queen.svg',
+        b_king: '/Content/Images/Pieces/b_king.svg',
+        b_pawn: '/Content/Images/Pieces/b_pawn.svg',
+        w_rook: '/Content/Images/Pieces/w_rook.svg',
+        w_knight: '/Content/Images/Pieces/w_knight.svg',
+        w_bishop: '/Content/Images/Pieces/w_bishops.svg',
+        w_queen: '/Content/Images/Pieces/w_queen.svg',
+        w_king: '/Content/Images/Pieces/w_king.svg',
+        w_pawn: '/Content/Images/Pieces/w_pawn.svg'
+    };
 
     $(document).ready(function () {
         $(function () {
-            var partyHub = $.connection.partyHub;
+            loadImages(sources, function () {
+                var partyHub = $.connection.partyHub;
 
-            $('#displayname').val('Anonymous');
-            $('#message').focus();
-            $('#message').on('keyup', function (e) {
-                if (e.keyCode === 13) {
-                    $('#sendmessage').click();
-                }
-            });
-
-            // abonnements aux clics sur les boutons
-            $("#whiteBtn").click(function () {
-                party.WhiteAskToPlay = true;
-                addPlayer('white');
-            });
-
-            $("#blackBtn").click(function () {
-                party.BlackAskToPlay = true;
-                addPlayer('black');
-            });
-
-            $('button[name="btnResign"]').on('click', function (e) {
-                e.preventDefault();
-                $('#confirm').modal({ backdrop: 'static', keyboard: false })
-                    .one('click', '#confirmBtn', function (e) {                        
-                        // abandon du joueur
-                        $.ajax({
-                            url: '/Party/Resign',
-                            data: { name: party.Name, token: $('#token').val() },
-                            cache: false,
-                            type: 'GET',
-                            dataType: "json",
-                            contentType: 'application/json; charset=utf-8'
-                        }).done(function (data) {
-                            $.connection.partyHub.server.aPlayerResign('@Model');                            
-                            $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
-                        });
-                    });
-            });
-
-            $.connection.hub.start().done(function () {
-                partyHub.server.joinParty('@Model');
-                $('#sendmessage').click(function () {
-                    partyHub.server.sendMessage('@Model', $('#displayname').val(), $('#message').val());
-                    $('#message').val('').focus();
+                $('#displayname').val('Anonymous');
+                $('#message').focus();
+                $('#message').on('keyup', function (e) {
+                    if (e.keyCode === 13) {
+                        $('#sendmessage').click();
+                    }
                 });
-            });
 
-            partyHub.client.addNewMessageToPage = function (name, message) {
-                if ($("#discussion li").length > 10) {
-                    $('#discussion li:last').remove();
+                // abonnements aux clics sur les boutons
+                $("#whiteBtn").click(function () {
+                    party.WhiteAskToPlay = true;
+                    addPlayer('white');
+                });
+
+                $("#blackBtn").click(function () {
+                    party.BlackAskToPlay = true;
+                    addPlayer('black');
+                });
+
+                $('button[name="btnResign"]').on('click', function (e) {
+                    e.preventDefault();
+                    $('#confirm').modal({ backdrop: 'static', keyboard: false })
+                        .one('click', '#confirmBtn', function (e) {
+                            // abandon du joueur
+                            $.ajax({
+                                url: '/Party/Resign',
+                                data: { name: party.Name, token: $('#token').val() },
+                                cache: false,
+                                type: 'GET',
+                                dataType: "json",
+                                contentType: 'application/json; charset=utf-8'
+                            }).done(function (data) {
+                                $.connection.partyHub.server.aPlayerResign('@Model');
+                                $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
+                            });
+                        });
+                });
+
+                $.connection.hub.start().done(function () {
+                    partyHub.server.joinParty('@Model');
+                    $('#sendmessage').click(function () {
+                        partyHub.server.sendMessage('@Model', $('#displayname').val(), $('#message').val());
+                        $('#message').val('').focus();
+                    });
+                });
+
+                partyHub.client.addNewMessageToPage = function (name, message) {
+                    if ($("#discussion li").length > 10) {
+                        $('#discussion li:last').remove();
+                    }
+
+                    $('#discussion').prepend('<li><strong>' + htmlEncode(name)
+                        + '</strong>: ' + htmlEncode(message) + '</li>');
+                };
+
+
+                partyHub.client.addPlayerWhite = function () {
+                    $('#whiteBtn').prop('disabled', true);
+                    $('#whiteBtn').html('Joueur connecté');
+                    $('#whiteBtn').removeClass('btn-success');
+
+                    // on recharge la partie
+                    reloadParty();
+                };
+
+                partyHub.client.addPlayerBlack = function () {
+                    $('#blackBtn').prop('disabled', true);
+                    $('#blackBtn').html('Joueur connecté');
+                    $('#blackBtn').removeClass('btn-success');
+
+                    // on recharge la partie
+                    reloadParty();
+                };
+
+                partyHub.client.moveOver = function () {
+                    reloadParty();
                 }
 
-                $('#discussion').prepend('<li><strong>' + htmlEncode(name)
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
-            };
+                partyHub.client.SendInfo = function (info) {
+                    setMsg(info);
+                }
 
-            partyHub.client.addPlayerWhite = function () {
-                $('#whiteBtn').prop('disabled', true);
-                $('#whiteBtn').html('Joueur connecté');
-                $('#whiteBtn').removeClass('btn-success');
+                partyHub.client.playerResign = function () {
+                    reloadParty();
+                }
 
-                // on recharge la partie
-                reloadParty();
-            };
-
-            partyHub.client.addPlayerBlack = function () {
-                $('#blackBtn').prop('disabled', true);
-                $('#blackBtn').html('Joueur connecté');
-                $('#blackBtn').removeClass('btn-success');
-
-                // on recharge la partie
-                reloadParty();
-            };
-
-            partyHub.client.moveOver = function () {
-                reloadParty();
-            }
-
-            partyHub.client.SendInfo = function (info) {
-                setMsg(info);
-            }
-
-            partyHub.client.playerResign = function () {
-                reloadParty();
-            }
+                // récupération de la partie
+                initPartyInfo('@Model');
+                addPromoteValidation('@Model');
+            });
         });
-
-        // récupération de la partie
-        initPartyInfo('@Model');
-        addPromoteValidation('@Model');
     });
 
     function setMsg(msg) {

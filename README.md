@@ -16,7 +16,7 @@ Aucune inscription nécessaire
 * ~~revoir mise en page générale~~
 * ~~textes des boutons à modifier pour + de cohérence~~
 * ~~gestion du moment ou la partie est prête à débuter~~
-* précharger les images avant d'afficher le canvas
+* ~~précharger les images avant d'afficher le canvas~~
 
 ### Déroulement de la parie
 * ~~Déplacement du pion~~
@@ -36,12 +36,12 @@ Aucune inscription nécessaire
 ### Gestion fin de partie
 * ~~Mat~~
 * ~~Pat~~
-* Abandon
+* ~~Abandon~~
 * Proposer la nulle / accepter
-* Abandon
 * 3 Positions répétitives
 * 40 coups sans mouvement de pion
 * Reprise de l'historique
+* interface une fois partie terminée
 
 ### V2
 * Gestion du temps

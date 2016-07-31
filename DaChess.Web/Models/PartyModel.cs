@@ -37,6 +37,8 @@ namespace DaChess.Web.Models
                     return false;
                 if (String.IsNullOrEmpty(BlackToken))
                     return false;
+                if (PartyOver)
+                    return false;
                 return true;
             }
         }

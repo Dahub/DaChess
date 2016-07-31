@@ -15,7 +15,7 @@
         for (posX = startCase; posX < caseNumber; posX = posX + 2) {
             ctx.fillRect(posX * caseSize, posY * caseSize, caseSize, caseSize);
         }
-        if (startCase == 1) {
+        if (startCase === 1) {
             startCase = 0;
         }
         else {
@@ -24,13 +24,14 @@
     }
 
     for (var i = 0; i < board.length; i++) {
-        if (isEmpty(board[i].piece) == false) {
+        if (isEmpty(board[i].piece) === false) {
             var xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
             var yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
-            var myImage = document.querySelector('#' + board[i].piece + '');
+         //   var myImage = document.querySelector('#' + board[i].piece + '');
+            var myImage = images[myBoard.board[i].piece];
             ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
-            if ((board[i].piece == 'w_king' && party.WhiteIsCheck && isWhitePlayer == true)
-                || (board[i].piece == 'b_king' && party.BlackIsCheck && isBlackPlayer == true)) {
+            if ((board[i].piece === 'w_king' && party.WhiteIsCheck && isWhitePlayer === true)
+                || (board[i].piece === 'b_king' && party.BlackIsCheck && isBlackPlayer === true)) {
                 ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
                 ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
             }
@@ -38,11 +39,11 @@
     }
 
     // on colore la dernière case ou une pièce à bougé
-    if (isEmpty(party.LastMoveCase == false)) {
-        var xPos = ((letterToNumber(party.LastMoveCase.charAt(0)) - 1) * caseSize) + piecePadding;
-        var yPos = ((caseNumber - party.LastMoveCase.charAt(1)) * caseSize) + piecePadding;
+    if (isEmpty(party.LastMoveCase === false)) {
+        var xPosLast = ((letterToNumber(party.LastMoveCase.charAt(0)) - 1) * caseSize) + piecePadding;
+        var yPosLast = ((caseNumber - party.LastMoveCase.charAt(1)) * caseSize) + piecePadding;
         ctx.fillStyle = 'rgba(102, 255, 51, 0.5)';
-        ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
+        ctx.fillRect(xPosLast - piecePadding, yPosLast - piecePadding, caseSize, caseSize);
     }
 }
 
@@ -54,25 +55,25 @@ function isLegalCase(myCase, board) {
     var caseFind = false;
 
     for (var i = 0; i < board.length; i++) {
-        if (board[i].col == col && board[i].line == line) {
+        if (board[i].col === col && board[i].line === line) {
             caseFind = true;
-            if (moveStep == 1 && isEmpty(board[i].piece))
+            if (moveStep === 1 && isEmpty(board[i].piece))
                 return false;
-            if (moveStep == 1) {
-                if (isBlackPlayer == true && board[i].piece.charAt(0) == 'w')
+            if (moveStep === 1) {
+                if (isBlackPlayer === true && board[i].piece.charAt(0) === 'w')
                     return false;
-                if (isWhitePlayer == true && board[i].piece.charAt(0) == 'b')
+                if (isWhitePlayer === true && board[i].piece.charAt(0) === 'b')
                     return false;
             }
-            else if (moveStep == 2) {
-                if (isBlackPlayer == true && board[i].piece.charAt(0) == 'b')
+            else if (moveStep === 2) {
+                if (isBlackPlayer === true && board[i].piece.charAt(0) === 'b')
                     return false;
-                if (isWhitePlayer == true && board[i].piece.charAt(0) == 'w')
+                if (isWhitePlayer === true && board[i].piece.charAt(0) === 'w')
                     return false;
             }
         }
     }
-    if (moveStep == 1 && caseFind == false)
+    if (moveStep === 1 && caseFind === false)
         return false;
 
     return true;
@@ -82,4 +83,22 @@ function resetCanvasMove(board) {
     refreshCanvas(board);
     moveStep = 0;
     moveText = '';
+}
+
+function loadImages(sources, callback) {    
+    var loadedImages = 0;
+    var numImages = 0;
+    // get num of sources
+    for (var s in sources) {
+        numImages++;
+    }
+    for (var src in sources) {
+        images[src] = new Image();
+        images[src].onload = function () {
+            if (++loadedImages >= numImages) {
+                callback(images);
+            }
+        };
+        images[src].src = sources[src];
+    }
 }
