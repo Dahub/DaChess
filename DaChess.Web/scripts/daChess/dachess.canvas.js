@@ -24,7 +24,6 @@
         if (isEmpty(board[i].piece) === false) {
             var xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
             var yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
-            //   var myImage = document.querySelector('#' + board[i].piece + '');
             var myImage = images[myBoard.board[i].piece];
             ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
             if ((board[i].piece === 'w_king' && party.WhiteIsCheck && isWhitePlayer === true)
@@ -67,11 +66,14 @@ function isLegalCase(myCase, board) {
                 if (isWhitePlayer === true && board[i].piece.charAt(0) === 'b')
                     return false;
             }
-            else if (moveStep === 2) {
-                if (isBlackPlayer === true && board[i].piece.charAt(0) === 'b')
-                    return false;
-                if (isWhitePlayer === true && board[i].piece.charAt(0) === 'w')
-                    return false;
+            else if (moveStep === 2) { // le jouer clique sur une case d'une pièce qui lui appartient, on reprends le déplacement à 0 avec cette case comme début
+                if (isBlackPlayer === true && board[i].piece.charAt(0) === 'b'
+                    || isWhitePlayer === true && board[i].piece.charAt(0) === 'w') {
+                    refreshCanvas(board);
+                    moveText = '';
+                    moveStep = 1;
+                    return true;                    
+                }
             }
         }
     }
@@ -104,3 +106,4 @@ function loadImages(sources, callback) {
         images[src].src = sources[src];
     }
 }
+

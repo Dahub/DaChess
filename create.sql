@@ -13,6 +13,9 @@ end
 go
 
 /* Création des tables */
+if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyHistory]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [chess].[PartyHistory]
+go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Party]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Party]
 go
@@ -22,6 +25,7 @@ go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PlayerState]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[PlayerState]
 go
+
 
 create table [chess].[PlayerState]
 (
@@ -46,8 +50,8 @@ create table [chess].[Party]
 	WhiteToken nvarchar(256) null,
 	BlackToken nvarchar(256) null,
 	PartLink nvarchar(256) null,	
-	Board text null,
-	History text null,
+	Board nvarchar(max) null,
+	History nvarchar(max) null,
 	WhiteTurn bit not null default 1,
 	Seed nvarchar(64) not null,
 	FK_White_Player_Stat integer not null constraint fk_white_player_state foreign key references [chess].[PlayerState] (id) default 1,
@@ -57,6 +61,15 @@ create table [chess].[Party]
 	EnPassantCase nvarchar(2) null,
 	LastMoveCase nvarchar(2) null,
 	PartyOver bit not null default 0
+)
+go
+
+create table [chess].[PartyHistory]
+(
+	Id integer not null primary key identity(1,1),
+	FK_Party integer not null constraint fk_party foreign key references [chess].[Party] (Id),
+	Board nvarchar(max) not null,
+	DateCreation datetime not null default getdate()
 )
 go
 
@@ -240,6 +253,7 @@ go
 
 select * from [chess].[Board]
 select * from [chess].[Party]
+select count(*), FK_PARTY, board from [chess].[PartyHistory] group by Fk_Party, board
 
 
 select BlackIsPat, WhiteIsPat, WhiteCanPromote, BlackCanPromote, EnPassantCase, BlackIsCheck, WhiteIsCheck from [chess].[Party]

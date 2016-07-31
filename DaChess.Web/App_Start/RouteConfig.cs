@@ -53,8 +53,8 @@ namespace DaChess.Web
 
             routes.MapRoute(
                name: "PostParty",
-               url: "Party/Post/{id}",
-               defaults: new { controller = "Party", action = "Post", id = UrlParameter.Optional }
+               url: "Party/NewParty/{id}",
+               defaults: new { controller = "Party", action = "NewParty", id = UrlParameter.Optional }
            );
 
             routes.MapRoute(

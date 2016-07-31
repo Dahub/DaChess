@@ -11,7 +11,7 @@ namespace DaChess.Web.Controllers
     public class PartyController : Controller
     {
         [HttpPost]
-        public JsonResult Post()
+        public JsonResult NewParty()
         {
             PartyModel toReturn = new PartyModel();
 
@@ -40,7 +40,6 @@ namespace DaChess.Web.Controllers
             return Json(toReturn);
         }
 
-        [HttpGet]
         public JsonResult Get(string name)
         {
             PartyModel toReturn = new PartyModel();

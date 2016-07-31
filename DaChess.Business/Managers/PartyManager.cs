@@ -58,6 +58,19 @@ namespace DaChess.Business
                     } while (context.Parties.Where(p => p.PartLink.Equals(toReturn.PartLink)).FirstOrDefault() != null);
 
                     context.Parties.Add(toReturn);
+                   
+                    context.SaveChanges();
+
+                    BoardManager manager = new BoardManager();
+                    manager.Init(toReturn.Board);
+
+                    context.PartyHistories.Add(new PartyHistory()
+                    {
+                        Board = manager.ToBoardDescription(),
+                        FK_Party = toReturn.Id,
+                        DateCreation = DateTime.Now
+                    });
+
                     context.SaveChanges();
                 }
             }

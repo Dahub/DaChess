@@ -91,6 +91,9 @@
     <Compile Include="Managers\PartyManager.cs" />
     <Compile Include="Enum\PiecesType.cs" />
     <Compile Include="Managers\PlayerManager.cs" />
+    <Compile Include="PartyHistory.cs">
+      <DependentUpon>Domain.tt</DependentUpon>
+    </Compile>
     <Compile Include="PlayerState.cs">
       <DependentUpon>Domain.tt</DependentUpon>
     </Compile>

@@ -11,6 +11,8 @@
         <EntityTypeShape EntityType="ChessModel.PlayerState" Width="1.5" PointX="0.75" PointY="4.125" />
         <AssociationConnector Association="ChessModel.fk_black_player_state" />
         <AssociationConnector Association="ChessModel.fk_white_player_state" />
+        <EntityTypeShape EntityType="ChessModel.PartyHistory" Width="1.5" PointX="5.25" PointY="2.5" />
+        <AssociationConnector Association="ChessModel.fk_party" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

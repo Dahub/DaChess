@@ -167,6 +167,27 @@ namespace DaChess.Business
                 if (BoardsHelper.IsCheck(playerColor, this.Cases))
                     throw (new DaChessException("Coup impossible, échec !"));
 
+                // on sauvegarde
+                using (var context = new ChessEntities())
+                {                   
+                    PartyHistory partHist = new PartyHistory()
+                    {
+                        Board = this.ToBoardDescription(),
+                        FK_Party = party.Id,
+                        DateCreation = DateTime.Now
+                    };
+                    context.PartyHistories.Add(partHist);
+                    context.SaveChanges();
+                }
+
+                // vérification qu'on n'ai pas 3 fois la même position
+                if (BoardsHelper.IsTreeTimeSamePosition(this.ToBoardDescription(), party.Id))
+                {
+                    // partie nulle
+                    resultText = "3 fois la même position, partie nulle";
+                    ennemiState = PlayerStateEnum.DRAWN;
+                }
+
                 // mise à jour de l'historique        
                 histo = UpdateHistorique(move, party, playerColor, ennemiState);
 
@@ -190,7 +211,7 @@ namespace DaChess.Business
                     }
                     party.BlackCanPromote = promotePawn && playerColor == Colors.BLACK;
                     party.WhiteCanPromote = promotePawn && playerColor == Colors.WHITE;
-                    party.PartyOver = ennemiState == PlayerStateEnum.CHECKMAT || ennemiState == PlayerStateEnum.PAT;
+                    party.PartyOver = ennemiState == PlayerStateEnum.CHECKMAT || ennemiState == PlayerStateEnum.PAT || ennemiState == PlayerStateEnum.DRAWN;                  
 
                     context.SaveChanges();
                 }
@@ -311,6 +332,34 @@ namespace DaChess.Business
                 innerString.Remove(innerString.Length - 1, 1);
 
             return string.Format(toReturn, innerString.ToString());
+        }
+
+        public string ToBoardDescription()
+        {
+            StringBuilder toReturn = new StringBuilder();
+
+            IList<string> myPieces = new List<string>();
+            string pattern = "{0}{1}{2}{3}#"; // couleur, nom de pièce en anglais (K,Q,R,B,N,P)
+
+            for (int line = 0; line < Cases.Length; line++)
+            {
+                for (int col = 0; col < Cases[line].Length; col++)
+                {
+                    if (Cases[line][col].Piece.HasValue)
+                    {
+                        myPieces.Add(String.Format(pattern, (int)Cases[line][col].PieceColor.Value,
+                           (char)Cases[line][col].Piece.Value, BoardsHelper.IntToCol(col + 1), line + 1));
+                    }
+                }
+            }
+
+            // on met les pièces dans l'ordre
+            foreach(var p in myPieces.OrderBy(p => p))
+            {
+                toReturn.Append(p);
+            }
+
+            return toReturn.ToString();
         }
 
         public static History UpdateHistorique(string move, Party party, Colors playerColor, PlayerStateEnum ennemiState)

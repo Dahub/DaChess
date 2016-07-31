@@ -134,7 +134,7 @@ namespace DaChess.Business
 
             return true;
         }
-     
+
         internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, IList<Coord> ennemies)
         {
             foreach (Coord c in ennemies)
@@ -532,6 +532,21 @@ namespace DaChess.Business
             return true;
         }
 
+        internal static bool IsTreeTimeSamePosition(string board, int idParty)
+        {
+            bool toReturn = false;
+
+            using (var context = new ChessEntities())
+            {
+                if(context.PartyHistories.Where(h => h.FK_Party.Equals(idParty) && h.Board == board).Count() == 3)
+                {
+                    toReturn = true;
+                }
+            }
+
+            return toReturn;
+        }
+
         internal static int ColToInt(string col)
         {
             // a => 1
@@ -761,6 +776,6 @@ namespace DaChess.Business
                 }
             }
             return true;
-        }      
+        }
     }
 }
