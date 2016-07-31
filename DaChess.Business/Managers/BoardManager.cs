@@ -343,11 +343,11 @@ namespace DaChess.Business
             }
 
             // on vérifie si la partie est terminée
-            if (ennemiState == PlayerStateEnum.PAT && playerColor == Colors.WHITE)
+            if ((ennemiState == PlayerStateEnum.PAT || ennemiState == PlayerStateEnum.DRAWN) && playerColor == Colors.WHITE)
             {
                 histo.Moves[moveNumber + 1] += " 1/2-1/2";
             }
-            else if (ennemiState == PlayerStateEnum.PAT && playerColor == Colors.BLACK)
+            else if ((ennemiState == PlayerStateEnum.PAT || ennemiState == PlayerStateEnum.DRAWN) && playerColor == Colors.BLACK)
             {
                 histo.Moves[moveNumber] += " 1/2-1/2";
             }

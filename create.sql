@@ -55,7 +55,8 @@ create table [chess].[Party]
 	WhiteCanPromote bit default 0,
 	BlackCanPromote bit default 0,	
 	EnPassantCase nvarchar(2) null,
-	LastMoveCase nvarchar(2) null
+	LastMoveCase nvarchar(2) null,
+	PartyOver bit not null default 0
 )
 go
 
@@ -63,6 +64,8 @@ insert into [chess].[PlayerState] (wording) values ('Undefined')
 insert into [chess].[PlayerState] (wording) values ('Check')
 insert into [chess].[PlayerState] (wording) values ('Pat')
 insert into [chess].[PlayerState] (wording) values ('CheckMat')
+insert into [chess].[PlayerState] (wording) values ('Resign')
+insert into [chess].[PlayerState] (wording) values ('Drawn')
 
 insert into [chess].[Board] (Wording, Content) values
 ('Classic',

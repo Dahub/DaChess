@@ -123,6 +123,29 @@ namespace DaChess.Web.Controllers
             return Json(toReturn, JsonRequestBehavior.AllowGet);
         }
 
+        public JsonResult Drawn(string name, string token)
+        {
+            DrawnModel toReturn = new DrawnModel();
+
+            try
+            {
+                toReturn.InfoMessage = Factory.Instance.GetPartyManager().Drawn(name, token);
+                toReturn.IsError = false;
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = ex.Message;
+            }
+            catch (Exception)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMessage = "Erreur non gérée lors de la demande de nulle du joueur";
+            }
+
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult MakeMove(string name, string move, string token)
         {
             MoveModel toReturn = new MoveModel();

@@ -465,7 +465,10 @@
 
     function RefreshPartyState() {
         $('#infoDiv').html('');
-        if (party.IsReady == true) {
+        if (party.PartyOver === true) {
+            $('#infoDiv').html('Partie terminée');
+        }
+        else if (party.IsReady == true) {
             $('#infoDiv').html('Partie prête');
         }
         else if (isEmpty(party.BlackToken) == false) {

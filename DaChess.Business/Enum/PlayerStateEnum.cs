@@ -6,6 +6,7 @@
         CHECK = 2,
         PAT = 3,
         CHECKMAT = 4,
-        RESIGN = 5
+        RESIGN = 5,
+        DRAWN = 6
     }
 }

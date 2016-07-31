@@ -126,22 +126,57 @@ namespace DaChess.Business
             return toReturn;
         }
 
+        public string Drawn(string name, string token)
+        {
+            string infoMsg = String.Empty;
+
+            Party myParty = PartyHelper.GetByName(name);
+            Colors playerColor = new PlayerManager().GetPlayerColor(token, name);
+            if(playerColor == Colors.WHITE)
+            {
+                myParty.FK_White_Player_Stat = (int)PlayerStateEnum.DRAWN;
+            }
+            else
+            {
+                myParty.FK_Black_Player_Stat = (int)PlayerStateEnum.DRAWN;
+            }
+
+            // on vérifie si les deux joueurs ont annulé
+            if(myParty.FK_Black_Player_Stat == (int)PlayerStateEnum.DRAWN && myParty.FK_White_Player_Stat == (int)PlayerStateEnum.DRAWN)
+            {
+                infoMsg = "Les deux joueurs acceptent la nulle";
+                History histo = BoardManager.UpdateHistorique(String.Empty, myParty, playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, PlayerStateEnum.DRAWN);
+                myParty.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                myParty.PartyOver = true;
+            }
+
+            this.Update(myParty);
+
+            return infoMsg;
+        }
+
         public string Resign(string name, string token)
         {
-            Party myParty = PartyHelper.GetByName(name);
-            string result = String.Empty;
+            Party myParty = PartyHelper.GetByName(name);            
             Colors playerColor = new PlayerManager().GetPlayerColor(token, name);
             History histo = BoardManager.UpdateHistorique(String.Empty, myParty, playerColor == Colors.BLACK ? Colors.WHITE : Colors.BLACK, PlayerStateEnum.RESIGN);
+
             myParty.History = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
             myParty.PartyOver = true;
-            // update de la party
-            this.Update(myParty);
 
             string infoMsg = String.Empty;
             if (playerColor == Colors.WHITE)
+            {
                 infoMsg = "Le joueur blanc abandonne";
+                myParty.FK_White_Player_Stat = (int)PlayerStateEnum.RESIGN;
+            }
             else
+            {
                 infoMsg = "Le joueur noir abandonne";
+                myParty.FK_Black_Player_Stat = (int)PlayerStateEnum.RESIGN;
+            }
+            // update de la party
+            this.Update(myParty);
 
             return infoMsg;
         }
