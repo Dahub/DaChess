@@ -1,7 +1,4 @@
 ﻿function refreshCanvas(board) {
-
-    console.log(party.LastMoveCase);
-
     var c = $("#canvas");
     var ctx = c[0].getContext('2d');
     ctx.clearRect(0, 0, size, size);
@@ -27,7 +24,7 @@
         if (isEmpty(board[i].piece) === false) {
             var xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
             var yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
-         //   var myImage = document.querySelector('#' + board[i].piece + '');
+            //   var myImage = document.querySelector('#' + board[i].piece + '');
             var myImage = images[myBoard.board[i].piece];
             ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
             if ((board[i].piece === 'w_king' && party.WhiteIsCheck && isWhitePlayer === true)
@@ -44,6 +41,11 @@
         var yPosLast = ((caseNumber - party.LastMoveCase.charAt(1)) * caseSize) + piecePadding;
         ctx.fillStyle = 'rgba(102, 255, 51, 0.5)';
         ctx.fillRect(xPosLast - piecePadding, yPosLast - piecePadding, caseSize, caseSize);
+    }
+
+    if (party.IsReady === false) {
+        ctx.fillStyle = 'rgba(184, 184, 184, 0.4)';
+        ctx.fillRect(0, 0, size, size);
     }
 }
 
@@ -85,7 +87,7 @@ function resetCanvasMove(board) {
     moveText = '';
 }
 
-function loadImages(sources, callback) {    
+function loadImages(sources, callback) {
     var loadedImages = 0;
     var numImages = 0;
     // get num of sources

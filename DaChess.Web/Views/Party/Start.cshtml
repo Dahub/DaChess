@@ -29,6 +29,31 @@
 </div>
 <br />
 
+<!-- Modal pour la partie nulle -->
+<div class="modal fade" id="confirmDrawnModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Demande de partie nulle</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div>Voulez-vous accepter l'annulation de cette partie ?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmDrawnBtn">Oui</button>
+                <button type="button" data-dismiss="modal" class="btn" id="refuseDrawn">Non</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal box pour le mat -->
 <div class="modal fade" id="matModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -163,7 +188,7 @@
                 <br /><br />
                 <span id="btnDiv" style="display:none">
                     <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs">Abandonner</button>
-                    <button type="button" class="btn btn-default btn-xs">Proposer la nulle</button>
+                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs">Proposer la nulle</button>
                 </span>
             </div>
         </div>
@@ -259,6 +284,10 @@
                     addPlayer('black');
                 });
 
+                $('#btnDrawn').click(function () {
+                    $.connection.partyHub.server.askForDrawn('@Model');
+                });
+
                 $('button[name="btnResign"]').on('click', function (e) {
                     e.preventDefault();
                     $('#confirm').modal({ backdrop: 'static', keyboard: false })
@@ -323,6 +352,36 @@
                 }
 
                 partyHub.client.playerResign = function () {
+                    reloadParty();
+                }
+
+                partyHub.client.playerAskDrawn = function () {
+                    if (isBlackPlayer == true || isWhitePlayer == true) {
+                        $('#confirmDrawnModal').modal({ backdrop: 'static', keyboard: false })
+                            .one('click', '#confirmDrawnBtn', function (e) {
+                                $.ajax({
+                                    url: '/Party/Drawn',
+                                    data: { name: party.Name, token: $('#token').val() },
+                                    cache: false,
+                                    type: 'GET',
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8'
+                                }).done(function (data) {
+                                    $.connection.partyHub.server.newInfo('@Model', data.InfoMessage);
+                                    partyHub.server.aPlayerAcceptDrawn('@Model', $('#token').val());
+                                });
+                            }).one('click', '#refuseDrawn', function (e) {
+                                var msgDrawn = '';
+                                if (isBlackPlayer == true)
+                                    msgDrawn = 'Les noirs refusent la nulle';
+                                else if (isWhitePlayer == true)
+                                    msgDrawn = 'les Blancs refusent la nulle';
+                                $.connection.partyHub.server.newInfo('@Model', msgDrawn);
+                            });
+                    }
+                }
+
+                partyHub.client.playerAcceptDrawn = function (playerToken) {
                     reloadParty();
                 }
 

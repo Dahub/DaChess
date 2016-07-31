@@ -22,6 +22,12 @@ namespace DaChess.Web
           );
 
             routes.MapRoute(
+               name: "Drawn",
+               url: "Party/Drawn/{name}/{token}",
+               defaults: new { controller = "Party", action = "Drawn", name = UrlParameter.Optional, token = UrlParameter.Optional }
+           );
+
+            routes.MapRoute(
                name: "MakeMove",
                url: "Party/MakeMove/{name}/{move}/{token}",
                defaults: new { controller = "Party", action = "MakeMove", name = UrlParameter.Optional, move = UrlParameter.Optional, token = UrlParameter.Optional }

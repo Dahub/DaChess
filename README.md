@@ -37,7 +37,7 @@ Aucune inscription nécessaire
 * ~~Mat~~
 * ~~Pat~~
 * ~~Abandon~~
-* Proposer la nulle / accepter
+* ~~Proposer la nulle / accepter~~
 * 3 Positions répétitives
 * 40 coups sans mouvement de pion
 * Reprise de l'historique
