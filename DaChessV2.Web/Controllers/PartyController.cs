@@ -16,5 +16,18 @@ namespace DaChessV2.Web.Controllers
             PartyModel model = new PartyManager().GetParty(partyName);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult AddPlayerToParty(PlayerModel model)
+        {
+            model = new PartyManager().AddPlayerToParty(model.PlayerColor, model.PartyName);
+            return Json(model);
+        }
+
+        public JsonResult MakeMove(string partyName, string move, string token)
+        {
+            PartyModel toReturn = new PartyManager().MakeMove(move, partyName, token);
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -14,8 +14,13 @@
 
     var size = 400; // taille en pixels du plateau
     var caseNumber = 8; // nombre de cases du plateau
+    var moveStep = 0; // compteur de cases sélectionnées
+    var moveText = ''; // texte du coup
 
-    // liste des image des pièces
+    var isWhite = false; // true si le joueur est le joueur blanc
+    var isBlack = false; // true si le joueur est le joueur noir
+
+    // liste des images des pièces
     var sources = {
         b_rook: '/Content/Images/Pieces/b_rook.svg',
         b_knight: '/Content/Images/Pieces/b_knight.svg',
@@ -31,15 +36,39 @@
         w_pawn: '/Content/Images/Pieces/w_pawn.svg'
     };
 
-    $(document).ready(function () {
-        // récupération de la partie et extraction du plateau et de l'historique
-        party = GetParty('@Model');
-        myBoard = ExtractBoard(party);
-        myHistory = ExtractHistory(party);
+    // Les deux couleurs du jeu
+    var colors = {
+        white: 1,
+        black: 2
+    };
 
+    // différentes valeurs que peut prendre PartyState
+    var partyStates = {
+        waitPlayers: 1,
+        running: 2,
+        drawn: 3,
+        overWhiteWin: 4,
+        overBlackWin: 5
+    };
+
+    // différentes valeurs que peut prendre PlayerState
+    var playerStates = {
+        undefined: 1,
+        canMove: 2,
+        waitHisTurn: 3,
+        canPromote: 4,
+        askDrawn: 5,
+        pat: 6,
+        resign: 7,
+        check: 8,
+        checkMat: 9
+    };
+
+    $(document).ready(function () {
         // chargement des images du jeu et tracé du premier canvas une fois celles-ci chargées
         loadImages(sources, function () {
-            refreshCanvas(party, myBoard, images, size, caseNumber);
+            // récupération de la partie et extraction du plateau et de l'historique
+            reloadParty('@Model');
         });
 
         var partyHub = $.connection.partyHub;
@@ -52,11 +81,24 @@
 
         partyHub.client.addNewMessageToPage = function (name, message) {
             appendMessage(name, message);
-        };        
+        };
+
+        partyHub.client.addPlayerWhite = function () {
+            reloadParty('@Model');
+        };
+
+        partyHub.client.addPlayerBlack = function () {
+            reloadParty('@Model');
+        };
+
+        partyHub.client.moveOver = function () {
+            reloadParty('@Model');
+        }
+
+        partyHub.client.SendInfo = function (info) {
+            setMsg(info);
+        }
     });
-
-
-
 </script>
 
 <br />
@@ -70,12 +112,12 @@
     </div>
 </div>
 <br />
-<div class="row">
+<div class="row" id="btnRow">
     <div class="col-md-6 alignRight" id="whiteBtnDiv">
-        <button type="button" id="whiteBtn" class="btn" disabled>Jouer avec les blancs</button><br />
+        <button type="button" id="whiteBtn" class="btn" onclick="addPlayer('@Model', colors.white)" disabled>Jouer avec les blancs</button><br />
     </div>
     <div class="col-md-6" id="blackBtnDiv">
-        <button type="button" id="blackBtn" class="btn" disabled>Jouer avec les noirs</button>
+        <button type="button" id="blackBtn" class="btn" onclick="addPlayer('@Model', colors.black)" disabled>Jouer avec les noirs</button>
     </div>
 </div>
 <br />

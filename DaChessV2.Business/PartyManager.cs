@@ -77,7 +77,7 @@ namespace DaChessV2.Business
                 if (String.IsNullOrEmpty(partyName))
                     throw new DaChessException("Impossible de trouver une partie sans nom");
 
-                Party p = this.GetByName(partyName);
+                Party p = PartyHelper.GetByName(partyName);
                 toReturn = p.ToPartyModel();
                 toReturn.ResultText = String.Format("Partie {0} récupérée", partyName);
             }
@@ -97,15 +97,60 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
+        /// <summary>
+        /// Ajoute un joueur à la partie comme joueur de la couleur désignée
+        /// Un token sera généré avec la forme suivante  [id partie]#;#[couleur du joueur]
+        /// et est ensuite crypté à partir du "seed" de la partie.
+        /// Ce token sera retourné au client et stocké dans la page et dans un cookie pour être utilisé
+        /// ultérieurement à des fins d'authentification et aussi lors des déplacements, pour vérifier
+        /// que le joueur a bien le droit de jouer la partie.
+        /// </summary>
+        /// <param name="playerColor">Couleur demandée</param>
+        /// <param name="partyName">Nom de la partie concernée</param>
+        /// <returns>Un objet PlayerModel contenant le token de l'utilisateur</returns>
         public PlayerModel AddPlayerToParty(Color playerColor, string partyName)
         {
             PlayerModel toReturn = new PlayerModel();
 
             try
             {
-                toReturn.ResultText = String.Format("Le jouer a bien rejoins la partie {0} récupérée", partyName);
+                Party p = PartyHelper.GetByName(partyName);
 
-                throw new DaChessException("Méthode à implémenter");
+                // vérification qu'il n'existe pas déjà un joueur pour cette partie à la couleur demandée
+                if (playerColor == Color.BLACK && p.FK_Black_PlayerState != (int)EnumPlayerState.UNDEFINED)
+                    throw new DaChessException("Cette partie a déjà un joueur pour la couleur noire");
+
+                if (playerColor == Color.WHITE && p.FK_White_PlayerState != (int)EnumPlayerState.UNDEFINED)
+                    throw new DaChessException("Cette partie a déjà un joueur pour la couleur blanche");
+
+                // on génère le token de la forme suivant [id partie]#;#[couleur du joueur]
+                string infos = String.Format("{0}#;#{1}", p.Id, (int)playerColor);
+                string token = CryptoHelper.Encrypt(infos, p.Seed);
+
+                switch (playerColor)
+                {
+                    case Color.BLACK:                       
+                        p.BlackToken = token;
+                        p.FK_Black_PlayerState = (int)EnumPlayerState.WAIT_HIS_TURN;
+                        break;
+                    case Color.WHITE:
+                        p.WhiteToken = token;
+                        p.FK_White_PlayerState = (int)EnumPlayerState.WAIT_HIS_TURN;
+                        break;
+                }
+
+                // si la partie possède 2 joueurs, elle est prête
+                if(p.FK_Black_PlayerState != (int)EnumPlayerState.UNDEFINED && p.FK_White_PlayerState != (int)EnumPlayerState.UNDEFINED)
+                {
+                    p.FK_PartyState = (int)EnumPartyState.RUNNING;
+                    p.FK_White_PlayerState = (int)EnumPlayerState.CAN_MOVE; // la partie peut commencer, au tour des blancs
+                }
+
+                this.Update(p);
+
+                toReturn.PlayerColor = playerColor;
+                toReturn.Token = token;
+                toReturn.ResultText = String.Format("Le jouer a bien rejoins la partie {0} récupérée", partyName);
             }
             catch (DaChessException ex)
             {
@@ -180,6 +225,29 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
+        private Party Update(Party toUpdate)
+        {
+            try
+            {
+                using (var context = new ChessEntities())
+                {
+                    context.Entry(toUpdate).State =
+                        System.Data.Entity.EntityState.Modified;
+                    context.SaveChanges();
+                }
+            }
+            catch (DaChessException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DaChessException("Erreur dans la mise à jour de la partie", ex);
+            }
+
+            return toUpdate;
+        }
+
         private Party InitParty(ChessEntities context)
         {
             Party toReturn;
@@ -209,21 +277,6 @@ namespace DaChessV2.Business
             }
 
             return toReturn;
-        }
-
-        internal Party GetByName(string name)
-        {
-            Party toReturn;
-
-            using (var context = new ChessEntities())
-            {
-                toReturn = context.Party.Where(p => p.PartyName.ToLower().Equals(name.ToLower())).FirstOrDefault();
-            }
-
-            if (toReturn == null)
-                throw new DaChessException(String.Format("Partie {0} introuvable", name));
-
-            return toReturn;
-        }
+        }      
     }
 }

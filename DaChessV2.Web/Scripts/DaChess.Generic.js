@@ -6,9 +6,11 @@
         html += model.ErrorMsg;
         html += '<br />';
         html += model.ErrorDetails;
+        html += '<br />';
     } else
     {
         html = model.ResultText;
+        html += '<br />';
     }
     $('#DebugZone').prepend(html);
 }

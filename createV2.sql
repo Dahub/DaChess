@@ -73,7 +73,9 @@ insert into [chess].[PartyState] (wording) values ('Terminée victoire blanc')
 insert into [chess].[PartyState] (wording) values ('Terminée victoire noir')
 go
 
+insert into [chess].[PlayerState] (wording) values ('non défini')
 insert into [chess].[PlayerState] (wording) values ('peut jouer')
+insert into [chess].[PlayerState] (wording) values ('attend son tour')
 insert into [chess].[PlayerState] (wording) values ('peut promouvoir')
 insert into [chess].[PlayerState] (wording) values ('demande nulle')
 insert into [chess].[PlayerState] (wording) values ('pat')

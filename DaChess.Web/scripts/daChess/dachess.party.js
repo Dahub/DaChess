@@ -88,6 +88,7 @@ function initPartyInfo(partyName) {
     });
 }
 
+
 function playerTurn(myParty, isWhite, isBlack) {
     if (myParty.IsReady === false) {
         return false;
