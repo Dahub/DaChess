@@ -1,6 +1,8 @@
 ﻿using DaChessV2.Dto;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 
 namespace DaChessV2.Business
 {
@@ -10,7 +12,8 @@ namespace DaChessV2.Business
     /// </summary>
     public class PartyManager
     {
-        private const int NUMBER_OF_TRY = 200; // nombre de tentative pour trouver un nom de partie inutilisé      
+        private const int NUMBER_OF_TRY = 200; // nombre de tentative pour trouver un nom de partie inutilisé    
+        private const int BOARD_CASE = 8; // nombre de cases du plateau de jeu
 
         /// <summary>
         /// Création d'une nouvelle partie
@@ -168,6 +171,16 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
+        /// <summary>
+        /// Le joueur effectue un déplacement
+        /// Si tout se passe bien, un objet PartyModel contenant la disposition des pièces
+        /// après déplacement est retourné.
+        /// Si le joueur de token passé en argument ne joue pas cette partie, une exception est lancée
+        /// </summary>
+        /// <param name="move">le déplacement de la forme [case départ] [case arrivée] exemple : "e4 e5"</param>
+        /// <param name="partyName">le nom de la partie</param>
+        /// <param name="playerToken">le token du joueur</param>
+        /// <returns>un objet PartyModel à jour</returns>
         public PartyModel MakeMove(string move, string partyName, string playerToken)
         {
             PartyModel toReturn = new PartyModel();
@@ -175,11 +188,45 @@ namespace DaChessV2.Business
             try
             {
                 // on récupère la couleur du joueur et sa partie
+                Party party = PartyHelper.GetByName(partyName);
+                toReturn = party.ToPartyModel();
+                Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
 
-                // si il est bien de cette partie et si la pièce à bouger est bien de la bonne couleur, on continue
-                // sinon exception
+                // on transforme le board json en tableau de cases [line][colonne]
+                CaseInfo[][] boardCases = BoardHelper.ExtractCasesInfos(party.Board, BOARD_CASE);
 
-                toReturn.ResultText = "Déplacement terminé";
+                // on récupère les 2 cases du déplacement, et on lance une exception si ce n'est pas cohérent
+                move = move.TrimEnd(' ');
+                string[] moveCases = move.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (!BoardHelper.IsMoveOk(moveCases))
+                    throw new DaChessException(String.Format("Le coup {0} est mal formaté", move));
+
+                // on récupère la première pièce              
+                string enPassant = String.Empty;
+                string lastMoveCase = String.Empty;
+                bool promotePawn = false;
+                History histo = null;
+
+                int startLine = Int32.Parse(moveCases[0].Substring(1, 1)) - 1;
+                int startCol = BoardHelper.ColToInt(moveCases[0].Substring(0, 1)) - 1;
+
+                if (boardCases[startLine][startCol].Piece.HasValue)
+                {
+                    int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
+                    int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
+                    EnumMoveType mt;
+
+                    if (!BoardHelper.IsLegalMove(boardCases[startLine][startCol], boardCases[endLine][endCol], boardCases, startLine, endLine, startCol, endCol, party, out mt))
+                    {
+                        throw new DaChessException("Coup illégal");
+                    }
+                }
+
+
+
+
+
+                    toReturn.ResultText = "Déplacement terminé";
 
                 throw new DaChessException("Méthode à implémenter");
             }
@@ -277,6 +324,6 @@ namespace DaChessV2.Business
             }
 
             return toReturn;
-        }      
+        }        
     }
 }

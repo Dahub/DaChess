@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\Color.cs" />
-    <Compile Include="Enums\EnumPiecesType.cs" />
+    <Compile Include="Enums\EnumMoveType.cs" />
+    <Compile Include="Enums\EnumPieceType.cs" />
     <Compile Include="Models\AbstractModel.cs" />
     <Compile Include="Enums\EnumPartyState.cs" />
     <Compile Include="Enums\EnumPlayerState.cs" />

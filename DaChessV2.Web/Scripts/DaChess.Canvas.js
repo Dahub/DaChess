@@ -83,7 +83,7 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
 function getMousePos(canvas, evt) {
     if (playerTurn(party, isWhite, isBlack) === true) {
         if (moveStep === 2) {
-            resetCanvasMove(myBoard.board);
+            resetCanvasMove(myBoard);
         }
         moveStep++;
 
@@ -119,7 +119,7 @@ function getMousePos(canvas, evt) {
                     dataType: "json",
                     contentType: 'application/json; charset=utf-8'
                 }).done(function (data) {
-                    setDebugInfo(data);                   
+                    setDebugInfo(data);             
                     if (data.IsError === true) {
                         setMsg(data.ErrorMsg);
                     }
