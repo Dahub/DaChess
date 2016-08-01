@@ -1,0 +1,313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="ChessModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BoardType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Content" Type="text" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Party">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FK_BoardType" Type="int" Nullable="false" />
+          <Property Name="FK_PartyState" Type="int" Nullable="false" />
+          <Property Name="FK_White_PlayerState" Type="int" Nullable="false" />
+          <Property Name="FK_Black_PlayerState" Type="int" Nullable="false" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="WhiteToken" Type="nvarchar" MaxLength="256" />
+          <Property Name="BlackToken" Type="nvarchar" MaxLength="256" />
+          <Property Name="PartyName" Type="nvarchar" MaxLength="256" />
+          <Property Name="Board" Type="nvarchar(max)" />
+          <Property Name="JsonHistory" Type="nvarchar(max)" />
+          <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
+          <Property Name="LastMoveCase" Type="nvarchar" MaxLength="2" />
+        </EntityType>
+        <EntityType Name="PartyState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PlayerState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
+        </EntityType>
+        <Association Name="fk_black_playerState">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_Black_PlayerState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_board_type">
+          <End Role="BoardType" Type="Self.BoardType" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BoardType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_BoardType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_partyState">
+          <End Role="PartyState" Type="Self.PartyState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PartyState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_PartyState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_white_playerState">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_White_PlayerState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ChessModelStoreContainer">
+          <EntitySet Name="BoardType" EntityType="Self.BoardType" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="PartyState" EntityType="Self.PartyState" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="PlayerState" EntityType="Self.PlayerState" Schema="chess" store:Type="Tables" />
+          <AssociationSet Name="fk_black_playerState" Association="Self.fk_black_playerState">
+            <End Role="PlayerState" EntitySet="PlayerState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
+            <End Role="BoardType" EntitySet="BoardType" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_partyState" Association="Self.fk_partyState">
+            <End Role="PartyState" EntitySet="PartyState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_white_playerState" Association="Self.fk_white_playerState">
+            <End Role="PlayerState" EntitySet="PlayerState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ChessModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="BoardType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Party">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FK_BoardType" Type="Int32" Nullable="false" />
+          <Property Name="FK_PartyState" Type="Int32" Nullable="false" />
+          <Property Name="FK_White_PlayerState" Type="Int32" Nullable="false" />
+          <Property Name="FK_Black_PlayerState" Type="Int32" Nullable="false" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="WhiteToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="BlackToken" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="PartyName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Board" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="JsonHistory" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Seed" Type="String" MaxLength="64" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EnPassantCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="LastMoveCase" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="BoardType" Relationship="Self.fk_board_type" FromRole="Party" ToRole="BoardType" />
+          <NavigationProperty Name="BlackPlayerState" Relationship="Self.fk_black_playerState" FromRole="Party" ToRole="PlayerState" />
+          <NavigationProperty Name="PartyState" Relationship="Self.fk_partyState" FromRole="Party" ToRole="PartyState" />
+          <NavigationProperty Name="WhitePlayerState" Relationship="Self.fk_white_playerState" FromRole="Party" ToRole="PlayerState" />
+        </EntityType>
+        <EntityType Name="PartyState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PlayerState">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+        </EntityType>
+        <Association Name="fk_board_type">
+          <End Role="BoardType" Type="Self.BoardType" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BoardType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_BoardType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_black_playerState">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_Black_PlayerState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_partyState">
+          <End Role="PartyState" Type="Self.PartyState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PartyState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_PartyState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_white_playerState">
+          <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlayerState">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_White_PlayerState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ChessEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="BoardType" EntityType="Self.BoardType" />
+          <EntitySet Name="Party" EntityType="Self.Party" />
+          <EntitySet Name="PartyState" EntityType="Self.PartyState" />
+          <EntitySet Name="PlayerState" EntityType="Self.PlayerState" />
+          <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
+            <End Role="BoardType" EntitySet="BoardType" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_black_playerState" Association="Self.fk_black_playerState">
+            <End Role="PlayerState" EntitySet="PlayerState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_partyState" Association="Self.fk_partyState">
+            <End Role="PartyState" EntitySet="PartyState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_white_playerState" Association="Self.fk_white_playerState">
+            <End Role="PlayerState" EntitySet="PlayerState" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ChessModelStoreContainer" CdmEntityContainer="ChessEntities">
+          <EntitySetMapping Name="BoardType">
+            <EntityTypeMapping TypeName="ChessModel.BoardType">
+              <MappingFragment StoreEntitySet="BoardType">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Party">
+            <EntityTypeMapping TypeName="ChessModel.Party">
+              <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="FK_BoardType" ColumnName="FK_BoardType" />
+                <ScalarProperty Name="FK_PartyState" ColumnName="FK_PartyState" />
+                <ScalarProperty Name="FK_White_PlayerState" ColumnName="FK_White_PlayerState" />
+                <ScalarProperty Name="FK_Black_PlayerState" ColumnName="FK_Black_PlayerState" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="WhiteToken" ColumnName="WhiteToken" />
+                <ScalarProperty Name="BlackToken" ColumnName="BlackToken" />
+                <ScalarProperty Name="PartyName" ColumnName="PartyName" />
+                <ScalarProperty Name="Board" ColumnName="Board" />
+                <ScalarProperty Name="JsonHistory" ColumnName="JsonHistory" />
+                <ScalarProperty Name="Seed" ColumnName="Seed" />
+                <ScalarProperty Name="EnPassantCase" ColumnName="EnPassantCase" />
+                <ScalarProperty Name="LastMoveCase" ColumnName="LastMoveCase" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PartyState">
+            <EntityTypeMapping TypeName="ChessModel.PartyState">
+              <MappingFragment StoreEntitySet="PartyState">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PlayerState">
+            <EntityTypeMapping TypeName="ChessModel.PlayerState">
+              <MappingFragment StoreEntitySet="PlayerState">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Aucun" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

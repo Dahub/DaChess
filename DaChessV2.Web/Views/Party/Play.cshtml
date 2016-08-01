@@ -1,0 +1,132 @@
+﻿@model string
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Partie en cours";
+}
+
+<script type="text/javascript">
+    var party; // stockage (JSon) de l'objet PartyModel
+    var playerToken; // token du joueur connecté
+    var myBoard; // plateau de jeu, array de cases
+    var myHistory; // historique de la partie
+    var images = {}; // array d'images du jeu (pièces du jeu d'échec);
+
+    var size = 400; // taille en pixels du plateau
+    var caseNumber = 8; // nombre de cases du plateau
+
+    // liste des image des pièces
+    var sources = {
+        b_rook: '/Content/Images/Pieces/b_rook.svg',
+        b_knight: '/Content/Images/Pieces/b_knight.svg',
+        b_bishop: '/Content/Images/Pieces/b_bishops.svg',
+        b_queen: '/Content/Images/Pieces/b_queen.svg',
+        b_king: '/Content/Images/Pieces/b_king.svg',
+        b_pawn: '/Content/Images/Pieces/b_pawn.svg',
+        w_rook: '/Content/Images/Pieces/w_rook.svg',
+        w_knight: '/Content/Images/Pieces/w_knight.svg',
+        w_bishop: '/Content/Images/Pieces/w_bishops.svg',
+        w_queen: '/Content/Images/Pieces/w_queen.svg',
+        w_king: '/Content/Images/Pieces/w_king.svg',
+        w_pawn: '/Content/Images/Pieces/w_pawn.svg'
+    };
+
+    $(document).ready(function () {
+        // récupération de la partie et extraction du plateau et de l'historique
+        party = GetParty('@Model');
+        myBoard = ExtractBoard(party);
+        myHistory = ExtractHistory(party);
+
+        // chargement des images du jeu et tracé du premier canvas une fois celles-ci chargées
+        loadImages(sources, function () {
+            refreshCanvas(party, myBoard, images, size, caseNumber);
+        });
+
+        var partyHub = $.connection.partyHub;
+
+        // une fois que le serveur est prêt
+        $.connection.hub.start().done(function () {
+            // on abonne l'utilisateur sur la page au groupe de la partie
+            partyHub.server.joinParty('@Model');
+        });
+
+        partyHub.client.addNewMessageToPage = function (name, message) {
+            appendMessage(name, message);
+        };        
+    });
+
+
+
+</script>
+
+<br />
+<!-- première ligne pour les infos -->
+<div class="row">
+    <div class="col-md-6">
+        <h1>Partie @Model</h1>
+    </div>
+    <div id="msgDivParent" class="col-md-6" style="display:none">
+        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-6 alignRight" id="whiteBtnDiv">
+        <button type="button" id="whiteBtn" class="btn" disabled>Jouer avec les blancs</button><br />
+    </div>
+    <div class="col-md-6" id="blackBtnDiv">
+        <button type="button" id="blackBtn" class="btn" disabled>Jouer avec les noirs</button>
+    </div>
+</div>
+<br />
+
+<!-- ligne avec les coups, le plateau et le tchat -->
+<div class="row">
+    <div class="col-md-3" id="moveDiv">
+        <div class="panel panel-default">
+            <div class="panel-heading">Infos</div>
+            <div class="panel-body">
+                <div id="infoDiv"></div><br />
+                <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                <span id="colorDiv"></span>
+                <br /><br />
+                <span id="btnDiv" style="display:none">
+                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs">Abandonner</button>
+                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs">Proposer la nulle</button>
+                </span>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Historique</div>
+            <div class="panel-body">
+                <ul id="moves"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading" id="turnDiv"></div>
+            <div class="panel-body">
+                <div class="centerBlock">
+                    <canvas id="canvas" width="400" height="400" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- Tchat -->
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Tchat</div>
+            <div class="panel-body">
+                <textarea id="message" rows="2" cols="40" onkeyup="checkIfSendMsg(event, '@Model')"></textarea>
+                <input type="button" id="sendmessage" value="Ok" onclick="sendNewMsg('@Model')" />
+                <input type="hidden" id="displayname" value="Anonymous" />
+                <br /><br />
+                <ul id="discussion"></ul>
+            </div>
+        </div>
+
+    </div>
+</div>

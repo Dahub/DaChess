@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{9FA1FF41-953F-4AA2-890A-3736ED8A3F71}"
 	ProjectSection(SolutionItems) = preProject
 		create.sql = create.sql
+		createV2.sql = createV2.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{D0691091-FC72-4610-BA3F-6E5B0551C8BC}"
@@ -21,6 +22,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Web", "DaChess.Web\DaChess.Web.csproj", "{4EF4C639-5FF6-4F62-83E9-9010213066C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChessV2.Business", "DaChessV2.Business\DaChessV2.Business.csproj", "{30C14274-277A-4EB9-AA3A-0809AD12717B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChessV2.Dto", "DaChessV2.Dto\DaChessV2.Dto.csproj", "{563DC147-9660-4B83-87C6-14789D51E6C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChessV2.Web", "DaChessV2.Web\DaChessV2.Web.csproj", "{75CA9C97-AC0B-44A7-AB7F-7FA0146394B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +43,18 @@ Global
 		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{563DC147-9660-4B83-87C6-14789D51E6C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{563DC147-9660-4B83-87C6-14789D51E6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{563DC147-9660-4B83-87C6-14789D51E6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{563DC147-9660-4B83-87C6-14789D51E6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75CA9C97-AC0B-44A7-AB7F-7FA0146394B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75CA9C97-AC0B-44A7-AB7F-7FA0146394B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75CA9C97-AC0B-44A7-AB7F-7FA0146394B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75CA9C97-AC0B-44A7-AB7F-7FA0146394B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

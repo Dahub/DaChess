@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a51e2aa535f4428580ee04f75348de1b" Name="Diagram1">
+        <EntityTypeShape EntityType="ChessModel.BoardType" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ChessModel.Party" Width="1.5" PointX="3" PointY="2.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="ChessModel.PartyState" Width="1.5" PointX="0.75" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ChessModel.PlayerState" Width="1.5" PointX="0.75" PointY="3.875" IsExpanded="true" />
+        <AssociationConnector Association="ChessModel.fk_board_type" ManuallyRouted="false" />
+        <AssociationConnector Association="ChessModel.fk_black_playerState" ManuallyRouted="false" />
+        <AssociationConnector Association="ChessModel.fk_partyState" ManuallyRouted="false" />
+        <AssociationConnector Association="ChessModel.fk_white_playerState" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
