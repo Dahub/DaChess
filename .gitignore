@@ -245,3 +245,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/DaChess.Web/Properties/PublishProfiles/Ftp.pubxml
+/DaChess.Web/Properties/PublishProfiles/PubliLocal.pubxml
