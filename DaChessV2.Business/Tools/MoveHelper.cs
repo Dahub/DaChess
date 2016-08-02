@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DaChessV2.Business
 {
@@ -71,9 +69,9 @@ namespace DaChessV2.Business
                 case EnumPieceType.BISHOP:
                 case EnumPieceType.ROOK:
                 case EnumPieceType.QUEEN:
-                    // on va récupérer tous les cavaliers de la couleur du joueur
+                    // on va récupérer toutes les pièces de la couleur du joueur du type concerné
                     IList<Coord> allSamePieces = GetAllPiecesCoordsFromTypeAndColor(movingPiece.Piece.Value, movingPiece.PieceColor.Value, board);
-                    if (allSamePieces.Count == 1) // 1 seul cavalier, pas d'ambiguité
+                    if (allSamePieces.Count == 1) // 1 seule pièce, pas d'ambiguité
                     {
                         move = move.Substring(2, 3);
                         move = String.Concat((char)movingPiece.Piece.Value, move);

@@ -237,16 +237,7 @@ namespace DaChessV2.Business
                     move = MoveNotationHelper.BuildMove(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases);
                     switch (mt) // gestion de l'après déplacement
                     {
-                        //case EnumMoveType.CLASSIC:
-                        //    move = MoveHelper.BuildMove(move, mt, boardCases[startLine][startCol].Piece.Value);                            
-                        //    break;
-                        //case EnumMoveType.CAPTURE:
-                        //    move = MoveHelper.BuildMove(move, mt, boardCases[startLine][startCol].Piece.Value);
-                        //    break;
                         case EnumMoveType.EN_PASSANT:
-                            //move = move.Replace(" ", "x");
-                            //move = String.Concat(move, " e.p.");
-                            // on enlève la pièce prise en passant
                             string epCol = party.EnPassantCase.Substring(0, 1);
                             string epLine = party.EnPassantCase.Substring(1, 1);
                             int epColInt = BoardHelper.ColToInt(epCol) - 1;
@@ -257,7 +248,6 @@ namespace DaChessV2.Business
                             resultText = "Prise en passant !";
                             break;
                         case EnumMoveType.CASTLING_SHORT:
-                            //move = "O-O";
                             boardCases[startLine][endCol - 1].HasMove = true;
                             boardCases[startLine][endCol - 1].Piece = EnumPieceType.ROOK;
                             boardCases[startLine][endCol - 1].PieceColor = boardCases[startLine][boardCases[startLine].Length - 1].PieceColor;
@@ -267,7 +257,6 @@ namespace DaChessV2.Business
                             resultText = "Petit roque";
                             break;
                         case EnumMoveType.CASTLING_LONG:
-                            //move = "O-O-O";
                             boardCases[startLine][endCol + 1].HasMove = true;
                             boardCases[startLine][endCol + 1].Piece = EnumPieceType.ROOK;
                             boardCases[startLine][endCol + 1].PieceColor = boardCases[startLine][0].PieceColor;
@@ -283,9 +272,6 @@ namespace DaChessV2.Business
                             if (boardCases[endLine][endCol].Piece.HasValue)
                                 move = move.Replace(" ", "x");
                             break;
-                        //default:
-                        //    move = move.Replace(" ", "-");
-                        //    break;
                     }
 
                     // pour la gestion de la prise en passant
