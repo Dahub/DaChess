@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Business", "DaChess.Business\DaChess.Business.csproj", "{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{9FA1FF41-953F-4AA2-890A-3736ED8A3F71}"
 	ProjectSection(SolutionItems) = preProject
 		create.sql = create.sql
@@ -21,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChess.Web", "DaChess.Web\DaChess.Web.csproj", "{4EF4C639-5FF6-4F62-83E9-9010213066C2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChessV2.Business", "DaChessV2.Business\DaChessV2.Business.csproj", "{30C14274-277A-4EB9-AA3A-0809AD12717B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaChessV2.Dto", "DaChessV2.Dto\DaChessV2.Dto.csproj", "{563DC147-9660-4B83-87C6-14789D51E6C1}"
@@ -35,14 +31,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAC54CD5-3B40-4061-88C7-8187CBE5B91E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4EF4C639-5FF6-4F62-83E9-9010213066C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30C14274-277A-4EB9-AA3A-0809AD12717B}.Release|Any CPU.ActiveCfg = Release|Any CPU
