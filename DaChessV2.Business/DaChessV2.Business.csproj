@@ -97,6 +97,7 @@
     <Compile Include="Tools\CryptoHelper.cs" />
     <Compile Include="Tools\DaChessException.cs" />
     <Compile Include="Tools\ExtensionMethods.cs" />
+    <Compile Include="Tools\MoveHelper.cs" />
     <Compile Include="Tools\PartyHelper.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -214,7 +214,7 @@ namespace DaChessV2.Business
 
                 int startLine = Int32.Parse(moveCases[0].Substring(1, 1)) - 1;
                 int startCol = BoardHelper.ColToInt(moveCases[0].Substring(0, 1)) - 1;
-
+                
                 string resultText = String.Empty;
 
                 EnumPlayerState ennemiState = EnumPlayerState.CAN_MOVE;
@@ -225,8 +225,8 @@ namespace DaChessV2.Business
                 {
                     int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
                     int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
-                    EnumMoveType mt;
 
+                    EnumMoveType mt;
                     if (!BoardHelper.IsLegalMove(boardCases[startLine][startCol], boardCases[endLine][endCol], boardCases, startLine, endLine, startCol, endCol, party, out mt))
                     {
                         throw new DaChessException("Coup illégal");
@@ -234,18 +234,18 @@ namespace DaChessV2.Business
 
                     // on stocke la case d'arrivée
                     lastMoveCase = String.Concat(BoardHelper.IntToCol(endCol + 1), endLine + 1);
-
+                    move = MoveNotationHelper.BuildMove(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases);
                     switch (mt) // gestion de l'après déplacement
                     {
-                        case EnumMoveType.CLASSIC:
-                            move = move.Replace(" ", String.Empty);
-                            break;
-                        case EnumMoveType.CAPTURE:
-                            move = move.Replace(" ", "x");
-                            break;
+                        //case EnumMoveType.CLASSIC:
+                        //    move = MoveHelper.BuildMove(move, mt, boardCases[startLine][startCol].Piece.Value);                            
+                        //    break;
+                        //case EnumMoveType.CAPTURE:
+                        //    move = MoveHelper.BuildMove(move, mt, boardCases[startLine][startCol].Piece.Value);
+                        //    break;
                         case EnumMoveType.EN_PASSANT:
-                            move = move.Replace(" ", "x");
-                            move = String.Concat(move, " e.p.");
+                            //move = move.Replace(" ", "x");
+                            //move = String.Concat(move, " e.p.");
                             // on enlève la pièce prise en passant
                             string epCol = party.EnPassantCase.Substring(0, 1);
                             string epLine = party.EnPassantCase.Substring(1, 1);
@@ -257,7 +257,7 @@ namespace DaChessV2.Business
                             resultText = "Prise en passant !";
                             break;
                         case EnumMoveType.CASTLING_SHORT:
-                            move = "O-O";
+                            //move = "O-O";
                             boardCases[startLine][endCol - 1].HasMove = true;
                             boardCases[startLine][endCol - 1].Piece = EnumPieceType.ROOK;
                             boardCases[startLine][endCol - 1].PieceColor = boardCases[startLine][boardCases[startLine].Length - 1].PieceColor;
@@ -267,7 +267,7 @@ namespace DaChessV2.Business
                             resultText = "Petit roque";
                             break;
                         case EnumMoveType.CASTLING_LONG:
-                            move = "O-O-O";
+                            //move = "O-O-O";
                             boardCases[startLine][endCol + 1].HasMove = true;
                             boardCases[startLine][endCol + 1].Piece = EnumPieceType.ROOK;
                             boardCases[startLine][endCol + 1].PieceColor = boardCases[startLine][0].PieceColor;
@@ -283,9 +283,9 @@ namespace DaChessV2.Business
                             if (boardCases[endLine][endCol].Piece.HasValue)
                                 move = move.Replace(" ", "x");
                             break;
-                        default:
-                            move = move.Replace(" ", "-");
-                            break;
+                        //default:
+                        //    move = move.Replace(" ", "-");
+                        //    break;
                     }
 
                     // pour la gestion de la prise en passant

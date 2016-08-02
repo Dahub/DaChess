@@ -731,6 +731,60 @@ namespace DaChessV2.Business
             return toReturn.ToString();
         }
 
+
+        internal static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
+        {
+            int security = 0;
+
+            int linePoint = startLine;
+            int colPoint = startCol;
+            if (startLine < endLine)
+            {
+                linePoint++;
+            }
+            else if (endLine < startLine)
+            {
+                linePoint--;
+            }
+            if (startCol < endCol)
+            {
+                colPoint++;
+            }
+            else if (endCol < startCol)
+            {
+                colPoint--;
+            }
+            while (linePoint != endLine || colPoint != endCol)
+            {
+                security++;
+
+                if (board[linePoint][colPoint].Piece.HasValue)
+                    return false;
+
+                if (startLine < endLine)
+                {
+                    linePoint++;
+                }
+                else if (endLine < startLine)
+                {
+                    linePoint--;
+                }
+                if (startCol < endCol)
+                {
+                    colPoint++;
+                }
+                else if (endCol < startCol)
+                {
+                    colPoint--;
+                }
+                if (security > 26)
+                {
+                    throw new DaChessException("Erreur lors de l'analyse d'un trajet");
+                }
+            }
+            return true;
+        }
+
         #region private
 
         private static string CaseInfoToJson(CaseInfo c, int col, int line)
@@ -937,58 +991,6 @@ namespace DaChessV2.Business
             return king;
         }
 
-        private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
-        {
-            int security = 0;
-
-            int linePoint = startLine;
-            int colPoint = startCol;
-            if (startLine < endLine)
-            {
-                linePoint++;
-            }
-            else if (endLine < startLine)
-            {
-                linePoint--;
-            }
-            if (startCol < endCol)
-            {
-                colPoint++;
-            }
-            else if (endCol < startCol)
-            {
-                colPoint--;
-            }
-            while (linePoint != endLine || colPoint != endCol)
-            {
-                security++;
-
-                if (board[linePoint][colPoint].Piece.HasValue)
-                    return false;
-
-                if (startLine < endLine)
-                {
-                    linePoint++;
-                }
-                else if (endLine < startLine)
-                {
-                    linePoint--;
-                }
-                if (startCol < endCol)
-                {
-                    colPoint++;
-                }
-                else if (endCol < startCol)
-                {
-                    colPoint--;
-                }
-                if (security > 26)
-                {
-                    throw new DaChessException("Erreur lors de l'analyse d'un trajet");
-                }
-            }
-            return true;
-        }
 
         #endregion
     }
