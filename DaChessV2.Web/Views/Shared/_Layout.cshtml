@@ -31,6 +31,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Nouvelle partie", "Index", "Home")</li>
                     <li>@Html.ActionLink("A propos", "About", "Home")</li>
                 </ul>
             </div>
@@ -41,11 +42,11 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Dahub</p>
+            <p>&copy; @DateTime.Now.Year - <a href="https://github.com/Dahub">Dahub</a> -- Version 0.1</p>
         </footer>
 
         <hr />
-        <div class="debugZone">
+        <div class="debugZone" style="display:none">
             <h4>Debug</h4>
             <div id="DebugZone" />
         </div>

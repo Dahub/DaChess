@@ -259,13 +259,15 @@ function checkCheckMat(party) {
     if ((party.WhitePlayerState === playerStates.checkMat || party.BlackPlayerState === playerStates.checkMat) && partyOver === false) {
         if (isWhite === true && party.BlackPlayerState === playerStates.checkMat
             || isBlack == true && party.WhitePlayerState === playerStates.checkMat) {
-            $('#matText').html('<h3>Vous avez gagné</h3>')
+            $('#matText').html('<h3>Vous avez gagné</h3>');
+            $('#matModal').modal('show');
         }
-        else {
-            $('#matText').html('<h3>Vous avez perdu :(</h3>')
+        else if (isBlack === true && party.BlackPlayerState === playerStates.checkMat
+            || isWhite == true && party.WhitePlayerState === playerStates.checkMat) {
+            $('#matText').html('<h3>Vous avez perdu :(</h3>');
+            $('#matModal').modal('show');
         }
         partyOver = true;
-        $('#matModal').modal('show');
     }
 }
 

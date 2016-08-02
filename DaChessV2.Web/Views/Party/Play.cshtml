@@ -117,168 +117,13 @@
     });
 </script>
 
-<!-- Modal pour la partie nulle -->
-<div class="modal fade" id="confirmDrawnModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Demande de partie nulle</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="centerBlock">
-                            <div>Voulez-vous accepter l'annulation de cette partie ?</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmDrawnBtn">Oui</button>
-                <button type="button" data-dismiss="modal" class="btn" id="refuseDrawn">Non</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal box pour le mat -->
-<div class="modal fade" id="matModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Echec et Mat !</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="centerBlock">
-                            <div id="matText"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="validMat" class="btn btn-primary" data-dismiss="modal">Valider</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal box pour le pat -->
-<div class="modal fade" id="patModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Pat</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="centerBlock">
-                            <div id="patText"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="validPat" class="btn btn-primary" data-dismiss="modal">Valider</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal box pour la promotion -->
-<div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Choisissez une pièce</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <img src="/Content/Images/Pieces/b_knight.svg" style="width:45px;height:45px;" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <img src="/Content/Images/Pieces/w_bishops.svg" style="width:45px;height:45px;" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <img src="/Content/Images/Pieces/b_rook.svg" style="width:45px;height:45px;" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <img src="/Content/Images/Pieces/w_queen.svg" style="width:45px;height:45px;" />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <input type="radio" id="promotedChoise" name="promotedChoise" value="knight" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <input type="radio" id="promotedChoise" name="promotedChoise" value="bishop" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <input type="radio" id="promotedChoise" name="promotedChoise" value="rook" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="centerBlock">
-                            <input type="radio" id="promotedChoise" name="promotedChoise" value="queen" checked="checked" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="validPromote" class="btn btn-primary" onclick="validPromote('@Model')" data-dismiss="modal">Valider</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation -->
-<div id="confirm" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                Etes vous sur ?
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmBtn">Oui</button>
-                <button type="button" data-dismiss="modal" class="btn">Non</button>
-            </div>
-        </div>
-    </div>
-</div>
+@Html.Partial("_PlayModals", Model)
 
 <br />
 <!-- première ligne pour les infos -->
 <div class="row">
     <div class="col-md-6">
         <h1>Partie @Model</h1>
-    </div>
-    <div id="msgDivParent" class="col-md-6" style="display:none">
-        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
-    </div>
-</div>
-<br />
-<div class="row" id="btnRow">
-    <div class="col-md-6 alignRight" id="whiteBtnDiv">
-        <button type="button" id="whiteBtn" class="btn" onclick="addPlayer('@Model', colors.white)" disabled>Jouer avec les blancs</button><br />
-    </div>
-    <div class="col-md-6" id="blackBtnDiv">
-        <button type="button" id="blackBtn" class="btn" onclick="addPlayer('@Model', colors.black)" disabled>Jouer avec les noirs</button>
     </div>
 </div>
 <br />
@@ -289,15 +134,42 @@
         <div class="panel panel-default">
             <div class="panel-heading">Infos</div>
             <div class="panel-body">
-                <div id="infoDiv"></div><br />
-                <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
-                <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
-                <span id="colorDiv"></span>
-                <br /><br />
-                <span id="btnDiv" style="display:none">
-                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
-                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
-                </span>
+
+                <div class="row">
+                    <div id="infoDiv" class="col-sm-12"></div>
+                </div>
+                <br />
+                <div class="row" id="btnRow">
+                    <div class="col-md-6 alignRight" id="whiteBtnDiv">
+                        <button type="button" id="whiteBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.white)" disabled>Jouer les blancs</button><br />
+                    </div>
+                    <div class="col-md-6" id="blackBtnDiv">
+                        <button type="button" id="blackBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.black)" disabled>Jouer les noirs</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                        <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                    </div>
+                    <div class="col-sm-10" id="colorDiv">
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div id="msgDivParent" class="col-md-12" style="display:none">
+                        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
+                    </div>
+                </div>
+                <br />
+                <div id="btnDiv" class="row" style="display:none">
+                    <div class="col-md-6 alignRight">
+                        <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="panel panel-default">
@@ -316,20 +188,27 @@
                 </div>
             </div>
         </div>
-
     </div>
     <!-- Tchat -->
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">Tchat</div>
             <div class="panel-body">
-                <textarea id="message" rows="2" cols="40" onkeyup="checkIfSendMsg(event, '@Model')"></textarea>
-                <input type="button" id="sendmessage" value="Ok" onclick="sendNewMsg('@Model')" />
-                <input type="hidden" id="displayname" value="Anonymous" />
-                <br /><br />
-                <ul id="discussion"></ul>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <textarea id="message" rows="2" cols="40" onkeyup="checkIfSendMsg(event, '@Model')"></textarea>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="button" id="sendmessage" value="Ok" onclick="sendNewMsg('@Model')" />
+                        <input type="hidden" id="displayname" value="Anonymous" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col_sm-12">
+                        <ul id="discussion"></ul>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 </div>

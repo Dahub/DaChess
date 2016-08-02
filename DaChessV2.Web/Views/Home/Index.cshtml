@@ -15,7 +15,8 @@
                 contentType: 'application/json; charset=utf-8'
             }).done(function (data) {
                 setDebugInfo(data);
-                $("#resultDiv").html('<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>');
+                var html = '<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>';           
+                $("#resultDiv").html(html);
             });;
         });
     });
@@ -36,3 +37,5 @@
     <div class="col-md-8 col-md-offset-2" id="resultDiv">
     </div>
 </div>
+
+
