@@ -20,6 +20,8 @@
     var isWhite = false; // true si le joueur est le joueur blanc
     var isBlack = false; // true si le joueur est le joueur noir
 
+    var partyOver = false; // un marqueur pour éviter les popup à répétition si un des joueurs refresh sa page sur un mat ou un pat
+
     // liste des images des pièces
     var sources = {
         b_rook: '/Content/Images/Pieces/b_rook.svg',
@@ -65,6 +67,8 @@
     };
 
     $(document).ready(function () {
+        loadCookie('@Model'); // on cherche à initialiser les données de joueur depuis les cookies (cas du retour sur la page)
+
         // chargement des images du jeu et tracé du premier canvas une fois celles-ci chargées
         loadImages(sources, function () {
             // récupération de la partie et extraction du plateau et de l'historique
@@ -98,8 +102,165 @@
         partyHub.client.SendInfo = function (info) {
             setMsg(info);
         }
+
+        partyHub.client.playerResign = function () {
+            reloadParty('@Model');
+        }
+
+        partyHub.client.playerAskDrawn = function () {
+            respondToDrawnAsk('@Model');
+        }
+
+        partyHub.client.playerAcceptDrawn = function () {
+            reloadParty('@Model');
+        }
     });
 </script>
+
+<!-- Modal pour la partie nulle -->
+<div class="modal fade" id="confirmDrawnModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Demande de partie nulle</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div>Voulez-vous accepter l'annulation de cette partie ?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmDrawnBtn">Oui</button>
+                <button type="button" data-dismiss="modal" class="btn" id="refuseDrawn">Non</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal box pour le mat -->
+<div class="modal fade" id="matModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Echec et Mat !</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div id="matText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validMat" class="btn btn-primary" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal box pour le pat -->
+<div class="modal fade" id="patModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pat</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div id="patText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validPat" class="btn btn-primary" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal box pour la promotion -->
+<div class="modal fade" id="promoteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Choisissez une pièce</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/b_knight.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/w_bishops.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/b_rook.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <img src="/Content/Images/Pieces/w_queen.svg" style="width:45px;height:45px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="knight" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="bishop" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="rook" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="centerBlock">
+                            <input type="radio" id="promotedChoise" name="promotedChoise" value="queen" checked="checked" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="validPromote" class="btn btn-primary" onclick="validPromote('@Model')" data-dismiss="modal">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation -->
+<div id="confirm" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Etes vous sur ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmBtn">Oui</button>
+                <button type="button" data-dismiss="modal" class="btn">Non</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <br />
 <!-- première ligne pour les infos -->
@@ -134,8 +295,8 @@
                 <span id="colorDiv"></span>
                 <br /><br />
                 <span id="btnDiv" style="display:none">
-                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs">Abandonner</button>
-                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs">Proposer la nulle</button>
+                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
+                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
                 </span>
             </div>
         </div>

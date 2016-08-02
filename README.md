@@ -39,7 +39,6 @@ Aucune inscription nécessaire
 * ~~Abandon~~
 * ~~Proposer la nulle / accepter~~
 * ~~3 Positions répétitives~~
-* 40 coups sans mouvement de pion
 * Reprise de l'historique
 * interface une fois partie terminée
 

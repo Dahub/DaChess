@@ -33,5 +33,20 @@ namespace DaChessV2.Web.Hubs
         {
             Clients.Group(partyName).sendInfo(info);
         }
+
+        public void APlayerResign(string partyName)
+        {
+            Clients.Group(partyName).playerResign();
+        }
+
+        public void AskForDrawn(string partyName)
+        {
+            Clients.Group(partyName).playerAskDrawn();
+        }
+
+        public void APlayerAcceptDrawn(string partyName)
+        {
+            Clients.Group(partyName).playerAcceptDrawn();
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace DaChessV2.Business
         /// <param name="token">token du joueur</param>
         /// <param name="partyName">nom de la partie concernée</param>
         /// <returns>le PlayerModel avec la couleur renseignée</returns>
-        public PlayerModel GetPlayerColor(string token, string partyName)
+        public PlayerModel GetPlayerColor(string token, string partyName, string currentPartyName)
         {
             PlayerModel toReturn = new PlayerModel();
 
@@ -19,6 +19,9 @@ namespace DaChessV2.Business
             {
                 if (String.IsNullOrEmpty(token) || String.IsNullOrEmpty(partyName))
                     throw new DaChessException("Token ou nom de partie absent");
+
+                if (partyName != currentPartyName)
+                    throw new DaChessException("Pas de cookies pour cette partie");
                     
                 Party p = PartyHelper.GetByName(partyName);
                 string[] infos = CryptoHelper.Decrypt(token, p.Seed).Split("#;#".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);

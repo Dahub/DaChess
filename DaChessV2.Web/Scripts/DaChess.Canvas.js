@@ -55,9 +55,8 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
             ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
 
             // on colore en rouge la case du roi en échec
-            // 7 est l'état "CHECK" du joueur
-            if ((board[i].piece === 'w_king' && party.WhitePlayerState === 7)
-                || (board[i].piece === 'b_king' && party.BlackPlayerState === 7)) {
+            if ((board[i].piece === 'w_king' && party.WhitePlayerState === playerStates.check)
+                || (board[i].piece === 'b_king' && party.BlackPlayerState === playerStates.check)) {
                 ctx.fillStyle = 'rgba(255, 102, 102, 0.5)';
                 ctx.fillRect(xPos - piecePadding, yPos - piecePadding, caseSize, caseSize);
             }
@@ -124,9 +123,9 @@ function getMousePos(canvas, evt) {
                         setMsg(data.ErrorMsg);
                     }
                     else {
-                        $.connection.partyHub.server.newInfo('@Model', data.ResultText);
+                        $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
                     }
-                    $.connection.partyHub.server.newMove('@Model');
+                    $.connection.partyHub.server.newMove(party.Name);
                 });
             }
         }

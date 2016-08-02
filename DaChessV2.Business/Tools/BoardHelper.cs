@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web.Script.Serialization;
 
 namespace DaChessV2.Business
 {
+    /// <summary>
+    /// Boite à outils pour la gestion du plateau de jeu
+    /// </summary>
     public static class BoardHelper
     {
         internal static BoardType GetClassic(ChessEntities context)
@@ -183,7 +187,7 @@ namespace DaChessV2.Business
 
         internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, Color toTestColor)
         {
-            IList<Coord> ennemies = BuildPieceList(board, toTestColor == Color.WHITE? Color.BLACK : Color.WHITE);
+            IList<Coord> ennemies = BuildPieceList(board, toTestColor == Color.WHITE ? Color.BLACK : Color.WHITE);
             return IsCaseInCapture(toTest, board, ennemies);
         }
 
@@ -538,13 +542,13 @@ namespace DaChessV2.Business
         {
             bool toReturn = false;
 
-            //using (var context = new ChessEntities())
-            //{
-            //    if (context.PartyHistories.Where(h => h.FK_Party.Equals(idParty) && h.Board == board).Count() == 3)
-            //    {
-            //        toReturn = true;
-            //    }
-            //}
+            using (var context = new ChessEntities())
+            {
+                if (context.PartyHistory.Where(h => h.FK_Party.Equals(idParty) && h.Board == board).Count() == 3)
+                {
+                    toReturn = true;
+                }
+            }
 
             return toReturn;
         }
@@ -562,7 +566,106 @@ namespace DaChessV2.Business
             return ((char)(col + 96)).ToString();
         }
 
-        internal static CaseInfo[][] ExtractCasesInfos(string jsonBoard, int boardLenght)
+        internal static bool IsMoveOk(string[] cases)
+        {
+            if (cases.Length != 2)
+                return false;
+            if (cases[1].Length != 2)
+                return false;
+            if (cases[0].Length != 2)
+                return false;
+
+            return true;
+        }
+
+        internal static EnumPieceType GetPieceType(string piece)
+        {
+            if (piece.Contains("paw"))
+                return EnumPieceType.PAWN;
+            else if (piece.Contains("roo"))
+                return EnumPieceType.ROOK;
+            else if (piece.Contains("kni"))
+                return EnumPieceType.KNIGHT;
+            else if (piece.Contains("bis"))
+                return EnumPieceType.BISHOP;
+            else if (piece.Contains("que"))
+                return EnumPieceType.QUEEN;
+            else if (piece.Contains("kin"))
+                return EnumPieceType.KING;
+
+            throw new DaChessException("Pièce inconnue");
+        }
+
+        internal static EnumPlayerState DefineEnnemiState(out string resultText, out string moveResult, string move, Color playerColor, CaseInfo[][] boardCases, EnumPlayerState ennemiState)
+        {
+            EnumPlayerState toReturn = DefineEnnemiState(playerColor, boardCases, ennemiState);
+
+            resultText = String.Empty;
+            moveResult = move;
+            switch (toReturn)
+            {
+                case EnumPlayerState.CHECK:
+                    resultText = "Echec !";
+                    moveResult = String.Concat(move, "+");
+                    break;
+                case EnumPlayerState.CHECK_MAT:
+                    resultText = "Echec et Mat !";
+                    moveResult = String.Concat(move, "++");
+                    break;
+                case EnumPlayerState.PAT:
+                    resultText = "Pat !";
+                    break;
+            }
+
+            return toReturn;
+        }
+
+        internal static EnumPlayerState DefineEnnemiState(Color playerColor, CaseInfo[][] boardCases, EnumPlayerState toReturn)
+        {
+            // je peux mettre échec l'adversaire mais je ne peux pas l'être à la fin de mon coup            
+            if (IsCheck(playerColor == Color.BLACK ? Color.WHITE : Color.BLACK, boardCases))
+            {
+                // vérifier si on mat
+                if (IsCheckMat(playerColor == Color.BLACK ? Color.WHITE : Color.BLACK, boardCases))
+                    toReturn = EnumPlayerState.CHECK_MAT;
+                else
+                    toReturn = EnumPlayerState.CHECK;
+            }
+            else if (IsPat(playerColor == Color.BLACK ? Color.WHITE : Color.BLACK, boardCases))
+                toReturn = EnumPlayerState.PAT;
+
+            if (IsCheck(playerColor, boardCases))
+                throw (new DaChessException("Coup impossible, échec !"));
+
+            return toReturn;
+        }
+
+        internal static string ToJsonStringFromCaseInfo(CaseInfo[][] boardCases)
+        {
+            string toReturn = @"{{
+		        ""board"":[{0}]}}";
+            StringBuilder innerString = new StringBuilder();
+
+            bool removeLastChar = false;
+            for (int line = 0; line < boardCases.Length; line++)
+            {
+                for (int col = 0; col < boardCases[line].Length; col++)
+                {
+                    if (boardCases[line][col].Piece.HasValue)
+                    {
+                        innerString.Append(CaseInfoToJson(boardCases[line][col], col, line));
+                        innerString.Append(',');
+                        removeLastChar = true;
+                    }
+                }
+            }
+            if (removeLastChar)
+                innerString.Remove(innerString.Length - 1, 1);
+
+            return string.Format(toReturn, innerString.ToString());
+        }
+
+        internal static CaseInfo[][] ToCaseInfoFromJsonString(string jsonBoard, int boardLenght)
         {
             CaseInfo[][] toReturn = new CaseInfo[boardLenght][];
             for (int i = 0; i < boardLenght; i++)
@@ -594,34 +697,79 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
-        internal static bool IsMoveOk(string[] cases)
+        internal static string ToBoardDescription(string JsonBoardCases, int boardCasesNumber)
         {
-            if (cases.Length != 2)
-                return false;
-            if (cases[1].Length != 2)
-                return false;
-            if (cases[0].Length != 2)
-                return false;
-
-            return true;
+            CaseInfo[][] boardCases = BoardHelper.ToCaseInfoFromJsonString(JsonBoardCases, boardCasesNumber);
+            return ToBoardDescription(boardCases);
         }
 
-        internal static EnumPieceType GetPieceType(string piece)
+        internal static string ToBoardDescription(CaseInfo[][] boardCases)
         {
-            if (piece.Contains("paw"))
-                return EnumPieceType.PAWN;
-            else if (piece.Contains("roo"))
-                return EnumPieceType.ROOK;
-            else if (piece.Contains("kni"))
-                return EnumPieceType.KNIGHT;
-            else if (piece.Contains("bis"))
-                return EnumPieceType.BISHOP;
-            else if (piece.Contains("que"))
-                return EnumPieceType.QUEEN;
-            else if (piece.Contains("kin"))
-                return EnumPieceType.KING;
+            StringBuilder toReturn = new StringBuilder();
 
-            throw new DaChessException("Pièce inconnue");
+            IList<string> myPieces = new List<string>();
+            string pattern = "{0}{1}{2}{3}#"; // couleur, nom de pièce en anglais (K,Q,R,B,N,P)
+
+            for (int line = 0; line < boardCases.Length; line++)
+            {
+                for (int col = 0; col < boardCases[line].Length; col++)
+                {
+                    if (boardCases[line][col].Piece.HasValue)
+                    {
+                        myPieces.Add(String.Format(pattern, (int)boardCases[line][col].PieceColor.Value,
+                           (char)boardCases[line][col].Piece.Value, IntToCol(col + 1), line + 1));
+                    }
+                }
+            }
+
+            // on met les pièces dans l'ordre
+            foreach (var p in myPieces.OrderBy(p => p))
+            {
+                toReturn.Append(p);
+            }
+
+            return toReturn.ToString();
+        }
+
+        #region private
+
+        private static string CaseInfoToJson(CaseInfo c, int col, int line)
+        {
+            return string.Format(@"{{
+                ""col"" :""{0}"",
+				""line"" : ""{1}"",
+				""piece"" : ""{2}"",
+                ""hasMove"" : ""{3}""
+            }}", IntToCol(col + 1), line + 1, PieceTypeToString(c.Piece.Value, c.PieceColor.Value), c.HasMove.ToString());
+        }
+
+        private static string PieceTypeToString(EnumPieceType pt, Color c)
+        {
+            string toReturn = String.Empty;
+            string pattern = "{0}_{1}";
+            string color = c == Color.BLACK ? "b" : "w";
+            switch (pt)
+            {
+                case EnumPieceType.BISHOP:
+                    toReturn = String.Format(pattern, color, "bishop");
+                    break;
+                case EnumPieceType.KING:
+                    toReturn = String.Format(pattern, color, "king");
+                    break;
+                case EnumPieceType.KNIGHT:
+                    toReturn = String.Format(pattern, color, "knight");
+                    break;
+                case EnumPieceType.PAWN:
+                    toReturn = String.Format(pattern, color, "pawn");
+                    break;
+                case EnumPieceType.QUEEN:
+                    toReturn = String.Format(pattern, color, "queen");
+                    break;
+                case EnumPieceType.ROOK:
+                    toReturn = String.Format(pattern, color, "rook");
+                    break;
+            }
+            return toReturn;
         }
 
         private static bool TryAllMoveDiagonalOrLateralToCancelCheck(int colDirection, int lineDirection, Coord c, CaseInfo[][] board, Color kingColor)
@@ -841,6 +989,8 @@ namespace DaChessV2.Business
             }
             return true;
         }
+
+        #endregion
     }
 
     internal class History

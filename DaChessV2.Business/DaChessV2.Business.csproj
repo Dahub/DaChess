@@ -81,6 +81,9 @@
     <Compile Include="Party.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="PartyHistory.cs">
+      <DependentUpon>ChessEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="PartyManager.cs" />
     <Compile Include="PartyState.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>

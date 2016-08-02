@@ -15,12 +15,12 @@ namespace DaChessV2.Web.Controllers
             Response.Cookies["DaChessToken"].Expires = DateTime.Now.AddYears(10);
         }
 
-        public JsonResult GetPlayerInfosFromCookies()
+        public JsonResult GetPlayerInfosFromCookies(string partyName)
         {
             PlayerModel model = new PlayerModel();
             if (Request.Cookies["DaChessToken"] != null && Request.Cookies["DaChessParty"] != null)
             {
-                model = new PlayerManager().GetPlayerColor(Request.Cookies["DaChessToken"].Value, Request.Cookies["DaChessParty"].Value);
+                model = new PlayerManager().GetPlayerColor(Request.Cookies["DaChessToken"].Value, Request.Cookies["DaChessParty"].Value, partyName);
             }
             return Json(model, JsonRequestBehavior.AllowGet);
         }

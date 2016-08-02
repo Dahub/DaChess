@@ -1,15 +1,16 @@
 ﻿function reloadParty(partyName) {
     party = getParty(partyName);
-
     myBoard = extractBoard(party);
     myHistory = extractHistory(party);
-
-    loadCookie();
-
     defineBtnAddPlayerState(party);
     refreshCanvas(party, myBoard, images, size, caseNumber);
     refreshInfoDiv(party);
     refreshTurnDiv(party);
+    refreshHistoryDiv(myHistory);
+    refreshPartyState(party);
+    checkPat(party);
+    checkCheckMat(party);
+    checkPromote(party);
 }
 
 function getParty(partyName) {
@@ -43,10 +44,11 @@ function extractHistory(myParty) {
         return '';
 }
 
-function loadCookie() {
+function loadCookie(partyName) {
     // on récupère la couleur via l'API
     $.ajax({
         url: '/Player/GetPlayerInfosFromCookies',
+        data: { partyName: partyName },
         cache: false,
         async: false,
         type: 'GET',
@@ -144,8 +146,18 @@ function hideAllBtn() {
     $('#blackBtn').removeClass('btn-success');
 }
 
+function refreshPartyState(party) {
+    // on affiche les bouton d'abandon ou de demande nulle si la partie est prête
+    if (party.PartyState === partyStates.running && (isBlack == true || isWhite == true)) {
+        $('#btnDiv').show();
+    }
+    else {
+        $('#btnDiv').hide();
+    }
+}
+
 function refreshTurnDiv(party) {
-    if (party.WhitePlayerState === playerStates.canMove) {
+    if (party.WhitePlayerState === playerStates.canMove || party.WhitePlayerState === playerStates.check || party.WhitePlayerState === playerStates.canPromote) {
         if (isWhite === true) {
             $('#turnDiv').html('A votre tour de jouer');
         }
@@ -153,7 +165,7 @@ function refreshTurnDiv(party) {
             $('#turnDiv').html('Au joueur blanc de jouer');
         }
     }
-    else if (party.BlackPlayerState === playerStates.canMove) {
+    else if (party.BlackPlayerState === playerStates.canMove || party.BlackPlayerState === playerStates.check || party.BlackPlayerState === playerStates.canPromote) {
         if (isBlack === true) {
             $('#turnDiv').html('A votre tour de jouer');
         }
@@ -214,4 +226,124 @@ function setMsg(msg) {
         $('#msgDivParent').show();
     }
     $('#msgDiv').html(msg);
+}
+
+function refreshHistoryDiv(myHistory) {
+    $('#moves').empty();
+    if (myHistory) {
+        jQuery.each(myHistory.Moves, function (i, val) {
+            $('#moves').prepend('<li><strong>' + htmlEncode(i)
+               + '</strong>: ' + htmlEncode(val) + '</li>');
+        });
+    }
+}
+
+function checkPat(party) {
+    if (party.PartyState === partyStates.drawn && partyOver == false) {
+        if (isWhite === true && party.BlackPlayerState === playerStates.pat
+           || isBlack === true && party.WhitePlayerState === playerStates.pat) {
+            $('#patText').html('<h3>Le roi adverse est Pat</h3>')
+            partyOver = true;
+            $('#patModal').modal('show');
+        }
+        else if (isBlack === true && party.BlackPlayerState === playerStates.pat
+           || isWhite === true && party.WhitePlayerState === playerStates.pat) {
+            $('#patText').html('<h3>Vous êtes Pat</h3>')
+            partyOver = true;
+            $('#patModal').modal('show');
+        }
+    }
+}
+
+function checkCheckMat(party) {
+    if ((party.WhitePlayerState === playerStates.checkMat || party.BlackPlayerState === playerStates.checkMat) && partyOver === false) {
+        if (isWhite === true && party.BlackPlayerState === playerStates.checkMat
+            || isBlack == true && party.WhitePlayerState === playerStates.checkMat) {
+            $('#matText').html('<h3>Vous avez gagné</h3>')
+        }
+        else {
+            $('#matText').html('<h3>Vous avez perdu :(</h3>')
+        }
+        partyOver = true;
+        $('#matModal').modal('show');
+    }
+}
+
+function checkPromote(party) {
+    if (party.WhitePlayerState === playerStates.canPromote && isWhite === true) {
+        $('#promoteModal').modal('show');
+    }
+    else if (party.BlackPlayerState === playerStates.canPromote && isBlack === true) {
+        $('#promoteModal').modal('show');
+    }
+}
+
+function validPromote(partyName) {
+    $.ajax({
+        url: '/Party/MakePromote',
+        data: { partyName: partyName, piece: $('#promotedChoise:checked').val(), token: playerToken },
+        cache: false,
+        type: 'GET',
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8'
+    }).done(function (data) {
+        setDebugInfo(data);
+        if (data.IsError === true) {
+            setMsg(data.ErrorMsg);
+        }
+        else {
+            $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
+        }
+        $.connection.partyHub.server.newMove(party.Name);
+    });
+}
+
+function resign(event, partyName) {
+    event.preventDefault();
+    $('#confirm').modal({ backdrop: 'static', keyboard: false })
+        .one('click', '#confirmBtn', function (e) {
+            // abandon du joueur
+            $.ajax({
+                url: '/Party/Resign',
+                data: { partyName: partyName, token: playerToken },
+                cache: false,
+                async: false,
+                type: 'GET',
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8'
+            }).done(function (data) {
+                $.connection.partyHub.server.aPlayerResign(partyName);
+                $.connection.partyHub.server.newInfo(partyName, data.ResultText);
+            });
+        });
+}
+
+function askForDrawn(partyName){
+    $.connection.partyHub.server.askForDrawn(partyName);
+}
+
+function respondToDrawnAsk(partyName) {
+    if (isBlack == true || isWhite == true) {
+        $('#confirmDrawnModal').modal({ backdrop: 'static', keyboard: false })
+            .one('click', '#confirmDrawnBtn', function (e) {
+                $.ajax({
+                    url: '/Party/Drawn',
+                    data: { partyName: partyName, token: playerToken },
+                    cache: false,
+                    type: 'GET',
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8'
+                }).done(function (data) {
+                    $.connection.partyHub.server.newInfo(partyName, data.ResultText);
+                    $.connection.partyHub.server.aPlayerAcceptDrawn(partyName);
+                });
+            }).one('click', '#refuseDrawn', function (e) {
+                var msgDrawn = '';
+                if (isBlack == true)
+                    msgDrawn = 'Les noirs refusent la nulle';
+                else if (isWhite == true)
+                    msgDrawn = 'les Blancs refusent la nulle';
+                $.connection.partyHub.server.newInfo(partyName, msgDrawn);
+            });
+    }
 }

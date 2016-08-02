@@ -12,6 +12,9 @@ begin
 end
 go
 
+if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyHistory]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [chess].[PartyHistory]
+go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[Party]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[Party]
 go
@@ -63,6 +66,15 @@ create table [chess].[Party]
 	Seed nvarchar(64) not null,
 	EnPassantCase nvarchar(2) null,
 	LastMoveCase nvarchar(2) null
+)
+go
+
+create table [chess].[PartyHistory]
+(
+	Id integer not null primary key identity(1,1),
+	FK_Party integer not null constraint fk_party foreign key references [chess].[Party] (Id),
+	Board nvarchar(max) not null,
+	DateCreation datetime not null default getdate()
 )
 go
 
@@ -252,3 +264,19 @@ insert into [chess].[BoardType] (Wording, Content) values
 	}
 ')
 go
+
+
+
+
+
+
+select count(*), Board  from [chess].[PartyHistory]
+group by Board
+select*  from [chess].[PartyHistory]
+order by 1 desc
+
+select partS.Wording, whiteS.Wording as 'blancs', blackS.Wording as 'noirs', *  from [chess].[Party] p
+inner join [chess].[PartyState] partS on p.FK_PartyState = partS.Id
+inner join [chess].[PlayerState] whiteS on p.FK_White_PlayerState = whiteS.Id
+inner join [chess].[PlayerState] blackS on p.FK_Black_PlayerState = blackS.Id
+order by p.Id desc

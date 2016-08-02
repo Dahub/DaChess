@@ -12,9 +12,13 @@ namespace DaChessV2.Business
     using System;
     using System.Collections.Generic;
     
-    public partial class PlayerState
+    public partial class PartyHistory
     {
         public int Id { get; set; }
-        public string Wording { get; set; }
+        public int FK_Party { get; set; }
+        public string Board { get; set; }
+        public System.DateTime DateCreation { get; set; }
+    
+        public virtual Party Party { get; set; }
     }
 }

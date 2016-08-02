@@ -32,6 +32,15 @@
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
           <Property Name="LastMoveCase" Type="nvarchar" MaxLength="2" />
         </EntityType>
+        <EntityType Name="PartyHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FK_Party" Type="int" Nullable="false" />
+          <Property Name="Board" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="DateCreation" Type="datetime" Nullable="false" />
+        </EntityType>
         <EntityType Name="PartyState">
           <Key>
             <PropertyRef Name="Id" />
@@ -70,6 +79,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_party">
+          <End Role="Party" Type="Self.Party" Multiplicity="1" />
+          <End Role="PartyHistory" Type="Self.PartyHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Party">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PartyHistory">
+              <PropertyRef Name="FK_Party" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_partyState">
           <End Role="PartyState" Type="Self.PartyState" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
@@ -97,6 +118,7 @@
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="BoardType" EntityType="Self.BoardType" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="PartyHistory" EntityType="Self.PartyHistory" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyState" EntityType="Self.PartyState" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PlayerState" EntityType="Self.PlayerState" Schema="chess" store:Type="Tables" />
           <AssociationSet Name="fk_black_playerState" Association="Self.fk_black_playerState">
@@ -106,6 +128,10 @@
           <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
             <End Role="BoardType" EntitySet="BoardType" />
             <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_party" Association="Self.fk_party">
+            <End Role="Party" EntitySet="Party" />
+            <End Role="PartyHistory" EntitySet="PartyHistory" />
           </AssociationSet>
           <AssociationSet Name="fk_partyState" Association="Self.fk_partyState">
             <End Role="PartyState" EntitySet="PartyState" />
@@ -150,6 +176,7 @@
           <NavigationProperty Name="BlackPlayerState" Relationship="Self.fk_black_playerState" FromRole="Party" ToRole="PlayerState" />
           <NavigationProperty Name="PartyState" Relationship="Self.fk_partyState" FromRole="Party" ToRole="PartyState" />
           <NavigationProperty Name="WhitePlayerState" Relationship="Self.fk_white_playerState" FromRole="Party" ToRole="PlayerState" />
+          <NavigationProperty Name="PartyHistory" Relationship="ChessModel.fk_party" FromRole="Party" ToRole="PartyHistory" />
         </EntityType>
         <EntityType Name="PartyState">
           <Key>
@@ -234,7 +261,34 @@
             <End Role="PlayerState" EntitySet="PlayerState" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
+          <EntitySet Name="PartyHistory" EntityType="ChessModel.PartyHistory" />
+          <AssociationSet Name="fk_party" Association="ChessModel.fk_party">
+            <End Role="Party" EntitySet="Party" />
+            <End Role="PartyHistory" EntitySet="PartyHistory" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="PartyHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FK_Party" Type="Int32" Nullable="false" />
+          <Property Name="Board" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DateCreation" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Party" Relationship="ChessModel.fk_party" FromRole="PartyHistory" ToRole="Party" />
+        </EntityType>
+        <Association Name="fk_party">
+          <End Type="ChessModel.Party" Role="Party" Multiplicity="1" />
+          <End Type="ChessModel.PartyHistory" Role="PartyHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Party">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PartyHistory">
+              <PropertyRef Name="FK_Party" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -283,6 +337,16 @@
               <MappingFragment StoreEntitySet="PlayerState">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Wording" ColumnName="Wording" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PartyHistory">
+            <EntityTypeMapping TypeName="ChessModel.PartyHistory">
+              <MappingFragment StoreEntitySet="PartyHistory">
+                <ScalarProperty Name="DateCreation" ColumnName="DateCreation" />
+                <ScalarProperty Name="Board" ColumnName="Board" />
+                <ScalarProperty Name="FK_Party" ColumnName="FK_Party" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

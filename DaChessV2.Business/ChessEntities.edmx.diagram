@@ -13,6 +13,8 @@
         <AssociationConnector Association="ChessModel.fk_black_playerState" ManuallyRouted="false" />
         <AssociationConnector Association="ChessModel.fk_partyState" ManuallyRouted="false" />
         <AssociationConnector Association="ChessModel.fk_white_playerState" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="ChessModel.PartyHistory" Width="1.5" PointX="5.25" PointY="4" />
+        <AssociationConnector Association="ChessModel.fk_party" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
