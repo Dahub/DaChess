@@ -20,7 +20,7 @@ namespace DaChessV2.Business
         /// <param name="movingPiece">la pièce qui se déplace</param>
         /// <param name="board">le plateau de jeu</param>
         /// <returns>le déplacement en notation normée</returns>
-        internal static string BuildMove(string move, EnumMoveType moveType, CaseInfo movingPiece, Coord startCase, Coord endCase, CaseInfo[][] board)
+        internal static string BuildMoveNotation(string move, EnumMoveType moveType, CaseInfo movingPiece, Coord startCase, Coord endCase, CaseInfo[][] board)
         {
             if (movingPiece.Piece.HasValue)
             {
@@ -124,47 +124,12 @@ namespace DaChessV2.Business
             {
                 if (n.Line != startCase.Line || n.Col != startCase.Col) // on vérifie que ce n'est pas notre pièce qu'on test
                 {
-                    if (MoveIsValid(n, endCase, pieceType, board))
+                    if(BoardHelper.GetMoveType(board, startCase, endCase, String.Empty) != EnumMoveType.ILLEGAL)
                         otherCanDoMove.Add(n);
                 }
             }
 
             return otherCanDoMove;
-        }
-
-        private static bool MoveIsValid(Coord startCase, Coord endCase, EnumPieceType pieceType, CaseInfo[][] board)
-        {
-            switch(pieceType)
-            {
-                case EnumPieceType.KNIGHT:
-                    if (Math.Abs(startCase.Line - endCase.Line) == 2 && Math.Abs(startCase.Col - endCase.Col) == 1)
-                        return true;
-                    if (Math.Abs(startCase.Line - endCase.Line) == 1 && Math.Abs(startCase.Col - endCase.Col) == 2)
-                        return true;
-                    return false;
-                case EnumPieceType.BISHOP:
-                    if (startCase.Line == endCase.Line || startCase.Col == endCase.Col)
-                        return false;
-                    if (Math.Abs(endCase.Line - startCase.Line) != Math.Abs(endCase.Col - startCase.Col))
-                        return false;
-                    if (!BoardHelper.EmptyBeetwenToCases(board, startCase.Col, endCase.Col, startCase.Line, endCase.Line))
-                        return false;
-                    return true;
-                case EnumPieceType.ROOK:
-                    if (startCase.Line != endCase.Line && startCase.Col != endCase.Col)
-                        return false;
-                    if (!BoardHelper.EmptyBeetwenToCases(board, startCase.Col, endCase.Col, startCase.Line, endCase.Line))
-                        return false;
-                    return true;
-                case EnumPieceType.QUEEN:
-                    if (startCase.Line == endCase.Line || startCase.Col == endCase.Col && BoardHelper.EmptyBeetwenToCases(board, startCase.Col, endCase.Col, startCase.Line, endCase.Line))
-                        return true;
-                    if (Math.Abs(endCase.Line - startCase.Line) == Math.Abs(endCase.Col - startCase.Col) && BoardHelper.EmptyBeetwenToCases(board, startCase.Col, endCase.Col, startCase.Line, endCase.Line))
-                        return true;
-                    return false;
-                default:
-                    throw new DaChessException("Test de validité de déplacement non pris en charge");
-            }
         }
 
         private static IList<Coord> GetAllPiecesCoordsFromTypeAndColor(EnumPieceType pieceType, Color pieceColor, CaseInfo[][] board)

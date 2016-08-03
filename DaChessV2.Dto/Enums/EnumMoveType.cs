@@ -2,6 +2,7 @@
 {
     public enum EnumMoveType
     {
+        ILLEGAL,
         CLASSIC,
         CAPTURE,
         EN_PASSANT,

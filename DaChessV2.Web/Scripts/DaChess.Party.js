@@ -164,6 +164,8 @@ function refreshTurnDiv(party) {
         else {
             $('#turnDiv').html('Au joueur blanc de jouer');
         }
+        $('#blackTurnImg').hide();
+        $('#whiteTurnImg').show();
     }
     else if (party.BlackPlayerState === playerStates.canMove || party.BlackPlayerState === playerStates.check || party.BlackPlayerState === playerStates.canPromote) {
         if (isBlack === true) {
@@ -172,6 +174,8 @@ function refreshTurnDiv(party) {
         else {
             $('#turnDiv').html('Au joueur noir de jouer');
         }
+        $('#whiteTurnImg').hide();
+        $('#blackTurnImg').show();
     }
     else {
         $('#turnDiv').html('Bienvenue');
@@ -181,12 +185,10 @@ function refreshTurnDiv(party) {
 function refreshInfoDiv(party) {
     if (isWhite === true) {
         $('#displayname').val('Blancs');
-        $('#colorDiv').html('Vous jouez les blancs');
         $('#whiteIcon').removeClass('hidden');
     }
     if (isBlack === true) {
-        $('#displayname').val('Noirs');
-        $('#colorDiv').html('Vous jouez les noirs');
+        $('#displayname').val('Noirs');       
         $('#blackIcon').removeClass('hidden');
     }
 

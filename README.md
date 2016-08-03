@@ -3,6 +3,12 @@
 Un site web utilisant SignalR qui permet de jouer aux échecs de façon simple.
 Aucune inscription nécessaire
 
+Une fois sur la page d'accueil, cliquer sur "Créer une nouvelle partie".
+
+Un lien est généré menant vers la partie. Il suffit de communiquer ce lien à votre partenaire et de choisir quelle couleur jouer.
+
+La partie peut commencer.
+
 ## TODO
 
 ### Page home 
@@ -18,7 +24,7 @@ Aucune inscription nécessaire
 * ~~gestion du moment ou la partie est prête à débuter~~
 * ~~précharger les images avant d'afficher le canvas~~
 
-### Déroulement de la parie
+### Déroulement de la partie
 * ~~Déplacement du pion~~
 * ~~Déplacement du cavalier~~
 * ~~Déplacement du fou~~
@@ -39,7 +45,7 @@ Aucune inscription nécessaire
 * ~~Abandon~~
 * ~~Proposer la nulle / accepter~~
 * ~~3 Positions répétitives~~
-* Reprise de l'historique
+* ~~Reprise de l'historique~~
 * interface une fois partie terminée
 
 ### V2

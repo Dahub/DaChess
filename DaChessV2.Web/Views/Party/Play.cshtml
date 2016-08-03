@@ -5,6 +5,8 @@
     ViewBag.Title = "Partie en cours";
 }
 
+@{ int canvasSize = 400; }
+
 <script type="text/javascript">
     var party; // stockage (JSon) de l'objet PartyModel
     var playerToken; // token du joueur connecté
@@ -12,7 +14,7 @@
     var myHistory; // historique de la partie
     var images = {}; // array d'images du jeu (pièces du jeu d'échec);
 
-    var size = 400; // taille en pixels du plateau
+    var size = @canvasSize; // taille en pixels du plateau
     var caseNumber = 8; // nombre de cases du plateau
     var moveStep = 0; // compteur de cases sélectionnées
     var moveText = ''; // texte du coup
@@ -121,7 +123,7 @@
 
 <br />
 <!-- première ligne pour les infos -->
-<div class="row">
+<div class="row hidden-xs hidden-sm">
     <div class="col-md-6">
         <h1>Partie @Model</h1>
     </div>
@@ -132,11 +134,21 @@
 <div class="row">
     <div class="col-md-3" id="moveDiv">
         <div class="panel panel-default">
-            <div class="panel-heading">Infos</div>
-            <div class="panel-body">
-
+            <div class="panel-heading">
                 <div class="row">
-                    <div id="infoDiv" class="col-sm-12"></div>
+                    <div class="col-sm-12">
+                        <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
+                        <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
+                        <span id="infoDiv">Infos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div id="btnDiv" class="col-sm-12" style="display:none">
+                        <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
+                        <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
+                    </div>
                 </div>
                 <br />
                 <div class="row" id="btnRow">
@@ -148,11 +160,9 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-2">
-                        <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
-                        <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
-                    </div>
-                    <div class="col-sm-10" id="colorDiv">
+                    <div class="col-md-12">
+                        <img src="/Content/Images/blackTurn.png" id="blackTurnImg" style="display:none" />
+                        <img src="/Content/Images/whiteTurn.png" id="whiteTurnImg" style="display:none" />
                     </div>
                 </div>
                 <br />
@@ -161,18 +171,9 @@
                         <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
                     </div>
                 </div>
-                <br />
-                <div id="btnDiv" class="row" style="display:none">
-                    <div class="col-md-6 alignRight">
-                        <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
-                    </div>
-                    <div class="col-md-6">
-                        <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
-                    </div>
-                </div>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-default hidden-xs hidden-sm">
             <div class="panel-heading">Historique</div>
             <div class="panel-body">
                 <ul id="moves"></ul>
@@ -184,13 +185,13 @@
             <div class="panel-heading" id="turnDiv"></div>
             <div class="panel-body">
                 <div class="centerBlock">
-                    <canvas id="canvas" width="400" height="400" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
+                    <canvas id="canvas" width="@canvasSize" height="@canvasSize" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
                 </div>
             </div>
         </div>
     </div>
     <!-- Tchat -->
-    <div class="col-md-4">
+    <div class="col-md-4 hidden-xs hidden-sm">
         <div class="panel panel-default">
             <div class="panel-heading">Tchat</div>
             <div class="panel-body">

@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Images\blackTurn.png" />
     <Content Include="Content\Images\black_active.png" />
     <Content Include="Content\Images\Pieces\b_bishops.svg" />
     <Content Include="Content\Images\Pieces\b_king.svg" />
@@ -139,6 +140,7 @@
     <Content Include="Content\Images\Pieces\w_pawn.svg" />
     <Content Include="Content\Images\Pieces\w_queen.svg" />
     <Content Include="Content\Images\Pieces\w_rook.svg" />
+    <Content Include="Content\Images\whiteTurn.png" />
     <Content Include="Content\Images\white_active.png" />
     <Content Include="Content\Site.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -147,6 +149,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap.min.css.map" />
     <None Include="Properties\PublishProfiles\Ikoula.pubxml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.min.js" />

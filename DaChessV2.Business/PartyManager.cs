@@ -204,7 +204,7 @@ namespace DaChessV2.Business
                 // on récupère les 2 cases du déplacement, et on lance une exception si ce n'est pas cohérent
                 move = move.TrimEnd(' ');
                 string[] moveCases = move.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (!BoardHelper.IsMoveOk(moveCases))
+                if (!BoardHelper.IsMoveSyntaxeOk(moveCases))
                     throw new DaChessException(String.Format("Le coup {0} est mal formaté", move));
 
                 // on récupère la première pièce              
@@ -225,16 +225,14 @@ namespace DaChessV2.Business
                 {
                     int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
                     int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
-
-                    EnumMoveType mt;
-                    if (!BoardHelper.IsLegalMove(boardCases[startLine][startCol], boardCases[endLine][endCol], boardCases, startLine, endLine, startCol, endCol, party, out mt))
-                    {
+                   
+                    EnumMoveType mt = BoardHelper.GetMoveType(boardCases, new Coord(startLine, startCol), new Coord(endLine, endCol), party.EnPassantCase);
+                    if(mt == EnumMoveType.ILLEGAL)
                         throw new DaChessException("Coup illégal");
-                    }
 
                     // on stocke la case d'arrivée
                     lastMoveCase = String.Concat(BoardHelper.IntToCol(endCol + 1), endLine + 1);
-                    move = MoveNotationHelper.BuildMove(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases);
+                    move = MoveNotationHelper.BuildMoveNotation(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases);
                     switch (mt) // gestion de l'après déplacement
                     {
                         case EnumMoveType.EN_PASSANT:

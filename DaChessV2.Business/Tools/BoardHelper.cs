@@ -17,130 +17,152 @@ namespace DaChessV2.Business
             return context.BoardType.Where(b => b.Id.Equals(1)).FirstOrDefault();
         }
 
-        internal static bool IsLegalMove(CaseInfo startCase, CaseInfo endCase, CaseInfo[][] board, int startLine, int endLine, int startCol, int endCol, Party party, out EnumMoveType moveType)
+        internal static EnumMoveType GetMoveType(CaseInfo[][] board, Coord startCase, Coord endCase, string enPassantCase)
         {
-            if (endCase.Piece.HasValue)
+            EnumMoveType moveType;
+
+            if (board[endCase.Line][endCase.Col].Piece.HasValue)
                 moveType = EnumMoveType.CAPTURE;
             else
                 moveType = EnumMoveType.CLASSIC;
 
-            if (endCase.Piece.HasValue && startCase.PieceColor == endCase.PieceColor)
-                return false;
+            Color pieceColor = board[startCase.Line][startCase.Col].PieceColor.Value;
 
-            switch (startCase.Piece)
+            if (board[endCase.Line][endCase.Col].Piece.HasValue && pieceColor == board[endCase.Line][endCase.Col].PieceColor.Value)
+                moveType = EnumMoveType.ILLEGAL;
+
+            switch (board[startCase.Line][startCase.Col].Piece.Value)
             {
                 case EnumPieceType.PAWN:
                     // avons nous une promotion ?
-                    if (startCase.PieceColor == Color.WHITE && endLine == board.Length - 1 || startCase.PieceColor == Color.BLACK && endLine == 0)
+                    if (pieceColor == Color.WHITE && endCase.Line == board.Length - 1
+                        || pieceColor == Color.BLACK && endCase.Line == 0)
                     {
                         moveType = EnumMoveType.PROMOTE;
                     }
-                    if (!endCase.Piece.HasValue && startCol == endCol)
+                    if (!board[endCase.Line][endCase.Col].Piece.HasValue && startCase.Col == endCase.Col) // déplacement sans prise
                     {
-                        if (startCase.PieceColor == Color.WHITE && endLine - startLine == 1)
-                            return true;
-                        if (startCase.PieceColor == Color.BLACK && startLine - endLine == 1)
-                            return true;
-                        if (startCase.PieceColor == Color.WHITE && endLine - startLine == 2
-                            && startCase.HasMove == false
-                            && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                            return true;
-                        if (startCase.PieceColor == Color.BLACK && startLine - endLine == 2 && startCase.HasMove == false
-                            && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                            return true;
-                        return false;
+                        if (pieceColor == Color.WHITE && endCase.Line - startCase.Line == 1)
+                            break;
+                        if (pieceColor == Color.BLACK && startCase.Line - endCase.Line == 1)
+                            break;
+                        if (pieceColor == Color.WHITE && endCase.Line - startCase.Line == 2
+                            && board[startCase.Line][startCase.Col].HasMove.Value == false
+                            && EmptyBeetwenToCases(board, startCase, endCase))
+                            break;
+                        if (pieceColor == Color.BLACK && startCase.Line - endCase.Line == 2
+                            && board[startCase.Line][startCase.Col].HasMove.Value == false
+                            && EmptyBeetwenToCases(board, startCase, endCase))
+                            break;
                     }
-                    else if (endCase.Piece.HasValue && Math.Abs(startCol - endCol) == 1)
+                    else if (board[endCase.Line][endCase.Col].Piece.HasValue && Math.Abs(startCase.Col - endCase.Col) == 1) // déplacement avec prise
                     {
-                        if (startCase.PieceColor == Color.WHITE && endLine - startLine == 1 && Math.Abs(startCol - endCol) == 1)
-                            return true;
-                        if (startCase.PieceColor == Color.BLACK && startLine - endLine == 1 && Math.Abs(startCol - endCol) == 1)
-                            return true;
+                        if (pieceColor == Color.WHITE && endCase.Line - startCase.Line == 1)
+                            break;
+                        if (pieceColor == Color.BLACK && startCase.Line - endCase.Line == 1)
+                            break;
                     }
-                    // peut être une prise en passant ?
-                    else if (!endCase.Piece.HasValue && Math.Abs(startCol - endCol) == 1 && !String.IsNullOrEmpty(party.EnPassantCase))
+                    else if (!board[endCase.Line][endCase.Col].Piece.HasValue
+                        && Math.Abs(startCase.Col - endCase.Col) == 1
+                        && !String.IsNullOrEmpty(enPassantCase)) // prise en passant ?
                     {
-                        string epCol = party.EnPassantCase.Substring(0, 1);
-                        string epLine = party.EnPassantCase.Substring(1, 1);
+                        string epCol = enPassantCase.Substring(0, 1);
+                        string epLine = enPassantCase.Substring(1, 1);
                         int epColInt = ColToInt(epCol) - 1;
                         int epLineInt = Int32.Parse(epLine) - 1;
-                        if (board[epLineInt][epColInt].Piece.HasValue && board[epLineInt][epColInt].Piece == EnumPieceType.PAWN && epColInt == endCol && Math.Abs(epLineInt - endLine) == 1)
+                        if (board[epLineInt][epColInt].Piece.HasValue && board[epLineInt][epColInt].Piece == EnumPieceType.PAWN
+                            && epColInt == endCase.Col && Math.Abs(epLineInt - endCase.Line) == 1)
                         {
                             moveType = EnumMoveType.EN_PASSANT;
-                            return true;
+                            break;
                         }
                     }
-                    return false;
-                case EnumPieceType.ROOK:
-                    if (startLine != endLine && startCol != endCol)
-                        return false;
-                    if (!EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                        return false;
-                    return true;
-                case EnumPieceType.KNIGHT:
-                    if (Math.Abs(startLine - endLine) == 2 && Math.Abs(startCol - endCol) == 1)
-                        return true;
-                    if (Math.Abs(startLine - endLine) == 1 && Math.Abs(startCol - endCol) == 2)
-                        return true;
-                    return false;
-                case EnumPieceType.BISHOP:
-                    if (startLine == endLine || startCol == endCol)
-                        return false;
-                    if (Math.Abs(endLine - startLine) != Math.Abs(endCol - startCol))
-                        return false;
-                    if (!EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                        return false;
-                    return true;
-                case EnumPieceType.QUEEN:
-                    if (startLine == endLine || startCol == endCol && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                        return true;
-                    if (Math.Abs(endLine - startLine) == Math.Abs(endCol - startCol) && EmptyBeetwenToCases(board, startCol, endCol, startLine, endLine))
-                        return true;
-                    return false;
-                case EnumPieceType.KING:
-                    if (Math.Abs(endLine - startLine) <= 1 && Math.Abs(endCol - startCol) <= 1)
-                        return true;
-                    // cas du roque
-                    if (endLine == startLine && board[startLine][startCol].HasMove == false && Math.Abs(startCol - endCol) == 2)
+                    else // si ce n'était aucun de ces cas, c'est un coup illégal
                     {
-                        if (startCol < endCol) // petit roque
+                        moveType = EnumMoveType.ILLEGAL;
+                    }
+                    break;
+                case EnumPieceType.ROOK:
+                    if (startCase.Line != endCase.Line && startCase.Col != endCase.Col)                    
+                        moveType = EnumMoveType.ILLEGAL;                    
+                    else if (!EmptyBeetwenToCases(board, startCase, endCase))
+                        moveType = EnumMoveType.ILLEGAL;
+                    break;
+                case EnumPieceType.KNIGHT:
+                    if (Math.Abs(startCase.Line - endCase.Line) == 2 && Math.Abs(startCase.Col - endCase.Col) == 1)
+                        break;
+                    else if (Math.Abs(startCase.Line - endCase.Line) == 1 && Math.Abs(startCase.Col - endCase.Col) == 2)
+                        break;
+                    else
+                        moveType = EnumMoveType.ILLEGAL;
+                    break;
+                case EnumPieceType.BISHOP:
+                    if (startCase.Line == endCase.Line || startCase.Col == endCase.Col)
+                        moveType = EnumMoveType.ILLEGAL;
+                    else if (Math.Abs(endCase.Line - startCase.Line) != Math.Abs(endCase.Col - startCase.Col))
+                        moveType = EnumMoveType.ILLEGAL;
+                    else if (!EmptyBeetwenToCases(board, startCase, endCase))
+                        moveType = EnumMoveType.ILLEGAL;
+                    break;
+                case EnumPieceType.QUEEN:
+                    if (startCase.Line == endCase.Line || startCase.Col == endCase.Col && EmptyBeetwenToCases(board, startCase, endCase))
+                        break;
+                    else if (Math.Abs(endCase.Line - startCase.Line) == Math.Abs(endCase.Col - startCase.Col) && EmptyBeetwenToCases(board, startCase, endCase))
+                        break;
+                    else
+                        moveType = EnumMoveType.ILLEGAL;
+                    break;
+                case EnumPieceType.KING:
+                    if (Math.Abs(endCase.Line - startCase.Line) <= 1 && Math.Abs(endCase.Col - startCase.Col) <= 1)
+                        break;
+                    // cas du roque
+                    else if (endCase.Line == startCase.Line 
+                        && board[startCase.Line][startCase.Col].HasMove == false 
+                        && Math.Abs(startCase.Col - endCase.Col) == 2)
+                    {
+                        if (startCase.Col < endCase.Col) // petit roque
                         {
-                            CaseInfo rookCase = board[startLine][board[startLine].Length - 1];
+                            CaseInfo rookCase = board[startCase.Line][board[startCase.Line].Length - 1];
                             if (rookCase.Piece.HasValue && rookCase.Piece.Value == EnumPieceType.ROOK && rookCase.HasMove.Value == false) // on a bien une tour sur la case attendue
                             {
-                                if (EmptyBeetwenToCases(board, startCol, board[startLine].Length - 1, startLine, endLine)) // aucune case sur le chemin
+                                if (EmptyBeetwenToCases(board, startCase.Col, board[startCase.Line].Length - 1, startCase.Line, endCase.Line)) // aucune case sur le chemin
                                 {
                                     // il faut vérifier que la case intermédiaire n'est pas en prise
-                                    if (!IsCaseInCapture(new Coord() { Line = startLine, Col = startCol + 1 }, board, rookCase.PieceColor.Value))
+                                    if (!IsCaseInCapture(new Coord() { Line = startCase.Line, Col = startCase.Col + 1 }, board, rookCase.PieceColor.Value))
                                     {
                                         moveType = EnumMoveType.CASTLING_SHORT;
-                                        return true;
+                                        break;
                                     }
                                 }
                             }
                         }
                         else // grand roque
                         {
-                            CaseInfo rookCase = board[startLine][0];
+                            CaseInfo rookCase = board[startCase.Line][0];
                             if (rookCase.Piece.HasValue && rookCase.Piece.Value == EnumPieceType.ROOK && rookCase.HasMove.Value == false) // on a bien une tour sur la case attendue
                             {
-                                if (EmptyBeetwenToCases(board, startCol, 0, startLine, endLine)) // aucune case sur le chemin
+                                if (EmptyBeetwenToCases(board, startCase.Col, 0, startCase.Line, endCase.Line)) // aucune case sur le chemin
                                 {
-                                    if (!IsCaseInCapture(new Coord() { Line = startLine, Col = startCol - 1 }, board, rookCase.PieceColor.Value))
+                                    if (!IsCaseInCapture(new Coord() { Line = startCase.Line, Col = startCase.Col - 1 }, board, rookCase.PieceColor.Value))
                                     {
                                         moveType = EnumMoveType.CASTLING_LONG;
-                                        return true;
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
-                    return false;
+                    else
+                    {
+                        moveType = EnumMoveType.ILLEGAL;
+                    }
+                    break;
             }
 
-            return true;
-        }
 
+            return moveType;
+        }
+  
         internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, IList<Coord> ennemies)
         {
             foreach (Coord c in ennemies)
@@ -566,7 +588,7 @@ namespace DaChessV2.Business
             return ((char)(col + 96)).ToString();
         }
 
-        internal static bool IsMoveOk(string[] cases)
+        internal static bool IsMoveSyntaxeOk(string[] cases)
         {
             if (cases.Length != 2)
                 return false;
@@ -731,8 +753,14 @@ namespace DaChessV2.Business
             return toReturn.ToString();
         }
 
+        #region private
 
-        internal static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
+        private static bool EmptyBeetwenToCases(CaseInfo[][] board, Coord startCoord, Coord endCoord)
+        {
+            return EmptyBeetwenToCases(board, startCoord.Col, endCoord.Col, startCoord.Line, endCoord.Line);
+        }
+
+        private static bool EmptyBeetwenToCases(CaseInfo[][] board, int startCol, int endCol, int startLine, int endLine)
         {
             int security = 0;
 
@@ -785,7 +813,6 @@ namespace DaChessV2.Business
             return true;
         }
 
-        #region private
 
         private static string CaseInfoToJson(CaseInfo c, int col, int line)
         {
