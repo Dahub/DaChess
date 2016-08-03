@@ -44,9 +44,19 @@ namespace DaChessV2.Web.Hubs
             Clients.Group(partyName).playerAskDrawn();
         }
 
+        public void AskForReplay(string partyName)
+        {
+            Clients.Group(partyName).playerAskToReplay();
+        }
+
         public void APlayerAcceptDrawn(string partyName)
         {
             Clients.Group(partyName).playerAcceptDrawn();
+        }
+
+        public void RedirectToNewParty(string partyName, string newPartyName)
+        {
+            Clients.Group(partyName).askToRedirectToNewParty(newPartyName);
         }
     }
 }

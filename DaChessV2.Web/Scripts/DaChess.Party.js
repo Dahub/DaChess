@@ -11,6 +11,7 @@
     checkPat(party);
     checkCheckMat(party);
     checkPromote(party);
+    refreshPlayersEndParty(party);
 }
 
 function getParty(partyName) {
@@ -106,8 +107,8 @@ function addPlayer(partyName, color) {
 }
 
 function defineBtnAddPlayerState(myParty) {
-    if (myParty.PartyState === partyStates.running) {
-        $('#btnRow').hide();
+    if (myParty.PartyState !== partyStates.waitPlayers) {
+        $('#btnChoiseColorDiv').hide();
     }
     else {
         if (myParty.WhitePlayerState === playerStates.undefined) {
@@ -154,6 +155,56 @@ function refreshPartyState(party) {
     else {
         $('#btnDiv').hide();
     }
+
+    // si la partie est terminée, on cache les infos de tour du joueur et on affiche celles de retour à l'accueil ou replay
+    if (party.PartyState !== partyStates.running && party.PartyState !== partyStates.waitPlayers) {
+        $('#playerTurnDiv').hide();
+        if (isWhite === true || isBlack === true) {
+            $('#endPartyDiv').show();
+        }
+    }
+}
+
+function refreshPlayersEndParty(party) {
+    if ((isWhite === true && party.WhitePlayerState === playerStates.askToReplay && party.BlackPlayerState !== playerStates.askToReplay)
+        || (isBlack === true && party.BlackPlayerState === playerStates.askToReplay && party.WhitePlayerState !== playerStates.askToReplay)) {
+        setMsg('Attente de la réponse');
+        $('#replayBtn').hide();
+    }
+    else if ((isBlack === true && party.WhitePlayerState === playerStates.askToReplay)
+        || (isWhite === true && party.BlackPlayerState === playerStates.askToReplay)) {
+        $('#replayBtn').hide();
+        $('#replayModal').modal({ backdrop: 'static', keyboard: false })
+            .one('click', '#confirmReplayBtn', function (e) {
+                $.ajax({
+                    url: '/Party/Replay',
+                    data: { partyName: party.Name, token: playerToken },
+                    cache: false,
+                    type: 'GET',
+                    async: false,
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8'
+                }).done(function (data) {
+                    setDebugInfo(data);
+                    // informer server et autres usr de la redirection vers la nouvelle partie
+                    if (data.IsError === true) {
+                        setMsg(data.ErrorMsg);
+                    }
+                    else {
+                        $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
+                    }
+                    // on lance la demande de redirection
+                    $.connection.partyHub.server.redirectToNewParty(party.Name, data.Name);
+                });
+            }).one('click', '#refuseReplayBtn', function (e) {
+                var msgDrawn = '';
+                if (isBlack == true)
+                    msgDrawn = 'Les noirs refusent de rejouer';
+                else if (isWhite == true)
+                    msgDrawn = 'les Blancs refusent de rejouer';
+                $.connection.partyHub.server.newInfo(party.Name, msgDrawn);
+            });
+    }
 }
 
 function refreshTurnDiv(party) {
@@ -188,7 +239,7 @@ function refreshInfoDiv(party) {
         $('#whiteIcon').removeClass('hidden');
     }
     if (isBlack === true) {
-        $('#displayname').val('Noirs');       
+        $('#displayname').val('Noirs');
         $('#blackIcon').removeClass('hidden');
     }
 
@@ -322,7 +373,7 @@ function resign(event, partyName) {
         });
 }
 
-function askForDrawn(partyName){
+function askForDrawn(partyName) {
     $.connection.partyHub.server.askForDrawn(partyName);
 }
 
@@ -349,5 +400,36 @@ function respondToDrawnAsk(partyName) {
                     msgDrawn = 'les Blancs refusent la nulle';
                 $.connection.partyHub.server.newInfo(partyName, msgDrawn);
             });
+    }
+}
+
+function askForReplay(partyName) {
+    // appel synchrone serveur pour stocker que le joueur demande à rejouer
+    $.ajax({
+        url: '/Party/Replay',
+        data: { partyName: partyName, token: playerToken },
+        cache: false,
+        async: false,
+        type: 'GET',
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8'
+    }).done(function (data) {
+        setDebugInfo(data);
+        if (data.IsError === true) {
+            setMsg(data.ErrorMsg);
+        }
+        else {
+            $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
+        }
+        $.connection.partyHub.server.askForReplay(partyName);
+    });
+}
+
+function redirectToNewParty(newPartyName) {
+    if (isWhite === true || isBlack === true) {
+        var url = $(location).attr('origin');
+        url += '/Party/Play/';
+        url += newPartyName;
+        window.location = url;
     }
 }

@@ -10,10 +10,16 @@ namespace DaChessV2.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-            name: "Drawn",
-            url: "Party/Drawn/{partyName}/{token}",
-            defaults: new { controller = "Party", action = "Drawn", partyName = UrlParameter.Optional, token = UrlParameter.Optional }
-          );
+                 name: "Replay",
+                 url: "Party/Replay/{partyName}/{token}",
+                 defaults: new { controller = "Party", action = "Replay", partyName = UrlParameter.Optional, token = UrlParameter.Optional }
+               );
+
+            routes.MapRoute(
+                name: "Drawn",
+                url: "Party/Drawn/{partyName}/{token}",
+                defaults: new { controller = "Party", action = "Drawn", partyName = UrlParameter.Optional, token = UrlParameter.Optional }
+              );
 
             routes.MapRoute(
               name: "Resign",

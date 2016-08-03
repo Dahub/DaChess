@@ -1,5 +1,30 @@
 ﻿@model string
 
+<!-- Modal pour la rejouer  -->
+<div class="modal fade" id="replayModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Rejouer ?</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="centerBlock">
+                            <div>Voulez-vous jouer une autre partie ?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="confirmReplayBtn">Oui</button>
+                <button type="button" data-dismiss="modal" class="btn" id="refuseReplayBtn">Non</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal pour la partie nulle -->
 <div class="modal fade" id="confirmDrawnModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">

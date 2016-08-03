@@ -10,6 +10,7 @@
         PAT = 6,
         RESIGN = 7,
         CHECK = 8,
-        CHECK_MAT = 9
+        CHECK_MAT = 9,
+        ASK_TO_REPLAY = 10
     }
 }

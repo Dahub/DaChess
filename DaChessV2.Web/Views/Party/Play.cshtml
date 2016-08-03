@@ -65,7 +65,8 @@
         pat: 6,
         resign: 7,
         check: 8,
-        checkMat: 9
+        checkMat: 9,
+        askToReplay: 10
     };
 
     $(document).ready(function () {
@@ -116,6 +117,14 @@
         partyHub.client.playerAcceptDrawn = function () {
             reloadParty('@Model');
         }
+
+        partyHub.client.playerAskToReplay = function() {
+            reloadParty('@Model');
+        }
+
+        partyHub.client.askToRedirectToNewParty = function(newPartyName){
+            redirectToNewParty(newPartyName);
+        }
     });
 </script>
 
@@ -144,14 +153,14 @@
                 </div>
             </div>
             <div class="panel-body">
-                <div class="row">
-                    <div id="btnDiv" class="col-sm-12" style="display:none">
+                <div class="row" id="btnDiv" style="display:none">
+                    <div class="col-sm-12">
                         <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
                         <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
                     </div>
                 </div>
                 <br />
-                <div class="row" id="btnRow">
+                <div class="row" id="btnChoiseColorDiv">
                     <div class="col-md-6 alignRight" id="whiteBtnDiv">
                         <button type="button" id="whiteBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.white)" disabled>Jouer les blancs</button><br />
                     </div>
@@ -159,16 +168,23 @@
                         <button type="button" id="blackBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.black)" disabled>Jouer les noirs</button>
                     </div>
                 </div>
-                <div class="row">
+                <!-- les images indiquant qui doit jouer -->
+                <div class="row" id="playerTurnDiv">
                     <div class="col-md-12">
                         <img src="/Content/Images/blackTurn.png" id="blackTurnImg" style="display:none" />
                         <img src="/Content/Images/whiteTurn.png" id="whiteTurnImg" style="display:none" />
                     </div>
                 </div>
-                <br />
                 <div class="row">
                     <div id="msgDivParent" class="col-md-12" style="display:none">
                         <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
+                    </div>
+                </div>
+                <!-- la div de fin de partie -->
+                <div class="row" id="endPartyDiv" style="display:none">
+                    <div class="col-md-12">
+                        Que voulez vous faire ?<br />
+                        <button type="button" id="replayBtn" class="btn btn-xs" onclick="askForReplay('@Model')">Proposer de rejouer</button>&nbsp;&nbsp;<a href="/Home/Index">Retour accueil</a>
                     </div>
                 </div>
             </div>

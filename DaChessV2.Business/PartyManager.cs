@@ -560,6 +560,64 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
+        public PartyModel Replay(string partyName, string playerToken)
+        {
+            PartyModel toReturn = new PartyModel();
+
+            try
+            {
+                Party party = PartyHelper.GetByName(partyName);
+                Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                string infoMsg = String.Empty;
+
+                if(playerColor == Color.WHITE && party.FK_White_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY
+                    || playerColor == Color.BLACK && party.FK_Black_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY)
+                {
+                    throw new DaChessException("Vous avez déjà proposé de rejouer");
+                }
+
+                if (playerColor == Color.WHITE)
+                {
+                    party.FK_White_PlayerState = (int)EnumPlayerState.ASK_TO_REPLAY;
+                    infoMsg = "Le joueur blanc propose une autre partie";
+                }
+                else
+                {
+                    party.FK_Black_PlayerState = (int)EnumPlayerState.ASK_TO_REPLAY;
+                    infoMsg = "Le joueur noir propose une autre partie";
+                }
+
+                // si les deux joueurs sont OK, on génère une nouvelle partie
+                if (party.FK_White_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY && party.FK_Black_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY)
+                {
+                    toReturn = CreateNewParty();
+                    infoMsg = String.Format("Nouvelle partie {0}", toReturn.Name);
+                }
+                else // sinon on reste sur l'ancienne
+                {
+                    toReturn = party.ToPartyModel();
+                }
+
+                Update(party);
+                
+                toReturn.ResultText = infoMsg;
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMsg = ex.Message;
+                toReturn.ErrorDetails = ex.ToString();
+            }
+            catch (Exception ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMsg = "Erreur non gérée dans la demande de rejouer la partie";
+                toReturn.ErrorDetails = ex.ToString();
+            }
+
+            return toReturn;
+        }
+
         #region private
 
         private Party Update(Party toUpdate)

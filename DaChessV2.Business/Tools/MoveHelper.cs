@@ -124,7 +124,7 @@ namespace DaChessV2.Business
             {
                 if (n.Line != startCase.Line || n.Col != startCase.Col) // on vérifie que ce n'est pas notre pièce qu'on test
                 {
-                    if(BoardHelper.GetMoveType(board, startCase, endCase, String.Empty) != EnumMoveType.ILLEGAL)
+                    if(BoardHelper.GetMoveType(board, n, endCase, String.Empty) != EnumMoveType.ILLEGAL)
                         otherCanDoMove.Add(n);
                 }
             }

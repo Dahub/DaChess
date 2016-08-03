@@ -94,6 +94,7 @@ insert into [chess].[PlayerState] (wording) values ('pat')
 insert into [chess].[PlayerState] (wording) values ('abandonne')
 insert into [chess].[PlayerState] (wording) values ('échec')
 insert into [chess].[PlayerState] (wording) values ('échec et mat')
+insert into [chess].[PlayerState] (wording) values ('demande revanche')
 go
 
 insert into [chess].[BoardType] (Wording, Content) values

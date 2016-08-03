@@ -47,5 +47,11 @@ namespace DaChessV2.Web.Controllers
             PartyModel toReturn = new PartyManager().Drawn(partyName, token);
             return Json(toReturn, JsonRequestBehavior.AllowGet);
         }
+
+        public JsonResult Replay(string partyName, string token)
+        {
+            PartyModel toReturn = new PartyManager().Replay(partyName, token);
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
+        }
     }
 }
