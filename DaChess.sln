@@ -5,7 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{9FA1FF41-953F-4AA2-890A-3736ED8A3F71}"
 	ProjectSection(SolutionItems) = preProject
-		create.sql = create.sql
 		createV2.sql = createV2.sql
 	EndProjectSection
 EndProject
