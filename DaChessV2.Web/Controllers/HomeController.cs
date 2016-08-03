@@ -8,7 +8,7 @@ namespace DaChessV2.Web.Controllers
     {     
         public ActionResult Index()
         {
-            return View();
+            return View(new PartyOptionManager().GetOptionModel());
         }
 
         public ActionResult About()
@@ -17,7 +17,7 @@ namespace DaChessV2.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult NewParty()
+        public JsonResult NewParty(PartyOptionModel model)
         {
             PartyModel toReturn = new PartyManager().CreateNewParty();
             return Json(toReturn);

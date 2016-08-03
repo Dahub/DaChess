@@ -63,6 +63,7 @@
     <Compile Include="BoardType.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Manager\PartyOptionManager.cs" />
     <Compile Include="ChessEntities.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -81,14 +82,17 @@
     <Compile Include="Party.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="PartyCadence.cs">
+      <DependentUpon>ChessEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="PartyHistory.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="PartyManager.cs" />
+    <Compile Include="Manager\PartyManager.cs" />
     <Compile Include="PartyState.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="PlayerManager.cs" />
+    <Compile Include="Manager\PlayerManager.cs" />
     <Compile Include="PlayerState.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>

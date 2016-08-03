@@ -22,15 +22,27 @@
           <Property Name="FK_PartyState" Type="int" Nullable="false" />
           <Property Name="FK_White_PlayerState" Type="int" Nullable="false" />
           <Property Name="FK_Black_PlayerState" Type="int" Nullable="false" />
+          <Property Name="FK_PartyCadence" Type="int" Nullable="false" />
           <Property Name="CreationDate" Type="datetime" />
-          <Property Name="WhiteToken" Type="nvarchar" MaxLength="256" />
-          <Property Name="BlackToken" Type="nvarchar" MaxLength="256" />
+          <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
           <Property Name="PartyName" Type="nvarchar" MaxLength="256" />
           <Property Name="Board" Type="nvarchar(max)" />
+          <Property Name="WhiteToken" Type="nvarchar" MaxLength="256" />
+          <Property Name="BlackToken" Type="nvarchar" MaxLength="256" />
           <Property Name="JsonHistory" Type="nvarchar(max)" />
-          <Property Name="Seed" Type="nvarchar" MaxLength="64" Nullable="false" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
           <Property Name="LastMoveCase" Type="nvarchar" MaxLength="2" />
+          <Property Name="WhiteTimeLeft" Type="int" />
+          <Property Name="BlackTimeLeft" Type="int" />
+          <Property Name="WhiteFischer" Type="int" />
+          <Property Name="BlackFischer" Type="int" />
+        </EntityType>
+        <EntityType Name="PartyCadence">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
         </EntityType>
         <EntityType Name="PartyHistory">
           <Key>
@@ -55,7 +67,7 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
         </EntityType>
-        <Association Name="fk_black_playerState">
+        <Association Name="fk_blackPlayerState">
           <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
           <ReferentialConstraint>
@@ -67,7 +79,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_board_type">
+        <Association Name="fk_boardType">
           <End Role="BoardType" Type="Self.BoardType" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
           <ReferentialConstraint>
@@ -91,6 +103,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_PartyCadence">
+          <End Role="PartyCadence" Type="Self.PartyCadence" Multiplicity="1" />
+          <End Role="Party" Type="Self.Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PartyCadence">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_PartyCadence" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_partyState">
           <End Role="PartyState" Type="Self.PartyState" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
@@ -103,7 +127,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_white_playerState">
+        <Association Name="fk_whitePlayerState">
           <End Role="PlayerState" Type="Self.PlayerState" Multiplicity="1" />
           <End Role="Party" Type="Self.Party" Multiplicity="*" />
           <ReferentialConstraint>
@@ -118,14 +142,15 @@
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="BoardType" EntityType="Self.BoardType" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="PartyCadence" EntityType="Self.PartyCadence" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyHistory" EntityType="Self.PartyHistory" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyState" EntityType="Self.PartyState" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PlayerState" EntityType="Self.PlayerState" Schema="chess" store:Type="Tables" />
-          <AssociationSet Name="fk_black_playerState" Association="Self.fk_black_playerState">
+          <AssociationSet Name="fk_blackPlayerState" Association="Self.fk_blackPlayerState">
             <End Role="PlayerState" EntitySet="PlayerState" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
-          <AssociationSet Name="fk_board_type" Association="Self.fk_board_type">
+          <AssociationSet Name="fk_boardType" Association="Self.fk_boardType">
             <End Role="BoardType" EntitySet="BoardType" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
@@ -133,11 +158,15 @@
             <End Role="Party" EntitySet="Party" />
             <End Role="PartyHistory" EntitySet="PartyHistory" />
           </AssociationSet>
+          <AssociationSet Name="fk_PartyCadence" Association="Self.fk_PartyCadence">
+            <End Role="PartyCadence" EntitySet="PartyCadence" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
           <AssociationSet Name="fk_partyState" Association="Self.fk_partyState">
             <End Role="PartyState" EntitySet="PartyState" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
-          <AssociationSet Name="fk_white_playerState" Association="Self.fk_white_playerState">
+          <AssociationSet Name="fk_whitePlayerState" Association="Self.fk_whitePlayerState">
             <End Role="PlayerState" EntitySet="PlayerState" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
@@ -177,6 +206,12 @@
           <NavigationProperty Name="PartyState" Relationship="Self.fk_partyState" FromRole="Party" ToRole="PartyState" />
           <NavigationProperty Name="WhitePlayerState" Relationship="Self.fk_white_playerState" FromRole="Party" ToRole="PlayerState" />
           <NavigationProperty Name="PartyHistory" Relationship="ChessModel.fk_party" FromRole="Party" ToRole="PartyHistory" />
+          <Property Name="FK_PartyCadence" Type="Int32" Nullable="false" />
+          <Property Name="WhiteTimeLeft" Type="Int32" />
+          <Property Name="BlackTimeLeft" Type="Int32" />
+          <Property Name="WhiteFischer" Type="Int32" />
+          <Property Name="BlackFischer" Type="Int32" />
+          <NavigationProperty Name="PartyCadence" Relationship="ChessModel.fk_PartyCadence" FromRole="Party" ToRole="PartyCadence" />
         </EntityType>
         <EntityType Name="PartyState">
           <Key>
@@ -266,6 +301,11 @@
             <End Role="Party" EntitySet="Party" />
             <End Role="PartyHistory" EntitySet="PartyHistory" />
           </AssociationSet>
+          <EntitySet Name="PartyCadence" EntityType="ChessModel.PartyCadence" />
+          <AssociationSet Name="fk_PartyCadence" Association="ChessModel.fk_PartyCadence">
+            <End Role="PartyCadence" EntitySet="PartyCadence" />
+            <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="PartyHistory">
           <Key>
@@ -289,6 +329,25 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="PartyCadence">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="fk_PartyCadence">
+          <End Type="ChessModel.PartyCadence" Role="PartyCadence" Multiplicity="1" />
+          <End Type="ChessModel.Party" Role="Party" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PartyCadence">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Party">
+              <PropertyRef Name="FK_PartyCadence" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -307,6 +366,11 @@
           <EntitySetMapping Name="Party">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
+                <ScalarProperty Name="BlackFischer" ColumnName="BlackFischer" />
+                <ScalarProperty Name="WhiteFischer" ColumnName="WhiteFischer" />
+                <ScalarProperty Name="BlackTimeLeft" ColumnName="BlackTimeLeft" />
+                <ScalarProperty Name="WhiteTimeLeft" ColumnName="WhiteTimeLeft" />
+                <ScalarProperty Name="FK_PartyCadence" ColumnName="FK_PartyCadence" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="FK_BoardType" ColumnName="FK_BoardType" />
                 <ScalarProperty Name="FK_PartyState" ColumnName="FK_PartyState" />
@@ -346,6 +410,14 @@
                 <ScalarProperty Name="DateCreation" ColumnName="DateCreation" />
                 <ScalarProperty Name="Board" ColumnName="Board" />
                 <ScalarProperty Name="FK_Party" ColumnName="FK_Party" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PartyCadence">
+            <EntityTypeMapping TypeName="ChessModel.PartyCadence">
+              <MappingFragment StoreEntitySet="PartyCadence">
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

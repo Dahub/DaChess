@@ -1,34 +1,123 @@
-﻿
+﻿@model DaChessV2.Dto.PartyOptionModel
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Bienvenue";
 }
 
 <script type="text/javascript">
+    var model  = {
+        ChoisedCadenceType: 1,
+        TimeInSeconds: 0,
+        FischerInSeconds: 0
+    };
     $(document).ready(function () {
         $("#newPartyBtn").click(function () {
+            model.ChoisedCadenceType = $('#ChoisedCadenceType').val();
+            model.TimeInSeconds = toSecond($('#partyTime').val());
+            model.FischerInSeconds = toSecond($('#fischerTime').val());
+
             $.ajax({
                 url: '/Home/NewParty',
                 cache: false,
                 type: 'POST',
                 dataType: "json",
+                data: JSON.stringify(model),
                 contentType: 'application/json; charset=utf-8'
             }).done(function (data) {
                 setDebugInfo(data);
-                var html = '<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>';           
+                var html = '<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>';
                 $("#resultDiv").html(html);
             });;
         });
+
+        $('#ChoisedCadenceType').change(function () {
+            if ($('#ChoisedCadenceType').val() == 1) {
+                $('#classiqueDiv').hide();
+                
+            } else if ($('#ChoisedCadenceType').val() == 2) {
+                $('#classiqueDiv').show();
+            }
+            else if ($('#ChoisedCadenceType').val() == 3) {
+                $('#classiqueDiv').show();
+                $('#fischerDiv').show();                
+            }            
+        })
     });
+
+    // toSecond($('#partyTime').val())
+    function toSecond(time) {
+        var tt = time.split(":");
+        var hours = 0;
+        if (tt.length > 0) {
+            hours = tt[0];
+        }
+        var minutes = 0;
+        if (tt.length > 1) {
+            minutes = tt[1];
+        }
+        var seconds = 0;
+        if (tt.length > 2) {
+            seconds = tt[2];
+        }
+        return hours * 3600 + minutes * 60 + seconds * 1;
+    }
 </script>
 
 <h2>Bienvenue</h2>
 <div class="row">
-    <blockquote>
-        <p>
-            Cliquez sur le bouton pour démarrer une nouvelle partie.
-        </p>
-    </blockquote>
+    <div class="col-md-12">
+        <blockquote>
+            <p>
+                Bienvenue sur DaChess. Cliquez sur le bouton pour générer une nouvelle partie et communiquez le lien obtenu à votre adversaire.
+            </p>
+            <p>
+                Vous pouvez spécifier un temps pour cette partie ci dessous :
+            </p>
+        </blockquote>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <fieldset>
+            <legend>Options</legend>
+            <div class="row">
+                <div class="col-md-offset-2 col-md-2">
+                    <strong>Mode de jeu :</strong>
+                </div>
+                <div class="col-md-6">
+                    <select id="ChoisedCadenceType" name="ChoisedCadenceType">
+                        @foreach (var item in Model.CadencesTypes)
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="row" id="classiqueDiv" style="display:none">
+                <div class="col-md-offset-2 col-md-2">
+                    <strong>Temps de la partie</strong>
+                </div>
+                <div class="col-md-6">
+                    <input id="partyTime" type="time" step="1" value="00:20:00" />
+                </div>
+            </div>
+            <br />
+            <div class="row" id="fischerDiv" style="display:none">
+                <div class="col-md-offset-2 col-md-2">
+                    <strong>Temps Fischer</strong>
+                </div>
+                <div class="col-md-6">
+                    <input id="fischerTime" type="time" step="1" value="00:00:05" />
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<hr />
+<div class="row">
+
     <div class="col-md-8 col-md-offset-2">
         <button type="button" id="newPartyBtn" class="btn-lg btn-success">Créer une nouvelle partie</button>
     </div>
