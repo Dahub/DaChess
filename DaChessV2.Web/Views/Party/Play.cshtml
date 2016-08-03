@@ -6,6 +6,7 @@
 }
 
 @{ int canvasSize = 400; }
+@{ int caseNumber = 8; }
 
 <script type="text/javascript">
     var party; // stockage (JSon) de l'objet PartyModel
@@ -14,8 +15,8 @@
     var myHistory; // historique de la partie
     var images = {}; // array d'images du jeu (pièces du jeu d'échec);
 
-    var size = @canvasSize; // taille en pixels du plateau
-    var caseNumber = 8; // nombre de cases du plateau
+    @String.Concat("var size = ", canvasSize); // taille en pixels du plateau
+    @String.Concat("var caseNumber = ", caseNumber); // nombre de cases du plateau
     var moveStep = 0; // compteur de cases sélectionnées
     var moveText = ''; // texte du coup
 
@@ -100,31 +101,31 @@
 
         partyHub.client.moveOver = function () {
             reloadParty('@Model');
-        }
+        };
 
         partyHub.client.SendInfo = function (info) {
             setMsg(info);
-        }
+        };
 
         partyHub.client.playerResign = function () {
             reloadParty('@Model');
-        }
+        };
 
         partyHub.client.playerAskDrawn = function () {
             respondToDrawnAsk('@Model');
-        }
+        };
 
         partyHub.client.playerAcceptDrawn = function () {
             reloadParty('@Model');
-        }
+        };
 
-        partyHub.client.playerAskToReplay = function() {
+        partyHub.client.playerAskToReplay = function () {
             reloadParty('@Model');
-        }
+        };
 
-        partyHub.client.askToRedirectToNewParty = function(newPartyName){
+        partyHub.client.askToRedirectToNewParty = function (newPartyName) {
             redirectToNewParty(newPartyName);
-        }
+        };
     });
 </script>
 

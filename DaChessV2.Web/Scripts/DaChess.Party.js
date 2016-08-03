@@ -149,7 +149,7 @@ function hideAllBtn() {
 
 function refreshPartyState(party) {
     // on affiche les bouton d'abandon ou de demande nulle si la partie est prête
-    if (party.PartyState === partyStates.running && (isBlack == true || isWhite == true)) {
+    if (party.PartyState === partyStates.running && (isBlack === true || isWhite === true)) {
         $('#btnDiv').show();
     }
     else {
@@ -198,9 +198,9 @@ function refreshPlayersEndParty(party) {
                 });
             }).one('click', '#refuseReplayBtn', function (e) {
                 var msgDrawn = '';
-                if (isBlack == true)
+                if (isBlack === true)
                     msgDrawn = 'Les noirs refusent de rejouer';
-                else if (isWhite == true)
+                else if (isWhite === true)
                     msgDrawn = 'les Blancs refusent de rejouer';
                 $.connection.partyHub.server.newInfo(party.Name, msgDrawn);
             });
@@ -292,16 +292,16 @@ function refreshHistoryDiv(myHistory) {
 }
 
 function checkPat(party) {
-    if (party.PartyState === partyStates.drawn && partyOver == false) {
+    if (party.PartyState === partyStates.drawn && partyOver === false) {
         if (isWhite === true && party.BlackPlayerState === playerStates.pat
            || isBlack === true && party.WhitePlayerState === playerStates.pat) {
-            $('#patText').html('<h3>Le roi adverse est Pat</h3>')
+            $('#patText').html('<h3>Le roi adverse est Pat</h3>');
             partyOver = true;
             $('#patModal').modal('show');
         }
         else if (isBlack === true && party.BlackPlayerState === playerStates.pat
            || isWhite === true && party.WhitePlayerState === playerStates.pat) {
-            $('#patText').html('<h3>Vous êtes Pat</h3>')
+            $('#patText').html('<h3>Vous êtes Pat</h3>');
             partyOver = true;
             $('#patModal').modal('show');
         }
@@ -311,12 +311,12 @@ function checkPat(party) {
 function checkCheckMat(party) {
     if ((party.WhitePlayerState === playerStates.checkMat || party.BlackPlayerState === playerStates.checkMat) && partyOver === false) {
         if (isWhite === true && party.BlackPlayerState === playerStates.checkMat
-            || isBlack == true && party.WhitePlayerState === playerStates.checkMat) {
+            || isBlack === true && party.WhitePlayerState === playerStates.checkMat) {
             $('#matText').html('<h3>Vous avez gagné</h3>');
             $('#matModal').modal('show');
         }
         else if (isBlack === true && party.BlackPlayerState === playerStates.checkMat
-            || isWhite == true && party.WhitePlayerState === playerStates.checkMat) {
+            || isWhite === true && party.WhitePlayerState === playerStates.checkMat) {
             $('#matText').html('<h3>Vous avez perdu :(</h3>');
             $('#matModal').modal('show');
         }
@@ -378,7 +378,7 @@ function askForDrawn(partyName) {
 }
 
 function respondToDrawnAsk(partyName) {
-    if (isBlack == true || isWhite == true) {
+    if (isBlack === true || isWhite === true) {
         $('#confirmDrawnModal').modal({ backdrop: 'static', keyboard: false })
             .one('click', '#confirmDrawnBtn', function (e) {
                 $.ajax({
@@ -394,9 +394,9 @@ function respondToDrawnAsk(partyName) {
                 });
             }).one('click', '#refuseDrawn', function (e) {
                 var msgDrawn = '';
-                if (isBlack == true)
+                if (isBlack === true)
                     msgDrawn = 'Les noirs refusent la nulle';
-                else if (isWhite == true)
+                else if (isWhite === true)
                     msgDrawn = 'les Blancs refusent la nulle';
                 $.connection.partyHub.server.newInfo(partyName, msgDrawn);
             });

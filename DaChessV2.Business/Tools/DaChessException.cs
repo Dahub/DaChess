@@ -17,20 +17,6 @@ namespace DaChessV2.Business
         {
         }
 
-        /// <summary>
-        /// En release, on ne retourne pas toute l'exception (qui sera inscrite dans la console)
-        /// mais uniquement le message
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-#if DEBUG
-            return base.ToString();
-#else
-            return this.Message;
-#endif
-        }
-
         protected DaChessException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }

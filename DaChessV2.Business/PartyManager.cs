@@ -560,6 +560,17 @@ namespace DaChessV2.Business
             return toReturn;
         }
 
+        /// <summary>
+        /// Appellée lorsqu'un joueur propose de rejouer une autre partie ou lorsqu'un joueur accepte
+        /// la proposition de joueur une autre partie.
+        /// Le PlayerState du joueur de la couleur correspondante est mis à jour
+        /// Si le joueur avait déjà fait une demande avant, une exception est lancée
+        /// Si les deux joueurs sont dans l'état "demande de rejouer", alors une nouvelle partie est générée
+        /// et est retournée dans l'objet PartyModel
+        /// </summary>
+        /// <param name="partyName">Le nom de la partie actuelle</param>
+        /// <param name="playerToken">Le joueur faisant la demande ou acceptant la demande</param>
+        /// <returns>Un objet PartyModel contenant la partie ou la nouvelle partie</returns>
         public PartyModel Replay(string partyName, string playerToken)
         {
             PartyModel toReturn = new PartyModel();
