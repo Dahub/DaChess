@@ -108,7 +108,7 @@ namespace DaChessV2.Business
                             partyState = EnumPartyState.OVER_BLACK_WIN;
                             infoMsg = "Temps du joueur blanc écoulé";
                             updateParty = true;
-                        }                    
+                        }
                         break;
                     case Color.BLACK:
                         if (party.FK_White_PlayerState != (int)EnumPlayerState.TIME_OVER)
@@ -117,7 +117,7 @@ namespace DaChessV2.Business
                             partyState = EnumPartyState.OVER_WHITE_WIN;
                             infoMsg = "Temps du joueur noir écoulé";
                             updateParty = true;
-                        }                        
+                        }
                         break;
                 }
 
@@ -297,13 +297,13 @@ namespace DaChessV2.Business
                 EnumPlayerState ennemiState = EnumPlayerState.CAN_MOVE;
                 EnumPlayerState playerState = EnumPlayerState.WAIT_HIS_TURN;
                 EnumPartyState partyState = EnumPartyState.RUNNING;
-
+                EnumMoveType mt = EnumMoveType.ILLEGAL;
                 if (boardCases[startLine][startCol].Piece.HasValue)
                 {
                     int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
                     int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
 
-                    EnumMoveType mt = BoardHelper.GetMoveType(boardCases, new Coord(startLine, startCol), new Coord(endLine, endCol), party.EnPassantCase);
+                    mt = BoardHelper.GetMoveType(boardCases, new Coord(startLine, startCol), new Coord(endLine, endCol), party.EnPassantCase);
                     if (mt == EnumMoveType.ILLEGAL)
                         throw new DaChessException("Coup illégal");
 
@@ -398,17 +398,9 @@ namespace DaChessV2.Business
                 }
 
                 // Gestion des temps, vérification que le temps du joueur n'est pas écoulé
-                if (party.FK_PartyCadence != (int)EnumPartyCadence.NO_LIMIT)
+                if (mt != EnumMoveType.PROMOTE)
                 {
-                    long timeUsedForMove = CalcTimeUseForMove(party);
-                    // mise à jour du temps du joueur
-                    if (IsTimeOverAfterUpdatePlayerTime(party, playerColor, timeUsedForMove))
-                    {
-                        // on a dépassé le temps
-                        resultText = "Temps écoulé";
-                        partyState = playerColor == Color.WHITE ? EnumPartyState.OVER_BLACK_WIN : EnumPartyState.OVER_WHITE_WIN;
-                        playerState = EnumPlayerState.TIME_OVER;
-                    }
+                    ManagePlayerTime(party, playerColor, ref resultText, ref playerState, ref partyState);
                 }
 
                 // mise à jour de l'historique        
@@ -421,7 +413,6 @@ namespace DaChessV2.Business
                 party.EnPassantCase = enPassant;
                 party.LastMoveCase = lastMoveCase;
                 party.FK_PartyState = (int)partyState;
-                party.LastMoveDate = DateTime.Now;
 
                 Update(party);
                 toReturn = party.ToPartyModel();
@@ -502,19 +493,20 @@ namespace DaChessV2.Business
                 ennemiState = BoardHelper.DefineEnnemiState(playerColor, boardCases, ennemiState);
                 EnumPartyState partyState = EnumPartyState.RUNNING;
                 partyState = RefreshPartyState(playerColor, ennemiState, partyState);
-                using (var context = new ChessEntities())
-                {
-                    context.Party.Attach(party);
-                    party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
-                    party.FK_Black_PlayerState = (int)(playerColor == Color.WHITE ? ennemiState : playerState);
-                    party.FK_White_PlayerState = (int)(playerColor == Color.BLACK ? ennemiState : playerState);
-                    party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
-                    party.FK_PartyState = (int)partyState;
-                    context.SaveChanges();
-                }
+
+                string resultText = "Promotion terminée";
+                ManagePlayerTime(party, playerColor, ref resultText, ref playerState, ref partyState);
+
+                party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
+                party.FK_Black_PlayerState = (int)(playerColor == Color.WHITE ? ennemiState : playerState);
+                party.FK_White_PlayerState = (int)(playerColor == Color.BLACK ? ennemiState : playerState);
+                party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                party.FK_PartyState = (int)partyState;
+
+                Update(party);
 
                 toReturn = party.ToPartyModel();
-                toReturn.ResultText = "Promotion terminée";
+                toReturn.ResultText = resultText;
             }
             catch (DaChessException ex)
             {
@@ -723,6 +715,23 @@ namespace DaChessV2.Business
         }
 
         #region private
+
+        private void ManagePlayerTime(Party party, Color playerColor, ref string resultText, ref EnumPlayerState playerState, ref EnumPartyState partyState)
+        {
+            if (party.FK_PartyCadence != (int)EnumPartyCadence.NO_LIMIT)
+            {
+                long timeUsedForMove = CalcTimeUseForMove(party);
+                // mise à jour du temps du joueur
+                if (IsTimeOverAfterUpdatePlayerTime(party, playerColor, timeUsedForMove))
+                {
+                    // on a dépassé le temps
+                    resultText = "Temps écoulé";
+                    partyState = playerColor == Color.WHITE ? EnumPartyState.OVER_BLACK_WIN : EnumPartyState.OVER_WHITE_WIN;
+                    playerState = EnumPlayerState.TIME_OVER;
+                }
+            }
+            party.LastMoveDate = DateTime.Now;
+        }
 
         /// <summary>
         /// Retourne le temps écoulé depuis le dernier coup en millisecondes

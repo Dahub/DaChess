@@ -236,7 +236,10 @@ function refreshTurnDiv(party) {
 }
 
 function refreshTimeDiv(party) {
-    if (party.PartyState === partyStates.running && party.PartyCadence !== cadences.noLimits) {
+    if (party.WhitePlayerState !== playerStates.canPromote
+        && party.BlackPlayerState !== playerStates.canPromote
+        && party.PartyState === partyStates.running
+        && party.PartyCadence !== cadences.noLimits) {
         $('#timeDiv').show();
         var whiteTime = Math.floor(party.WhitePlayerTimeLeft / 1000);
         var blackTime = Math.floor(party.BlackPlayerTimeLeft / 1000);
