@@ -10,6 +10,12 @@ namespace DaChessV2.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "TimeOver",
+                url: "Party/TimeOver/{partyName}/{token}",
+                defaults: new { controller = "Party", action = "TimeOver", partyName = UrlParameter.Optional, token = UrlParameter.Optional }
+              );
+
+            routes.MapRoute(
                  name: "Replay",
                  url: "Party/Replay/{partyName}/{token}",
                  defaults: new { controller = "Party", action = "Replay", partyName = UrlParameter.Optional, token = UrlParameter.Optional }

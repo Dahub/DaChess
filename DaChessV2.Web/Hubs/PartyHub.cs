@@ -54,6 +54,11 @@ namespace DaChessV2.Web.Hubs
             Clients.Group(partyName).playerAcceptDrawn();
         }
 
+        public void APlayerTimeIsExpired(string partyName)
+        {
+            Clients.Group(partyName).PlayerTimeIsExpired();
+        }
+
         public void RedirectToNewParty(string partyName, string newPartyName)
         {
             Clients.Group(partyName).askToRedirectToNewParty(newPartyName);

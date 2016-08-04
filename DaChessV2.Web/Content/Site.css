@@ -25,6 +25,10 @@ textarea {
    text-align:right;
 }
 
+.alignLeft {
+   text-align:left;
+}
+
 .playerIcon {
     height: auto; 
     width: auto; 

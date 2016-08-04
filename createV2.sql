@@ -78,10 +78,11 @@ create table [chess].[Party]
 	JsonHistory nvarchar(max) null,
 	EnPassantCase nvarchar(2) null,
 	LastMoveCase nvarchar(2) null,
-	WhiteTimeLeft integer null,
-	BlackTimeLeft integer null,
-	WhiteFischer integer null,
-	BlackFischer integer null
+	WhiteTimeLeftInMilliseconds bigint null,
+	BlackTimeLeftInLilliseconds bigint null,
+	PartyFischerInSeconds integer null,
+	PartyTimeInSeconds integer null,
+	LastMoveDate datetime null
 )
 go
 
@@ -116,6 +117,7 @@ insert into [chess].[PlayerState] (wording) values ('abandonne')
 insert into [chess].[PlayerState] (wording) values ('échec')
 insert into [chess].[PlayerState] (wording) values ('échec et mat')
 insert into [chess].[PlayerState] (wording) values ('demande revanche')
+insert into [chess].[PlayerState] (wording) values ('temps écoulé')
 go
 
 insert into [chess].[BoardType] (Wording, Content) values

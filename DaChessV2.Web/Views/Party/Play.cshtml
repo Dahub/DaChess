@@ -7,7 +7,7 @@
 
 @{ int canvasSize = 400; }
 @{ int caseNumber = 8; }
-
+<script src="/Scripts/DaChess.Time.js"></script>
 <script type="text/javascript">
     var party; // stockage (JSon) de l'objet PartyModel
     var playerToken; // token du joueur connecté
@@ -22,6 +22,9 @@
 
     var isWhite = false; // true si le joueur est le joueur blanc
     var isBlack = false; // true si le joueur est le joueur noir
+
+    var time = 0; // utilisé pour les compteurs de temps
+    var countDown; // le compteur de temps
 
     var partyOver = false; // un marqueur pour éviter les popup à répétition si un des joueurs refresh sa page sur un mat ou un pat
 
@@ -67,7 +70,15 @@
         resign: 7,
         check: 8,
         checkMat: 9,
-        askToReplay: 10
+        askToReplay: 10,
+        timeOver: 11
+    };
+
+    // les types de cadences de la partie
+    var cadences = {
+        noLimits: 1,
+        classic: 2,
+        fischer: 3
     };
 
     $(document).ready(function () {
@@ -123,6 +134,10 @@
             reloadParty('@Model');
         };
 
+        partyHub.client.playerTimeIsExpired = function () {
+            reloadParty('@Model');
+        };
+
         partyHub.client.askToRedirectToNewParty = function (newPartyName) {
             redirectToNewParty(newPartyName);
         };
@@ -171,9 +186,17 @@
                 </div>
                 <!-- les images indiquant qui doit jouer -->
                 <div class="row" id="playerTurnDiv">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         <img src="/Content/Images/blackTurn.png" id="blackTurnImg" style="display:none" />
                         <img src="/Content/Images/whiteTurn.png" id="whiteTurnImg" style="display:none" />
+                    </div>
+                    <div id="timeDiv" class="col-md-4">
+                        <div class="alignLeft">
+                            <br />
+                            <span id="timeWhite">01:25:12</span>
+                            <br /><br />
+                            <span id="timeBlack">00:57:52</span>
+                        </div>
                     </div>
                 </div>
                 <div class="row">

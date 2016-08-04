@@ -151,7 +151,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap.min.css.map" />
     <None Include="Properties\PublishProfiles\Ikoula.pubxml" />
-    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\DaChess.Canvas.js" />
     <Content Include="Scripts\DaChess.Generic.js" />
@@ -177,6 +176,7 @@
     </Compile>
     <Compile Include="Hubs\PartyHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Scripts\DaChess.Time.js" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

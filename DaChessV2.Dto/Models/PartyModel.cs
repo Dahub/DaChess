@@ -9,6 +9,9 @@
         public EnumPartyState PartyState { get; set; }
         public EnumPlayerState WhitePlayerState { get; set; }
         public EnumPlayerState BlackPlayerState { get; set; }
+        public EnumPartyCadence PartyCadence { get; set; }
+        public long WhitePlayerTimeLeft { get; set; }
+        public long BlackPlayerTimeLeft { get; set; }
     }
 }
 

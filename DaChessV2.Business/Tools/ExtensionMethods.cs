@@ -14,7 +14,10 @@ namespace DaChessV2.Business
                 LastCase = p.LastMoveCase,
                 Name = p.PartyName,
                 PartyState = (EnumPartyState)p.FK_PartyState,
-                WhitePlayerState = (EnumPlayerState)p.FK_White_PlayerState
+                WhitePlayerState = (EnumPlayerState)p.FK_White_PlayerState,
+                BlackPlayerTimeLeft = p.BlackTimeLeftInLilliseconds.HasValue?p.BlackTimeLeftInLilliseconds.Value:0,
+                WhitePlayerTimeLeft = p.WhiteTimeLeftInMilliseconds.HasValue?p.WhiteTimeLeftInMilliseconds.Value:0,
+                PartyCadence = (EnumPartyCadence)p.FK_PartyState
             };
 
             return toReturn;

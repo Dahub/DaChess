@@ -5,6 +5,8 @@
     defineBtnAddPlayerState(party);
     refreshCanvas(party, myBoard, images, size, caseNumber);
     refreshInfoDiv(party);
+    refreshTimeDiv(party);    
+    checkTimeOver(party);
     refreshTurnDiv(party);
     refreshHistoryDiv(myHistory);
     refreshPartyState(party);
@@ -233,6 +235,24 @@ function refreshTurnDiv(party) {
     }
 }
 
+function refreshTimeDiv(party) {
+    if (party.PartyState === partyStates.running && party.PartyCadence !== cadences.noLimits) {
+        $('#timeDiv').show();
+        var whiteTime = Math.floor(party.WhitePlayerTimeLeft / 1000);
+        var blackTime = Math.floor(party.BlackPlayerTimeLeft / 1000);
+        if (party.WhitePlayerState === playerStates.canMove && isEmpty(party.History) === false) {
+            launchCountDown(whiteTime);
+        }
+        else if (party.BlackPlayerState === playerStates.canMove) {
+            launchCountDown(blackTime);
+        }
+        initTime(whiteTime, blackTime, party);
+    } else {
+        stopCountDown();
+        $('#timeDiv').hide();
+    }
+}
+
 function refreshInfoDiv(party) {
     if (isWhite === true) {
         $('#displayname').val('Blancs');
@@ -291,19 +311,38 @@ function refreshHistoryDiv(myHistory) {
     }
 }
 
+function checkTimeOver(party) {
+    if (party.WhitePlayerState === playerStates.timeOver) {
+        partyOver = true;
+        if (isWhite) {
+            showEndModal('Temps écoulé', '<h3>Vous avez perdu :-(</h3>');
+        }
+        else if(isBlack) {
+            showEndModal('Temps écoulé', '<h3>Le temps du joueur blanc est écoulé</h3>');
+        }
+    }
+    else if (party.BlackPlayerState === playerStates.timeOver) {
+        partyOver = true;
+        if (isBlack) {
+            showEndModal('Temps écoulé', '<h3>Vous avez perdu :-(</h3>');
+        }
+        else if(isWhite) {
+            showEndModal('Temps écoulé', '<h3>Le temps du joueur noir est écoulé</h3>');
+        }
+    }
+}
+
 function checkPat(party) {
     if (party.PartyState === partyStates.drawn && partyOver === false) {
         if (isWhite === true && party.BlackPlayerState === playerStates.pat
            || isBlack === true && party.WhitePlayerState === playerStates.pat) {
-            $('#patText').html('<h3>Le roi adverse est Pat</h3>');
             partyOver = true;
-            $('#patModal').modal('show');
+            showEndModal('Pat, partie nulle', '<h3>Le roi adverse est Pat</h3>');
         }
         else if (isBlack === true && party.BlackPlayerState === playerStates.pat
            || isWhite === true && party.WhitePlayerState === playerStates.pat) {
-            $('#patText').html('<h3>Vous êtes Pat</h3>');
             partyOver = true;
-            $('#patModal').modal('show');
+            showEndModal('Pat, partie nulle', '<h3>Vous êtes Pat</h3>');
         }
     }
 }
@@ -312,13 +351,13 @@ function checkCheckMat(party) {
     if ((party.WhitePlayerState === playerStates.checkMat || party.BlackPlayerState === playerStates.checkMat) && partyOver === false) {
         if (isWhite === true && party.BlackPlayerState === playerStates.checkMat
             || isBlack === true && party.WhitePlayerState === playerStates.checkMat) {
-            $('#matText').html('<h3>Vous avez gagné</h3>');
-            $('#matModal').modal('show');
+            partyOver = true;
+            showEndModal('Echec et mat', '<h3>Vous avez gagné</h3>');
         }
         else if (isBlack === true && party.BlackPlayerState === playerStates.checkMat
             || isWhite === true && party.WhitePlayerState === playerStates.checkMat) {
-            $('#matText').html('<h3>Vous avez perdu :(</h3>');
-            $('#matModal').modal('show');
+            partyOver = true;
+            showEndModal('Echec et mat', '<h3>Vous avez perdu :-(</h3>');
         }
         partyOver = true;
     }

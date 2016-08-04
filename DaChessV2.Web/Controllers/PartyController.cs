@@ -53,5 +53,11 @@ namespace DaChessV2.Web.Controllers
             PartyModel toReturn = new PartyManager().Replay(partyName, token);
             return Json(toReturn, JsonRequestBehavior.AllowGet);
         }
+
+        public JsonResult TimeOver(string partyName, string token)
+        {
+            PartyModel toReturn = new PartyManager().TimeOver(partyName, token);
+            return Json(toReturn, JsonRequestBehavior.AllowGet);
+        }
     }
 }

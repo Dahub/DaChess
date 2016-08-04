@@ -32,10 +32,11 @@
           <Property Name="JsonHistory" Type="nvarchar(max)" />
           <Property Name="EnPassantCase" Type="nvarchar" MaxLength="2" />
           <Property Name="LastMoveCase" Type="nvarchar" MaxLength="2" />
-          <Property Name="WhiteTimeLeft" Type="int" />
-          <Property Name="BlackTimeLeft" Type="int" />
-          <Property Name="WhiteFischer" Type="int" />
-          <Property Name="BlackFischer" Type="int" />
+          <Property Name="WhiteTimeLeftInMilliseconds" Type="bigint" />
+          <Property Name="BlackTimeLeftInLilliseconds" Type="bigint" />
+          <Property Name="PartyFischerInSeconds" Type="int" />
+          <Property Name="PartyTimeInSeconds" Type="int" />
+          <Property Name="LastMoveDate" Type="datetime" />
         </EntityType>
         <EntityType Name="PartyCadence">
           <Key>
@@ -207,11 +208,12 @@
           <NavigationProperty Name="WhitePlayerState" Relationship="Self.fk_white_playerState" FromRole="Party" ToRole="PlayerState" />
           <NavigationProperty Name="PartyHistory" Relationship="ChessModel.fk_party" FromRole="Party" ToRole="PartyHistory" />
           <Property Name="FK_PartyCadence" Type="Int32" Nullable="false" />
-          <Property Name="WhiteTimeLeft" Type="Int32" />
-          <Property Name="BlackTimeLeft" Type="Int32" />
-          <Property Name="WhiteFischer" Type="Int32" />
-          <Property Name="BlackFischer" Type="Int32" />
           <NavigationProperty Name="PartyCadence" Relationship="ChessModel.fk_PartyCadence" FromRole="Party" ToRole="PartyCadence" />
+          <Property Name="PartyFischerInSeconds" Type="Int32" />
+          <Property Name="PartyTimeInSeconds" Type="Int32" />
+          <Property Name="WhiteTimeLeftInMilliseconds" Type="Int64" />
+          <Property Name="BlackTimeLeftInLilliseconds" Type="Int64" />
+          <Property Name="LastMoveDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="PartyState">
           <Key>
@@ -366,10 +368,11 @@
           <EntitySetMapping Name="Party">
             <EntityTypeMapping TypeName="ChessModel.Party">
               <MappingFragment StoreEntitySet="Party">
-                <ScalarProperty Name="BlackFischer" ColumnName="BlackFischer" />
-                <ScalarProperty Name="WhiteFischer" ColumnName="WhiteFischer" />
-                <ScalarProperty Name="BlackTimeLeft" ColumnName="BlackTimeLeft" />
-                <ScalarProperty Name="WhiteTimeLeft" ColumnName="WhiteTimeLeft" />
+                <ScalarProperty Name="LastMoveDate" ColumnName="LastMoveDate" />
+                <ScalarProperty Name="BlackTimeLeftInLilliseconds" ColumnName="BlackTimeLeftInLilliseconds" />
+                <ScalarProperty Name="WhiteTimeLeftInMilliseconds" ColumnName="WhiteTimeLeftInMilliseconds" />
+                <ScalarProperty Name="PartyTimeInSeconds" ColumnName="PartyTimeInSeconds" />
+                <ScalarProperty Name="PartyFischerInSeconds" ColumnName="PartyFischerInSeconds" />
                 <ScalarProperty Name="FK_PartyCadence" ColumnName="FK_PartyCadence" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="FK_BoardType" ColumnName="FK_BoardType" />

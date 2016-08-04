@@ -35,10 +35,11 @@ namespace DaChessV2.Business
         public string EnPassantCase { get; set; }
         public string LastMoveCase { get; set; }
         public int FK_PartyCadence { get; set; }
-        public Nullable<int> WhiteTimeLeft { get; set; }
-        public Nullable<int> BlackTimeLeft { get; set; }
-        public Nullable<int> WhiteFischer { get; set; }
-        public Nullable<int> BlackFischer { get; set; }
+        public Nullable<int> PartyFischerInSeconds { get; set; }
+        public Nullable<int> PartyTimeInSeconds { get; set; }
+        public Nullable<long> WhiteTimeLeftInMilliseconds { get; set; }
+        public Nullable<long> BlackTimeLeftInLilliseconds { get; set; }
+        public Nullable<System.DateTime> LastMoveDate { get; set; }
     
         public virtual BoardType BoardType { get; set; }
         public virtual PlayerState BlackPlayerState { get; set; }

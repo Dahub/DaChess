@@ -19,7 +19,7 @@ namespace DaChessV2.Web.Controllers
         [HttpPost]
         public JsonResult NewParty(PartyOptionModel model)
         {
-            PartyModel toReturn = new PartyManager().CreateNewParty();
+            PartyModel toReturn = new PartyManager().CreateNewParty(model);
             return Json(toReturn);
         }
     }

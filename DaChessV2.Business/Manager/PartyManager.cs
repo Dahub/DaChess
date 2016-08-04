@@ -14,13 +14,14 @@ namespace DaChessV2.Business
         private const int BOARD_CASE = 8; // nombre de cases du plateau de jeu
 
         /// <summary>
-        /// Création d'une nouvelle partie
+        /// Création d'une nouvelle partie avec les paramètres passés en option :
+        /// Le type de cadence, les temps et le temps fischer
         /// On va tenter de trouver un nom de partie inutilisé, tant qu'on n'en a pas trouvé, on retente
         /// Une fois ce dernier trouvé, on sauvegarde la partie et on transforme le résultat
         /// en PartyModel qui sera retourné à l'appellant
         /// </summary>
         /// <returns>Objet PartyModel avec les informations de la partie crée</returns>
-        public PartyModel CreateNewParty()
+        public PartyModel CreateNewParty(PartyOptionModel optionModel)
         {
             PartyModel toReturn = new PartyModel();
 
@@ -38,6 +39,12 @@ namespace DaChessV2.Business
                         if (count > NUMBER_OF_TRY)
                             throw new Exception("Impossible de trouve un nom de partie inutilisé");
                     } while (context.Party.Where(p => p.PartyName.Equals(myParty.PartyName)).FirstOrDefault() != null);
+
+                    myParty.FK_PartyCadence = (int)optionModel.ChoisedCadenceType;
+                    myParty.PartyTimeInSeconds = optionModel.TimeInSeconds;
+                    myParty.PartyFischerInSeconds = optionModel.FischerInSeconds;
+                    myParty.WhiteTimeLeftInMilliseconds = optionModel.TimeInSeconds * 1000;
+                    myParty.BlackTimeLeftInLilliseconds = optionModel.TimeInSeconds * 1000;
 
                     context.Party.Add(myParty);
                     context.SaveChanges();
@@ -65,6 +72,76 @@ namespace DaChessV2.Business
             {
                 toReturn.IsError = true;
                 toReturn.ErrorMsg = "Erreur non gérée dans la création de la partie";
+                toReturn.ErrorDetails = ex.ToString();
+            }
+
+            return toReturn;
+        }
+
+        /// <summary>
+        /// indique que le temps du joueur token est écoulé.
+        /// Cette méthode est appellée depuis le client, en se basant sur un compteur javascript
+        /// </summary>
+        /// <param name="partyName">nom de la partie concernée</param>
+        /// <param name="token">token du joueur concerné</param>
+        /// <returns>un objet PartyModel mis à jour</returns>
+        public PartyModel TimeOver(string partyName, string playerToken)
+        {
+            PartyModel toReturn = new PartyModel();
+
+            try
+            {
+                Party party = PartyHelper.GetByName(partyName);
+                Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                string infoMsg = String.Empty;
+                bool updateParty = false;
+
+                long timeUse = CalcTimeUseForMove(party);
+                EnumPartyState partyState = EnumPartyState.RUNNING;
+
+                switch (playerColor)
+                {
+                    case Color.WHITE:
+                        if (party.FK_Black_PlayerState != (int)EnumPlayerState.TIME_OVER)
+                        {
+                            party.FK_White_PlayerState = (int)EnumPlayerState.TIME_OVER;
+                            partyState = EnumPartyState.OVER_BLACK_WIN;
+                            infoMsg = "Temps du joueur blanc écoulé";
+                            updateParty = true;
+                        }                    
+                        break;
+                    case Color.BLACK:
+                        if (party.FK_White_PlayerState != (int)EnumPlayerState.TIME_OVER)
+                        {
+                            party.FK_Black_PlayerState = (int)EnumPlayerState.TIME_OVER;
+                            partyState = EnumPartyState.OVER_WHITE_WIN;
+                            infoMsg = "Temps du joueur noir écoulé";
+                            updateParty = true;
+                        }                        
+                        break;
+                }
+
+                if (updateParty)
+                {
+                    History histo = PartyHelper.UpdateHistorique(String.Empty, party, playerColor, partyState);
+                    party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                    party.FK_PartyState = (int)partyState;
+                    Update(party);
+                }
+
+                toReturn = party.ToPartyModel();
+                toReturn.ResultText = infoMsg;
+            }
+            catch (DaChessException ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMsg = ex.Message;
+                toReturn.ErrorDetails = ex.ToString();
+            }
+            catch (Exception ex)
+            {
+                toReturn.IsError = true;
+                toReturn.ErrorMsg = "Erreur non gérée dans l'enregistrement du dépassement du temps du joueur";
                 toReturn.ErrorDetails = ex.ToString();
             }
 
@@ -214,7 +291,7 @@ namespace DaChessV2.Business
 
                 int startLine = Int32.Parse(moveCases[0].Substring(1, 1)) - 1;
                 int startCol = BoardHelper.ColToInt(moveCases[0].Substring(0, 1)) - 1;
-                
+
                 string resultText = String.Empty;
 
                 EnumPlayerState ennemiState = EnumPlayerState.CAN_MOVE;
@@ -225,9 +302,9 @@ namespace DaChessV2.Business
                 {
                     int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
                     int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
-                   
+
                     EnumMoveType mt = BoardHelper.GetMoveType(boardCases, new Coord(startLine, startCol), new Coord(endLine, endCol), party.EnPassantCase);
-                    if(mt == EnumMoveType.ILLEGAL)
+                    if (mt == EnumMoveType.ILLEGAL)
                         throw new DaChessException("Coup illégal");
 
                     // on stocke la case d'arrivée
@@ -320,22 +397,33 @@ namespace DaChessV2.Business
                     partyState = EnumPartyState.DRAWN;
                 }
 
+                // Gestion des temps, vérification que le temps du joueur n'est pas écoulé
+                if (party.FK_PartyCadence != (int)EnumPartyCadence.NO_LIMIT)
+                {
+                    long timeUsedForMove = CalcTimeUseForMove(party);
+                    // mise à jour du temps du joueur
+                    if (IsTimeOverAfterUpdatePlayerTime(party, playerColor, timeUsedForMove))
+                    {
+                        // on a dépassé le temps
+                        resultText = "Temps écoulé";
+                        partyState = playerColor == Color.WHITE ? EnumPartyState.OVER_BLACK_WIN : EnumPartyState.OVER_WHITE_WIN;
+                        playerState = EnumPlayerState.TIME_OVER;
+                    }
+                }
+
                 // mise à jour de l'historique        
                 histo = PartyHelper.UpdateHistorique(move, party, playerColor, partyState);
 
-                using (var context = new ChessEntities())
-                {
-                    context.Party.Attach(party);
-                    party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
-                    party.FK_Black_PlayerState = (int)(playerColor == Color.WHITE ? ennemiState : playerState);
-                    party.FK_White_PlayerState = (int)(playerColor == Color.BLACK ? ennemiState : playerState);
-                    party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
-                    party.EnPassantCase = enPassant;
-                    party.LastMoveCase = lastMoveCase;
-                    party.FK_PartyState = (int)partyState;
-                    context.SaveChanges();
-                }
+                party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
+                party.FK_Black_PlayerState = (int)(playerColor == Color.WHITE ? ennemiState : playerState);
+                party.FK_White_PlayerState = (int)(playerColor == Color.BLACK ? ennemiState : playerState);
+                party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
+                party.EnPassantCase = enPassant;
+                party.LastMoveCase = lastMoveCase;
+                party.FK_PartyState = (int)partyState;
+                party.LastMoveDate = DateTime.Now;
 
+                Update(party);
                 toReturn = party.ToPartyModel();
                 toReturn.ResultText = resultText;
             }
@@ -369,7 +457,7 @@ namespace DaChessV2.Business
 
             try
             {
-                Party party = PartyHelper.GetByName(partyName);                
+                Party party = PartyHelper.GetByName(partyName);
                 Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
                 CaseInfo[][] boardCases = BoardHelper.ToCaseInfoFromJsonString(party.Board, BOARD_CASE);
 
@@ -412,7 +500,7 @@ namespace DaChessV2.Business
                 EnumPlayerState playerState = EnumPlayerState.WAIT_HIS_TURN;
                 EnumPlayerState ennemiState = EnumPlayerState.CAN_MOVE;
                 ennemiState = BoardHelper.DefineEnnemiState(playerColor, boardCases, ennemiState);
-                EnumPartyState partyState = EnumPartyState.RUNNING;                
+                EnumPartyState partyState = EnumPartyState.RUNNING;
                 partyState = RefreshPartyState(playerColor, ennemiState, partyState);
                 using (var context = new ChessEntities())
                 {
@@ -485,7 +573,7 @@ namespace DaChessV2.Business
                 Update(party);
 
                 toReturn = party.ToPartyModel();
-                toReturn.ResultText = infoMsg;                
+                toReturn.ResultText = infoMsg;
             }
             catch (DaChessException ex)
             {
@@ -527,7 +615,7 @@ namespace DaChessV2.Business
                 }
                 else
                 {
-                    party.FK_Black_PlayerState = (int)EnumPlayerState.ASK_DRAWN; 
+                    party.FK_Black_PlayerState = (int)EnumPlayerState.ASK_DRAWN;
                 }
 
                 // on vérifie si les deux joueurs ont annulé, si oui, partie terminée
@@ -581,7 +669,7 @@ namespace DaChessV2.Business
                 Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
                 string infoMsg = String.Empty;
 
-                if(playerColor == Color.WHITE && party.FK_White_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY
+                if (playerColor == Color.WHITE && party.FK_White_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY
                     || playerColor == Color.BLACK && party.FK_Black_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY)
                 {
                     throw new DaChessException("Vous avez déjà proposé de rejouer");
@@ -601,7 +689,12 @@ namespace DaChessV2.Business
                 // si les deux joueurs sont OK, on génère une nouvelle partie
                 if (party.FK_White_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY && party.FK_Black_PlayerState == (int)EnumPlayerState.ASK_TO_REPLAY)
                 {
-                    toReturn = CreateNewParty();
+                    toReturn = CreateNewParty(new PartyOptionModel()
+                    {
+                        ChoisedCadenceType = (EnumPartyCadence)party.FK_PartyCadence,
+                        TimeInSeconds = party.PartyTimeInSeconds.HasValue ? party.PartyTimeInSeconds.Value : 0,
+                        FischerInSeconds = party.PartyFischerInSeconds.HasValue ? party.PartyFischerInSeconds.Value : 0
+                    });
                     infoMsg = String.Format("Nouvelle partie {0}", toReturn.Name);
                 }
                 else // sinon on reste sur l'ancienne
@@ -610,7 +703,7 @@ namespace DaChessV2.Business
                 }
 
                 Update(party);
-                
+
                 toReturn.ResultText = infoMsg;
             }
             catch (DaChessException ex)
@@ -630,6 +723,47 @@ namespace DaChessV2.Business
         }
 
         #region private
+
+        /// <summary>
+        /// Retourne le temps écoulé depuis le dernier coup en millisecondes
+        /// </summary>
+        /// <param name="party">la partie concernée</param>
+        /// <returns>Le temps écoulé</returns>
+        private long CalcTimeUseForMove(Party party)
+        {
+            long calcTime = 0;
+            if (party.LastMoveDate.HasValue)
+            {
+                calcTime = (long)(DateTime.Now - party.LastMoveDate.Value).TotalMilliseconds;
+            }
+            return calcTime;
+        }
+
+        private bool IsTimeOverAfterUpdatePlayerTime(Party party, Color playerColor, long timeUsedForMove)
+        {
+            bool timeOver = false;
+
+            // on retranche le temps fischer de la durée du coup
+            if (party.FK_PartyCadence == (int)EnumPartyCadence.FISCHER && party.PartyFischerInSeconds.HasValue)
+                timeUsedForMove -= party.PartyFischerInSeconds.Value * 1000;
+
+            switch (playerColor)
+            {
+                case Color.BLACK:
+                    party.BlackTimeLeftInLilliseconds = party.BlackTimeLeftInLilliseconds - timeUsedForMove;
+                    if (party.BlackTimeLeftInLilliseconds <= 0)
+                        timeOver = true;
+                    break;
+                case Color.WHITE:
+                    party.WhiteTimeLeftInMilliseconds = party.WhiteTimeLeftInMilliseconds - timeUsedForMove;
+                    if (party.WhiteTimeLeftInMilliseconds <= 0)
+                        timeOver = true;
+                    break;
+            }
+
+            return timeOver;
+        }
+
 
         private Party Update(Party toUpdate)
         {

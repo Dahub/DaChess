@@ -14,3 +14,13 @@ function htmlEncode(value) {
     var encodedValue = $('<div />').text(value).html();
     return encodedValue;
 }
+
+function twoDigits(n) {
+    return n > 9 ? "" + n : "0" + n;
+}
+
+function showEndModal(title, body) {
+    $('#endModalTitle').html(title);
+    $('#endModalBody').html(body);
+    $('#endModal').modal('show');
+}
