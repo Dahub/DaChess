@@ -13,7 +13,7 @@ Il est aussi possible de se connecter à une partie en cours pour être simple s
 ## TODO
 
 ### V2
-* Gestion du temps
+* ~~Gestion du temps~~
 * Autres plateaux de jeu
 * Export partie PGN
 * Liste des parties en cours

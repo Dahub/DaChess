@@ -140,6 +140,8 @@
     <Content Include="Content\Images\Pieces\w_pawn.svg" />
     <Content Include="Content\Images\Pieces\w_queen.svg" />
     <Content Include="Content\Images\Pieces\w_rook.svg" />
+    <Content Include="Content\Images\waitBlackPlayers.gif" />
+    <Content Include="Content\Images\waitWhitePlayers.gif" />
     <Content Include="Content\Images\whiteTurn.png" />
     <Content Include="Content\Images\white_active.png" />
     <Content Include="Content\Site.css" />
