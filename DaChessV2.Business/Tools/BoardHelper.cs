@@ -33,7 +33,7 @@ namespace DaChessV2.Business
 
             switch (board[startCase.Line][startCase.Col].Piece.Value)
             {
-                case EnumPieceType.PAWN:
+                case EnumPieceType.PAWN:                    
                     // avons nous une promotion ?
                     if (pieceColor == Color.WHITE && endCase.Line == board.Length - 1
                         || pieceColor == Color.BLACK && endCase.Line == 0)
@@ -70,21 +70,26 @@ namespace DaChessV2.Business
                         string epLine = enPassantCase.Substring(1, 1);
                         int epColInt = ColToInt(epCol) - 1;
                         int epLineInt = Int32.Parse(epLine) - 1;
-                        if (board[epLineInt][epColInt].Piece.HasValue && board[epLineInt][epColInt].Piece == EnumPieceType.PAWN
-                            && epColInt == endCase.Col && Math.Abs(epLineInt - endCase.Line) == 1)
+                        if (board[epLineInt][epColInt].Piece.HasValue && board[epLineInt][epColInt].Piece == EnumPieceType.PAWN)
                         {
-                            moveType = EnumMoveType.EN_PASSANT;
-                            break;
+                            // on vérifie que la case d'arrivée correspond à la case "en passant"
+                            // même colonne et une ligne de différence
+                            if (epColInt == endCase.Col)
+                            {
+                                if (board[startCase.Line][startCase.Col].PieceColor.Value == Color.WHITE && epLineInt == endCase.Line - 1
+                                    || board[startCase.Line][startCase.Col].PieceColor.Value == Color.BLACK && epLineInt == endCase.Line + 1)
+                                {
+                                    moveType = EnumMoveType.EN_PASSANT;
+                                    break;
+                                }
+                            }
                         }
                     }
-                    else // si ce n'était aucun de ces cas, c'est un coup illégal
-                    {
-                        moveType = EnumMoveType.ILLEGAL;
-                    }
+                    moveType = EnumMoveType.ILLEGAL;
                     break;
                 case EnumPieceType.ROOK:
-                    if (startCase.Line != endCase.Line && startCase.Col != endCase.Col)                    
-                        moveType = EnumMoveType.ILLEGAL;                    
+                    if (startCase.Line != endCase.Line && startCase.Col != endCase.Col)
+                        moveType = EnumMoveType.ILLEGAL;
                     else if (!EmptyBeetwenToCases(board, startCase, endCase))
                         moveType = EnumMoveType.ILLEGAL;
                     break;
@@ -116,8 +121,8 @@ namespace DaChessV2.Business
                     if (Math.Abs(endCase.Line - startCase.Line) <= 1 && Math.Abs(endCase.Col - startCase.Col) <= 1)
                         break;
                     // cas du roque
-                    else if (endCase.Line == startCase.Line 
-                        && board[startCase.Line][startCase.Col].HasMove == false 
+                    else if (endCase.Line == startCase.Line
+                        && board[startCase.Line][startCase.Col].HasMove == false
                         && Math.Abs(startCase.Col - endCase.Col) == 2)
                     {
                         if (startCase.Col < endCase.Col) // petit roque
@@ -162,7 +167,7 @@ namespace DaChessV2.Business
 
             return moveType;
         }
-  
+
         internal static bool IsCaseInCapture(Coord toTest, CaseInfo[][] board, IList<Coord> ennemies)
         {
             foreach (Coord c in ennemies)
@@ -586,7 +591,7 @@ namespace DaChessV2.Business
         internal static string IntToCol(int col)
         {
             return ((char)(col + 96)).ToString();
-        }       
+        }
 
         internal static EnumPieceType GetPieceType(string piece)
         {
