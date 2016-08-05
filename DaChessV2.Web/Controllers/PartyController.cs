@@ -24,16 +24,11 @@ namespace DaChessV2.Web.Controllers
             return Json(model);
         }
 
-        public JsonResult MakeMove(string partyName, string move, string token)
+        [HttpPost]
+        public JsonResult MakeMove(MoveModel model)
         {
-            PartyModel toReturn = new PartyManager().MakeMove(move, partyName, token);
-            return Json(toReturn, JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult MakePromote(string partyName, string piece, string token)
-        {
-            PartyModel toReturn = new PartyManager().PromotePiece(partyName, piece, token);
-            return Json(toReturn, JsonRequestBehavior.AllowGet);
+            PartyModel toReturn = new PartyManager().MakeMove(model);
+            return Json(toReturn);
         }
 
         public JsonResult Resign(string partyName, string token)

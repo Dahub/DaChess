@@ -95,38 +95,39 @@ function getMousePos(canvas, evt) {
         ycord = caseNumber - Math.trunc(ycord / caseSize);
         xcord = Math.trunc(xcord / caseSize);
         var result = String.fromCharCode(97 + xcord) + ycord.toString();
+        var myPiece = getPieceAtCase(result, myBoard);
 
-        if (moveText === result + ' ') // clic sur la même case, on reprends à 0
-        {
+        if (moveModel.firstCase === result) { // clic sur la même case, on reprends à 0
             resetCanvasMove(myBoard);
         }
-        else if (isLegalCase(result, myBoard) === true) {
+        else if (isLegalCase(myBoard, myPiece) === true) {
+
             var c = $("#canvas");
             var ctx = c[0].getContext('2d');
 
             ctx.fillStyle = 'rgba(23, 105, 138, 0.5)';
             ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
 
-            moveText += result;
-            moveText += ' ';
+            if (isEmpty(moveModel.firstCase) === true) { // premier coup
+                moveModel.firstCase = result;
+            }
+            else {
+                moveModel.secondCase = result;
+            }
             if (moveStep === 2) {
-                $.ajax({
-                    url: '/Party/MakeMove',
-                    data: { partyName: party.Name, move: moveText, token: playerToken },
-                    cache: false,
-                    type: 'GET',
-                    dataType: "json",
-                    contentType: 'application/json; charset=utf-8'
-                }).done(function (data) {
-                    setDebugInfo(data);             
-                    if (data.IsError === true) {
-                        setMsg(data.ErrorMsg);
+                // vérification qu'on a une promotion
+                if (isWhite === true && ycord === 8 || isBlack === true && ycord === 1)
+                {
+                    // on récupère la pièce
+                    var toTestPiece = getPieceAtCase(moveModel.firstCase, myBoard);
+
+                    if(toTestPiece === 'b_pawn' || toTestPiece === 'w_pawn'){
+                        $('#promoteModal').modal('show');
                     }
-                    else {
-                        $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
-                    }
-                    $.connection.partyHub.server.newMove(party.Name);
-                });
+                }
+                else{         
+                    SendMove();
+                }
             }
         }
         else {
@@ -135,10 +136,43 @@ function getMousePos(canvas, evt) {
     }
 }
 
+function SendMove() {
+    var model = {
+        FirstCase: moveModel.firstCase,
+        SecondCase: moveModel.secondCase,
+        Promote: moveModel.promote,
+        PromotePiece: moveModel.promotePiece,
+        PartyName: party.Name,
+        Token: playerToken
+    };
+
+    $.ajax({
+        url: '/Party/MakeMove',
+        data: JSON.stringify(model),
+        cache: false,
+        async: false,
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8'
+    }).done(function (data) {
+        setDebugInfo(data);
+        if (data.IsError === true) {
+            setMsg(data.ErrorMsg);
+        }
+        else {
+            $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
+        }
+        $.connection.partyHub.server.newMove(party.Name);
+    });
+}
+
 function resetCanvasMove(board) {
     refreshCanvas(party, board, images, size, caseNumber);
     moveStep = 0;
-    moveText = '';
+    moveModel.firstCase = '';
+    moveModel.secondCase = '';
+    moveModel.promote = false;
+    moveModel.promotePiece = '';
 }
 
 function playerTurn(myParty, isWhite, isBlack) {
@@ -161,35 +195,39 @@ function playerTurn(myParty, isWhite, isBlack) {
 
 // on vérifie qu'on a bien sélectionné une case valide
 // par exemple : une pièce de la couleur du joueur pour la case de départ
-function isLegalCase(myCase, board) {
-    var col = myCase.charAt(0);
-    var line = myCase.charAt(1);
-    var caseFind = false;
-
-    for (var i = 0; i < board.length; i++) {
-        if (board[i].col === col && board[i].line === line) {
-            caseFind = true;
-            if (moveStep === 1 && isEmpty(board[i].piece))
-                return false;
-            if (moveStep === 1) {
-                if (isBlack === true && board[i].piece.charAt(0) === 'w')
-                    return false;
-                if (isWhite === true && board[i].piece.charAt(0) === 'b')
-                    return false;
-            }
-            else if (moveStep === 2) { // le jouer clique sur une case d'une pièce qui lui appartient, on reprends le déplacement à 0 avec cette case comme début
-                if (isBlack === true && board[i].piece.charAt(0) === 'b'
-                    || isWhite === true && board[i].piece.charAt(0) === 'w') {
-                    refreshCanvas(party, board, images, size, caseNumber);
-                    moveText = '';
-                    moveStep = 1;
-                    return true;
-                }
-            }
+function isLegalCase(board, myPiece) {  
+    if (moveStep === 1 && isEmpty(myPiece))
+        return false;
+    if (moveStep === 1) {
+        if (isBlack === true && myPiece.charAt(0) === 'w')
+            return false;
+        if (isWhite === true && myPiece.charAt(0) === 'b')
+            return false;
+    } else if (moveStep === 2 && isEmpty(myPiece) === false) { // le jouer clique sur une case d'une pièce qui lui appartient, on reprends le déplacement à 0 avec cette case comme début
+        if (isBlack === true && myPiece.charAt(0) === 'b'
+            || isWhite === true && myPiece.charAt(0) === 'w') {
+            refreshCanvas(party, board, images, size, caseNumber);
+            moveModel.firstCase = '';
+            moveModel.secondCase = '';
+            moveModel.promote = false;
+            moveModel.promotePiece = '';
+            moveStep = 1;
+            return true;
         }
     }
-    if (moveStep === 1 && caseFind === false)
-        return false;
 
     return true;
+}
+
+function getPieceAtCase(myCase, board) {
+    var piece;
+    var col = myCase.charAt(0);
+    var line = myCase.charAt(1);
+    for (var i = 0; i < board.length; i++) {
+        if (board[i].col === col && board[i].line === line) {
+            piece = board[i].piece;
+            break;
+        }
+    }
+    return piece;
 }

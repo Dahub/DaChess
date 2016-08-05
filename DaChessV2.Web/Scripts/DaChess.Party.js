@@ -12,7 +12,6 @@
     refreshPartyState(party);
     checkPat(party);
     checkCheckMat(party);
-    checkPromote(party);
     refreshPlayersEndParty(party);
 }
 
@@ -76,7 +75,6 @@ function addPlayer(partyName, color) {
         PartyName: partyName,
         PlayerColor: color
     };
-    console.log(model);
     $.ajax({
         url: '/Party/AddPlayerToParty',
         data: JSON.stringify(model),
@@ -210,7 +208,7 @@ function refreshPlayersEndParty(party) {
 }
 
 function refreshTurnDiv(party) {
-    if (party.WhitePlayerState === playerStates.canMove || party.WhitePlayerState === playerStates.check || party.WhitePlayerState === playerStates.canPromote) {
+    if (party.WhitePlayerState === playerStates.canMove || party.WhitePlayerState === playerStates.check) {
         if (isWhite === true) {
             $('#turnDiv').html('A votre tour de jouer');
         }
@@ -220,7 +218,7 @@ function refreshTurnDiv(party) {
         $('#blackTurnImg').hide();
         $('#whiteTurnImg').show();
     }
-    else if (party.BlackPlayerState === playerStates.canMove || party.BlackPlayerState === playerStates.check || party.BlackPlayerState === playerStates.canPromote) {
+    else if (party.BlackPlayerState === playerStates.canMove || party.BlackPlayerState === playerStates.check) {
         if (isBlack === true) {
             $('#turnDiv').html('A votre tour de jouer');
         }
@@ -236,13 +234,10 @@ function refreshTurnDiv(party) {
 }
 
 function refreshTimeDiv(party) {
-    if (party.WhitePlayerState !== playerStates.canPromote
-        && party.BlackPlayerState !== playerStates.canPromote
-        && party.PartyState === partyStates.running
-        && party.PartyCadence !== cadences.noLimits) {
+    if (party.PartyState === partyStates.running && party.PartyCadence !== cadences.noLimits) {
         $('#timeDiv').show();
-        var whiteTime = Math.floor(party.WhitePlayerTimeLeft / 1000);
-        var blackTime = Math.floor(party.BlackPlayerTimeLeft / 1000);
+        var whiteTime = Math.ceil(party.WhitePlayerTimeLeft / 1000);
+        var blackTime = Math.ceil(party.BlackPlayerTimeLeft / 1000);
         if (party.WhitePlayerState === playerStates.canMove && isEmpty(party.History) === false) {
             launchCountDown(whiteTime);
         }
@@ -366,33 +361,10 @@ function checkCheckMat(party) {
     }
 }
 
-function checkPromote(party) {
-    if (party.WhitePlayerState === playerStates.canPromote && isWhite === true) {
-        $('#promoteModal').modal('show');
-    }
-    else if (party.BlackPlayerState === playerStates.canPromote && isBlack === true) {
-        $('#promoteModal').modal('show');
-    }
-}
-
 function validPromote(partyName) {
-    $.ajax({
-        url: '/Party/MakePromote',
-        data: { partyName: partyName, piece: $('#promotedChoise:checked').val(), token: playerToken },
-        cache: false,
-        type: 'GET',
-        dataType: "json",
-        contentType: 'application/json; charset=utf-8'
-    }).done(function (data) {
-        setDebugInfo(data);
-        if (data.IsError === true) {
-            setMsg(data.ErrorMsg);
-        }
-        else {
-            $.connection.partyHub.server.newInfo(party.Name, data.ResultText);
-        }
-        $.connection.partyHub.server.newMove(party.Name);
-    });
+    moveModel.promote = true;
+    moveModel.promotePiece = $('#promotedChoise:checked').val();
+    SendMove();
 }
 
 function resign(event, partyName) {

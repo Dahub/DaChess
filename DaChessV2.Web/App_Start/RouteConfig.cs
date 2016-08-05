@@ -34,12 +34,6 @@ namespace DaChessV2.Web
             );
 
             routes.MapRoute(
-                name: "MakePromote",
-                url: "Party/MakePromote/{partyName}/{piece}/{token}",
-                defaults: new { controller = "Party", action = "MakePromote", partyName = UrlParameter.Optional, piece = UrlParameter.Optional, token = UrlParameter.Optional }
-            );
-
-            routes.MapRoute(
                 name: "GetCookies",
                 url: "Player/GetPlayerInfosFromCookies/{partyName}",
                 defaults: new { controller = "Player", action = "GetPlayerInfosFromCookies", partyName = UrlParameter.Optional }

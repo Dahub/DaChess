@@ -23,7 +23,7 @@ function initTime(whitePlayertime, blackPlayerTime, party) {
     $('#timeBlack').html(text);
 }
 
-function launchCountDown(startTime) {
+function launchCountDown(startTime) {    
     clearTimeout(countDown);
     time = startTime;
     refreshCountDown();

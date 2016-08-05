@@ -19,6 +19,12 @@
     @String.Concat("var caseNumber = ", caseNumber); // nombre de cases du plateau
     var moveStep = 0; // compteur de cases sélectionnées
     var moveText = ''; // texte du coup
+    var moveModel = { // le coup à être envoyé au server
+        firstCase: '',
+        secondCase: '',
+        promote: false,
+        promotePiece: ''
+    };
 
     var isWhite = false; // true si le joueur est le joueur blanc
     var isBlack = false; // true si le joueur est le joueur noir
@@ -64,7 +70,6 @@
         undefined: 1,
         canMove: 2,
         waitHisTurn: 3,
-        canPromote: 4,
         askDrawn: 5,
         pat: 6,
         resign: 7,
@@ -95,7 +100,7 @@
         // une fois que le serveur est prêt
         $.connection.hub.start().done(function () {
             // on abonne l'utilisateur sur la page au groupe de la partie
-            partyHub.server.joinParty('@Model');
+            partyHub.server.joinParty('@Model', isWhite, isBlack);
         });
 
         partyHub.client.addNewMessageToPage = function (name, message) {

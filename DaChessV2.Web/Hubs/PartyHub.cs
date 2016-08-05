@@ -1,27 +1,61 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
+using DaChessV2.Dto;
 
 namespace DaChessV2.Web.Hubs
 {
     public class PartyHub : Hub
     {
-        public void JoinParty(string partyName)
+        public override Task OnDisconnected(bool stopCalled)
         {
-            Groups.Add(Context.ConnectionId, partyName);
+            ClientInfo info = ClientsStack.Get(Context.ConnectionId);
+            if (info.Color.HasValue && info.Color == Color.BLACK)
+            {
+                // info que le joueur des noirs est parti
+                Clients.Group(info.PartyName).sendInfo("Le joueur noir s'est déconnecté");
+            }
+            else if (info.Color.HasValue && info.Color == Color.WHITE)
+            {
+                Clients.Group(info.PartyName).sendInfo("Le joueur blanc s'est déconnecté");
+            }
+            ClientsStack.Remove(Context.ConnectionId);
+            return base.OnDisconnected(stopCalled);
         }
 
-        public void SendMessage(string partyName, string name, string message)
+        public void JoinParty(string partyName, bool isWhite, bool isBlack)
         {
-            Clients.Group(partyName).addNewMessageToPage(name, message);
+            Color? userColor = null;
+
+            if (isWhite)
+            { 
+                userColor = Color.WHITE;
+                Clients.Group(partyName).sendInfo("Le joueur blanc s'est connecté");
+            }
+            if (isBlack)
+            {
+                userColor = Color.BLACK;
+                Clients.Group(partyName).sendInfo("Le joueur noir s'est connecté");
+            }
+
+                ClientsStack.Add(Context.ConnectionId, partyName, userColor.HasValue, userColor);
+            Groups.Add(Context.ConnectionId, partyName);
         }
 
         public void SendAddWhitePlayer(string partyName)
         {
+            ClientsStack.Update(Context.ConnectionId, partyName, true, Dto.Color.WHITE);
             Clients.Group(partyName).addPlayerWhite();
         }
 
         public void SendAddBlackPlayer(string partyName)
         {
+            ClientsStack.Update(Context.ConnectionId, partyName, true, Dto.Color.BLACK);
             Clients.Group(partyName).addPlayerBlack();
+        }
+
+        public void SendMessage(string partyName, string name, string message)
+        {
+            Clients.Group(partyName).addNewMessageToPage(name, message);
         }
 
         public void NewMove(string partyName)

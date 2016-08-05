@@ -265,32 +265,27 @@ namespace DaChessV2.Business
         /// <param name="partyName">le nom de la partie</param>
         /// <param name="playerToken">le token du joueur</param>
         /// <returns>un objet PartyModel à jour</returns>
-        public PartyModel MakeMove(string move, string partyName, string playerToken)
+        public PartyModel MakeMove(MoveModel moveModel)
         {
             PartyModel toReturn = new PartyModel();
 
             try
             {
                 // on récupère la couleur du joueur et sa partie
-                Party party = PartyHelper.GetByName(partyName);
-                Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
+                Party party = PartyHelper.GetByName(moveModel.PartyName);
+                Color playerColor = PartyHelper.GetPlayerColor(party, moveModel.Token);
+                string move = String.Format("{0} {1}", moveModel.FirstCase, moveModel.SecondCase);
 
                 // on transforme le board json en tableau de cases [line][colonne]
                 CaseInfo[][] boardCases = BoardHelper.ToCaseInfoFromJsonString(party.Board, BOARD_CASE);
-
-                // on récupère les 2 cases du déplacement, et on lance une exception si ce n'est pas cohérent
-                move = move.TrimEnd(' ');
-                string[] moveCases = move.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (!BoardHelper.IsMoveSyntaxeOk(moveCases))
-                    throw new DaChessException(String.Format("Le coup {0} est mal formaté", move));
 
                 // on récupère la première pièce              
                 string enPassant = String.Empty;
                 string lastMoveCase = String.Empty;
                 History histo = null;
 
-                int startLine = Int32.Parse(moveCases[0].Substring(1, 1)) - 1;
-                int startCol = BoardHelper.ColToInt(moveCases[0].Substring(0, 1)) - 1;
+                int startLine = Int32.Parse(moveModel.FirstCase.Substring(1, 1)) - 1;
+                int startCol = BoardHelper.ColToInt(moveModel.FirstCase.Substring(0, 1)) - 1;
 
                 string resultText = String.Empty;
 
@@ -300,8 +295,8 @@ namespace DaChessV2.Business
                 EnumMoveType mt = EnumMoveType.ILLEGAL;
                 if (boardCases[startLine][startCol].Piece.HasValue)
                 {
-                    int endLine = Int32.Parse(moveCases[1].Substring(1, 1)) - 1;
-                    int endCol = BoardHelper.ColToInt(moveCases[1].Substring(0, 1)) - 1;
+                    int endLine = Int32.Parse(moveModel.SecondCase.Substring(1, 1)) - 1;
+                    int endCol = BoardHelper.ColToInt(moveModel.SecondCase.Substring(0, 1)) - 1;
 
                     mt = BoardHelper.GetMoveType(boardCases, new Coord(startLine, startCol), new Coord(endLine, endCol), party.EnPassantCase);
                     if (mt == EnumMoveType.ILLEGAL)
@@ -309,7 +304,7 @@ namespace DaChessV2.Business
 
                     // on stocke la case d'arrivée
                     lastMoveCase = String.Concat(BoardHelper.IntToCol(endCol + 1), endLine + 1);
-                    move = MoveNotationHelper.BuildMoveNotation(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases);
+                    move = MoveNotationHelper.BuildMoveNotation(move, mt, boardCases[startLine][startCol], new Coord(startLine, startCol), new Coord(endLine, endCol), boardCases, moveModel.PromotePiece);
                     switch (mt) // gestion de l'après déplacement
                     {
                         case EnumMoveType.EN_PASSANT:
@@ -341,18 +336,15 @@ namespace DaChessV2.Business
                             resultText = "Grand roque";
                             break;
                         case EnumMoveType.PROMOTE:
-                            playerState = EnumPlayerState.CAN_PROMOTE;
-                            ennemiState = EnumPlayerState.WAIT_HIS_TURN;
-                            resultText = "Promotion du pion";
-                            if (boardCases[endLine][endCol].Piece.HasValue)
-                                move = move.Replace(" ", "x");
+                            resultText = "Promotion du pion";                            
+                            boardCases[startLine][startCol].Piece = BoardHelper.GetPieceType(moveModel.PromotePiece);
                             break;
                     }
 
                     // pour la gestion de la prise en passant
                     if (boardCases[startLine][startCol].Piece == EnumPieceType.PAWN && Math.Abs(startLine - endLine) == 2) // un pion qui a bougé de 2 cases
                     {
-                        enPassant = moveCases[1]; // case d'arrivée
+                        enPassant = moveModel.SecondCase; // case d'arrivée
                     }
 
                     boardCases[endLine][endCol].HasMove = true;
@@ -376,7 +368,7 @@ namespace DaChessV2.Business
                 if (BoardHelper.IsCheck(playerColor, boardCases))
                     throw (new DaChessException("Coup impossible, échec !"));
 
-                // on sauvegarde
+                // on sauvegarde l'état du plateau
                 using (var context = new ChessEntities())
                 {
                     PartyHistory partHist = new PartyHistory()
@@ -397,13 +389,7 @@ namespace DaChessV2.Business
                     partyState = EnumPartyState.DRAWN;
                 }
 
-                // Gestion des temps, vérification que le temps du joueur n'est pas écoulé
-                if (mt != EnumMoveType.PROMOTE)
-                {
-                    ManagePlayerTime(party, playerColor, ref resultText, ref playerState, ref partyState);
-                }
-
-                // mise à jour de l'historique        
+                ManagePlayerTime(party, playerColor, ref resultText, ref playerState, ref partyState);     
                 histo = PartyHelper.UpdateHistorique(move, party, playerColor, partyState);
 
                 party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
@@ -427,97 +413,7 @@ namespace DaChessV2.Business
             catch (Exception ex)
             {
                 toReturn.IsError = true;
-                toReturn.ErrorMsg = String.Format("Erreur non gérée dans le déplacement {0}", move);
-                toReturn.ErrorDetails = ex.ToString();
-            }
-
-            return toReturn;
-        }
-
-        /// <summary>
-        /// Modifie la dernière pièce à avoir bougé en pièce choisie
-        /// Cett méthode vérifie aussi que la promotion ne provoque pas un échec ou un mat
-        /// </summary>
-        /// <param name="partyName">Nom de la partie concernée</param>
-        /// <param name="choisedPiece">Pièce choisie pour la cible de la promotion</param>
-        /// <param name="playerToken">token du joueur</param>
-        /// <returns>un objet PartyModel mis à jour</returns>
-        public PartyModel PromotePiece(string partyName, string choisedPiece, string playerToken)
-        {
-            PartyModel toReturn = new PartyModel();
-
-            try
-            {
-                Party party = PartyHelper.GetByName(partyName);
-                Color playerColor = PartyHelper.GetPlayerColor(party, playerToken);
-                CaseInfo[][] boardCases = BoardHelper.ToCaseInfoFromJsonString(party.Board, BOARD_CASE);
-
-                int limitLine = 0;
-                if (playerColor == Color.WHITE) // uniquement les lignes de fond de plateau
-                    limitLine = boardCases.Length - 1;
-
-                for (int col = 0; col < boardCases[limitLine].Length; col++)
-                {
-                    if (boardCases[limitLine][col].Piece.HasValue
-                        && boardCases[limitLine][col].Piece.Value == EnumPieceType.PAWN
-                        && boardCases[limitLine][col].PieceColor == playerColor)
-                    {
-                        boardCases[limitLine][col].Piece = BoardHelper.GetPieceType(choisedPiece);
-                        break;
-                    }
-                }
-
-                // mise à jour de l'historique
-                History histo = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(party.JsonHistory);
-                int lastMove = histo.Moves.Select(m => m.Key).Max();
-                string toAdd = String.Empty;
-                switch (BoardHelper.GetPieceType(choisedPiece))
-                {
-                    case EnumPieceType.BISHOP:
-                        toAdd = "=B";
-                        break;
-                    case EnumPieceType.KNIGHT:
-                        toAdd = "=N";
-                        break;
-                    case EnumPieceType.ROOK:
-                        toAdd = "=R";
-                        break;
-                    case EnumPieceType.QUEEN:
-                        toAdd = "=Q";
-                        break;
-                }
-                histo.Moves[lastMove] += toAdd;
-
-                EnumPlayerState playerState = EnumPlayerState.WAIT_HIS_TURN;
-                EnumPlayerState ennemiState = EnumPlayerState.CAN_MOVE;
-                ennemiState = BoardHelper.DefineEnnemiState(playerColor, boardCases, ennemiState);
-                EnumPartyState partyState = EnumPartyState.RUNNING;
-                partyState = RefreshPartyState(playerColor, ennemiState, partyState);
-
-                string resultText = "Promotion terminée";
-                ManagePlayerTime(party, playerColor, ref resultText, ref playerState, ref partyState);
-
-                party.Board = BoardHelper.ToJsonStringFromCaseInfo(boardCases);
-                party.FK_Black_PlayerState = (int)(playerColor == Color.WHITE ? ennemiState : playerState);
-                party.FK_White_PlayerState = (int)(playerColor == Color.BLACK ? ennemiState : playerState);
-                party.JsonHistory = Newtonsoft.Json.JsonConvert.SerializeObject(histo);
-                party.FK_PartyState = (int)partyState;
-
-                Update(party);
-
-                toReturn = party.ToPartyModel();
-                toReturn.ResultText = resultText;
-            }
-            catch (DaChessException ex)
-            {
-                toReturn.IsError = true;
-                toReturn.ErrorMsg = ex.Message;
-                toReturn.ErrorDetails = ex.ToString();
-            }
-            catch (Exception ex)
-            {
-                toReturn.IsError = true;
-                toReturn.ErrorMsg = "Erreur non gérée dans la promotion de la pièce";
+                toReturn.ErrorMsg = String.Format("Erreur non gérée dans le déplacement {0}", String.Format("{0} {1}", moveModel.FirstCase, moveModel.SecondCase));
                 toReturn.ErrorDetails = ex.ToString();
             }
 

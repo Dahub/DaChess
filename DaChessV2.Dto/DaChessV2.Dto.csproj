@@ -48,6 +48,7 @@
     <Compile Include="Models\AbstractModel.cs" />
     <Compile Include="Enums\EnumPartyState.cs" />
     <Compile Include="Enums\EnumPlayerState.cs" />
+    <Compile Include="Models\MoveModel.cs" />
     <Compile Include="Models\PartyModel.cs" />
     <Compile Include="Models\PartyOptionModel.cs" />
     <Compile Include="Models\PlayerModel.cs" />

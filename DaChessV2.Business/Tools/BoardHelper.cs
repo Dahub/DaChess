@@ -586,19 +586,7 @@ namespace DaChessV2.Business
         internal static string IntToCol(int col)
         {
             return ((char)(col + 96)).ToString();
-        }
-
-        internal static bool IsMoveSyntaxeOk(string[] cases)
-        {
-            if (cases.Length != 2)
-                return false;
-            if (cases[1].Length != 2)
-                return false;
-            if (cases[0].Length != 2)
-                return false;
-
-            return true;
-        }
+        }       
 
         internal static EnumPieceType GetPieceType(string piece)
         {

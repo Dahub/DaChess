@@ -20,7 +20,7 @@ namespace DaChessV2.Business
         /// <param name="movingPiece">la pièce qui se déplace</param>
         /// <param name="board">le plateau de jeu</param>
         /// <returns>le déplacement en notation normée</returns>
-        internal static string BuildMoveNotation(string move, EnumMoveType moveType, CaseInfo movingPiece, Coord startCase, Coord endCase, CaseInfo[][] board)
+        internal static string BuildMoveNotation(string move, EnumMoveType moveType, CaseInfo movingPiece, Coord startCase, Coord endCase, CaseInfo[][] board, string promotePiece)
         {
             if (movingPiece.Piece.HasValue)
             {
@@ -35,6 +35,33 @@ namespace DaChessV2.Business
                     case EnumMoveType.CAPTURE:
                         move = DefineMoveFromPiece(move, movingPiece, startCase, endCase, board);
                         move = move.Replace(" ", "x");                        
+                        break;
+                    case EnumMoveType.PROMOTE:
+                        move = DefineMoveFromPiece(move, movingPiece, startCase, endCase, board);
+
+                        if (board[endCase.Line][endCase.Col].Piece.HasValue)
+                            move = move.Replace(" ", "x");
+                        else
+                            move = move.Replace(" ", String.Empty);
+
+                        string toAdd = String.Empty;
+                        EnumPieceType newPiece = BoardHelper.GetPieceType(promotePiece);
+                        switch (newPiece)
+                        {
+                            case EnumPieceType.BISHOP:
+                                toAdd = "=B";
+                                break;
+                            case EnumPieceType.KNIGHT:
+                                toAdd = "=N";
+                                break;
+                            case EnumPieceType.ROOK:
+                                toAdd = "=R";
+                                break;
+                            case EnumPieceType.QUEEN:
+                                toAdd = "=Q";
+                                break;
+                        }
+                        move = String.Concat(move, toAdd);
                         break;
                     case EnumMoveType.EN_PASSANT:
                         move = DefineMoveFromPiece(move, movingPiece, startCase, endCase, board);

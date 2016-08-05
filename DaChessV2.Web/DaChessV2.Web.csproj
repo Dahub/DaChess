@@ -176,6 +176,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Hubs\ClientInfo.cs" />
+    <Compile Include="Hubs\ClientsStack.cs" />
     <Compile Include="Hubs\PartyHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Scripts\DaChess.Time.js" />

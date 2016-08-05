@@ -6,7 +6,7 @@
 }
 
 <script type="text/javascript">
-    var model  = {
+    var model = {
         ChoisedCadenceType: 1,
         TimeInSeconds: 0,
         FischerInSeconds: 0
@@ -37,14 +37,14 @@
         $('#ChoisedCadenceType').change(function () {
             if ($('#ChoisedCadenceType').val() == 1) {
                 $('#classiqueDiv').hide();
-                
+
             } else if ($('#ChoisedCadenceType').val() == 2) {
                 $('#classiqueDiv').show();
             }
             else if ($('#ChoisedCadenceType').val() == 3) {
                 $('#classiqueDiv').show();
-                $('#fischerDiv').show();                
-            }            
+                $('#fischerDiv').show();
+            }
         })
     });
 
@@ -85,11 +85,9 @@
         <fieldset>
             <legend>Options</legend>
             <div class="row">
-                <div class="col-md-offset-2 col-md-2">
-                    <strong>Mode de jeu :</strong>
-                </div>
+                <label for="inputEmail3" class="col-md-offset-2 col-md-2 control-label">Mode de jeu :</label>
                 <div class="col-md-6">
-                    <select id="ChoisedCadenceType" name="ChoisedCadenceType">
+                    <select id="ChoisedCadenceType" name="ChoisedCadenceType" class="form-control">
                         @foreach (var item in Model.CadencesTypes)
                         {
                             <option value="@item.Key">@item.Value</option>
@@ -99,20 +97,16 @@
             </div>
             <br />
             <div class="row" id="classiqueDiv" style="display:none">
-                <div class="col-md-offset-2 col-md-2">
-                    <strong>Temps de la partie</strong>
-                </div>
+                <label for="inputEmail3" class="col-md-offset-2 col-md-2 control-label">Temps de la partie : </label>
                 <div class="col-md-6">
-                    <input id="partyTime" type="time" step="1" value="00:20:00" />
+                    <input id="partyTime" type="time" step="1" value="00:20:00" class="form-control" />
                 </div>
             </div>
             <br />
             <div class="row" id="fischerDiv" style="display:none">
-                <div class="col-md-offset-2 col-md-2">
-                    <strong>Temps Fischer</strong>
-                </div>
+                <label for="inputEmail3" class="col-md-offset-2 col-md-2 control-label">Temps Fischer : </label>              
                 <div class="col-md-6">
-                    <input id="fischerTime" type="time" step="1" value="00:00:05" />
+                    <input id="fischerTime" type="time" step="1" class="form-control" value="00:00:05" />
                 </div>
             </div>
         </fieldset>
