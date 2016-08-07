@@ -14,6 +14,7 @@
     var myBoard; // plateau de jeu, array de cases
     var myHistory; // historique de la partie
     var images = {}; // array d'images du jeu (pièces du jeu d'échec);
+    var flip = false; // si vrai, on retourne le plateau de jeu (pour les noirs par exemple)
 
     var size = $('#canvasDiv').width(); // taille en pixels du plateau
     @String.Concat("var caseNumber = ", caseNumber); // nombre de cases du plateau

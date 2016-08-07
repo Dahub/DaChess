@@ -35,6 +35,9 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         // cases en fond du plateau
         ctx.fillStyle = darkColor;
         var startCase = 1;
+        if (flip === true) {
+            startCase = 0;
+        }
         for (posY = 0; posY < caseNumber; posY = posY + 1) {
             for (posX = startCase; posX < caseNumber; posX = posX + 2) {
                 ctx.fillRect(posX * caseSize, posY * caseSize, caseSize, caseSize);
@@ -51,7 +54,14 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         for (var i = 0; i < board.length; i++) {
             if (isEmpty(board[i].piece) === false) {
                 var xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
-                var yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
+                var yPos = 0;
+                if (flip === false) {
+                    yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
+                }
+                else {
+                    yPos = size - caseSize - ((caseNumber - board[i].line) * caseSize) + piecePadding;
+                }
+
                 //   var myImage = document.querySelector('#' + board[i].piece + '');
                 var myImage = images[board[i].piece];
                 ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
@@ -68,7 +78,13 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         // on colore la dernière case ou une pièce à bougé
         if (isEmpty(party.LastCase) === false) {
             var xPosLast = ((letterToNumber(party.LastCase.charAt(0)) - 1) * caseSize) + piecePadding;
-            var yPosLast = ((caseNumber - party.LastCase.charAt(1)) * caseSize) + piecePadding;
+            var yPosLast = 0;
+            if (flip === false) {
+                yPosLast = ((caseNumber - party.LastCase.charAt(1)) * caseSize) + piecePadding;
+            }
+            else {
+                yPosLast = size - caseSize - ((caseNumber - party.LastCase.charAt(1)) * caseSize) + piecePadding;
+            }
             ctx.fillStyle = 'rgba(102, 255, 51, 0.5)';
             ctx.fillRect(xPosLast - piecePadding, yPosLast - piecePadding, caseSize, caseSize);
         }
@@ -110,12 +126,19 @@ function getMousePos(canvas, evt) {
 
         var rect = canvas.getBoundingClientRect();
         var xcord = evt.clientX - rect.left
-        var ycord = evt.clientY - rect.top
+        var ycord = evt.clientY - rect.top;
 
         // y => chiffres
         var caseSize = size / caseNumber;
-        ycord = caseNumber - Math.trunc(ycord / caseSize);
+        if (flip === false) {
+            ycord = caseNumber - Math.trunc(ycord / caseSize);
+        }
+        else {
+            ycord = Math.trunc(ycord / caseSize) + 1;
+        }
+        console.log(ycord);
         xcord = Math.trunc(xcord / caseSize);
+
         var result = String.fromCharCode(97 + xcord) + ycord.toString();
         var myPiece = getPieceAtCase(result, myBoard);
 
@@ -123,13 +146,16 @@ function getMousePos(canvas, evt) {
             resetCanvasMove(myBoard);
         }
         else if (isLegalCase(myBoard, myPiece) === true) {
-
             var c = $("#canvas");
             var ctx = c[0].getContext('2d');
 
             ctx.fillStyle = 'rgba(23, 105, 138, 0.5)';
-            ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
-
+            if (flip === false) {
+                ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
+            }
+            else {
+                ctx.fillRect(xcord * caseSize, ycord * caseSize - caseSize, caseSize, caseSize);
+            }
             if (isEmpty(moveModel.firstCase) === true) { // premier coup
                 moveModel.firstCase = result;
             }
@@ -141,12 +167,12 @@ function getMousePos(canvas, evt) {
                 if (isWhite === true && ycord === 8 || isBlack === true && ycord === 1) {
                     // on récupère la pièce
                     var toTestPiece = getPieceAtCase(moveModel.firstCase, myBoard);
-
                     if (toTestPiece === 'b_pawn' || toTestPiece === 'w_pawn') {
                         $('#promoteModal').modal('show');
                     }
                 }
                 else {
+                    console.log(moveModel);
                     SendMove();
                 }
             }

@@ -62,6 +62,7 @@ function loadCookie(partyName) {
             playerToken = data.Token;
             if (data.PlayerColor === colors.black) {
                 isBlack = true;
+                flip = true;
             }
             else if (data.PlayerColor === colors.white) {
                 isWhite = true;
@@ -101,6 +102,7 @@ function addPlayer(partyName, color) {
         }
         else {
             isBlack = true;
+            flip = true;
             $.connection.partyHub.server.sendAddBlackPlayer(partyName);
         }
     });
