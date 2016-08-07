@@ -61,6 +61,8 @@ namespace DaChessV2.Business
 
                 toReturn = myParty.ToPartyModel();
                 toReturn.ResultText = "Partie crée avec succès";
+
+                LogHelper.AddLog(LogLevel.INFO, "Nouvelle partie crée", myParty.PartyName);
             }
             catch (DaChessException ex)
             {
@@ -162,7 +164,7 @@ namespace DaChessV2.Business
             try
             {
                 if (String.IsNullOrEmpty(partyName))
-                    throw new DaChessException("Impossible de trouver une partie sans nom");
+                    throw new DaChessException("Impossible de trouver une partie sans nom", true);
 
                 Party p = PartyHelper.GetByName(partyName);
                 toReturn = p.ToPartyModel();
@@ -205,10 +207,10 @@ namespace DaChessV2.Business
 
                 // vérification qu'il n'existe pas déjà un joueur pour cette partie à la couleur demandée
                 if (playerColor == Color.BLACK && p.FK_Black_PlayerState != (int)EnumPlayerState.UNDEFINED)
-                    throw new DaChessException("Cette partie a déjà un joueur pour la couleur noire");
+                    throw new DaChessException(String.Format("Cette partie {0} a déjà un joueur pour la couleur noire", partyName), true);
 
                 if (playerColor == Color.WHITE && p.FK_White_PlayerState != (int)EnumPlayerState.UNDEFINED)
-                    throw new DaChessException("Cette partie a déjà un joueur pour la couleur blanche");
+                    throw new DaChessException(String.Format("Cette partie {0} a déjà un joueur pour la couleur blanche",partyName), true);
 
                 // on génère le token de la forme suivant [id partie]#;#[couleur du joueur]
                 string infos = String.Format("{0}#;#{1}", p.Id, (int)playerColor);
@@ -687,7 +689,7 @@ namespace DaChessV2.Business
             }
             catch (Exception ex)
             {
-                throw new DaChessException("Erreur dans la mise à jour de la partie", ex);
+                throw new DaChessException("Erreur dans la mise à jour de la partie", ex, true);
             }
 
             return toUpdate;
@@ -718,7 +720,7 @@ namespace DaChessV2.Business
             }
             catch (Exception ex)
             {
-                throw new DaChessException("Une erreur s'est produite lors de l'initialisation de la nouvelle partie", ex);
+                throw new DaChessException("Une erreur s'est produite lors de l'initialisation de la nouvelle partie", ex, true);
             }
 
             return toReturn;

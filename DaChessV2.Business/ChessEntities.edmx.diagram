@@ -17,6 +17,9 @@
         <AssociationConnector Association="ChessModel.fk_party" />
         <EntityTypeShape EntityType="ChessModel.PartyCadence" Width="1.5" PointX="5.375" PointY="0.875" />
         <AssociationConnector Association="ChessModel.fk_PartyCadence" />
+        <EntityTypeShape EntityType="ChessModel.Logs" Width="1.5" PointX="7.625" PointY="6.875" />
+        <EntityTypeShape EntityType="ChessModel.LogType" Width="1.5" PointX="5.375" PointY="7.125" />
+        <AssociationConnector Association="ChessModel.fk_logType" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

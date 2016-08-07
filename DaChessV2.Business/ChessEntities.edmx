@@ -13,6 +13,22 @@
           <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="Content" Type="text" Nullable="false" />
         </EntityType>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FK_LogType" Type="int" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="1024" Nullable="false" />
+          <Property Name="Details" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="LogType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Wording" Type="nvarchar" MaxLength="256" Nullable="false" />
+        </EntityType>
         <EntityType Name="Party">
           <Key>
             <PropertyRef Name="Id" />
@@ -92,6 +108,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="fk_logType">
+          <End Role="LogType" Type="Self.LogType" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LogType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="FK_LogType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="fk_party">
           <End Role="Party" Type="Self.Party" Multiplicity="1" />
           <End Role="PartyHistory" Type="Self.PartyHistory" Multiplicity="*" />
@@ -142,6 +170,8 @@
         </Association>
         <EntityContainer Name="ChessModelStoreContainer">
           <EntitySet Name="BoardType" EntityType="Self.BoardType" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="Logs" EntityType="Self.Logs" Schema="chess" store:Type="Tables" />
+          <EntitySet Name="LogType" EntityType="Self.LogType" Schema="chess" store:Type="Tables" />
           <EntitySet Name="Party" EntityType="Self.Party" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyCadence" EntityType="Self.PartyCadence" Schema="chess" store:Type="Tables" />
           <EntitySet Name="PartyHistory" EntityType="Self.PartyHistory" Schema="chess" store:Type="Tables" />
@@ -154,6 +184,10 @@
           <AssociationSet Name="fk_boardType" Association="Self.fk_boardType">
             <End Role="BoardType" EntitySet="BoardType" />
             <End Role="Party" EntitySet="Party" />
+          </AssociationSet>
+          <AssociationSet Name="fk_logType" Association="Self.fk_logType">
+            <End Role="LogType" EntitySet="LogType" />
+            <End Role="Logs" EntitySet="Logs" />
           </AssociationSet>
           <AssociationSet Name="fk_party" Association="Self.fk_party">
             <End Role="Party" EntitySet="Party" />
@@ -308,6 +342,12 @@
             <End Role="PartyCadence" EntitySet="PartyCadence" />
             <End Role="Party" EntitySet="Party" />
           </AssociationSet>
+          <EntitySet Name="Logs" EntityType="ChessModel.Logs" />
+          <EntitySet Name="LogType" EntityType="ChessModel.LogType" />
+          <AssociationSet Name="fk_logType" Association="ChessModel.fk_logType">
+            <End Role="LogType" EntitySet="LogType" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="PartyHistory">
           <Key>
@@ -347,6 +387,36 @@
             </Principal>
             <Dependent Role="Party">
               <PropertyRef Name="FK_PartyCadence" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FK_LogType" Type="Int32" Nullable="false" />
+          <Property Name="Wording" Type="String" Nullable="false" MaxLength="1024" FixedLength="false" Unicode="true" />
+          <Property Name="Details" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="LogType" Relationship="ChessModel.fk_logType" FromRole="Logs" ToRole="LogType" />
+        </EntityType>
+        <EntityType Name="LogType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Wording" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Logs" Relationship="ChessModel.fk_logType" FromRole="LogType" ToRole="Logs" />
+        </EntityType>
+        <Association Name="fk_logType">
+          <End Type="ChessModel.LogType" Role="LogType" Multiplicity="1" />
+          <End Type="ChessModel.Logs" Role="Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LogType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="FK_LogType" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -420,6 +490,24 @@
           <EntitySetMapping Name="PartyCadence">
             <EntityTypeMapping TypeName="ChessModel.PartyCadence">
               <MappingFragment StoreEntitySet="PartyCadence">
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Logs">
+            <EntityTypeMapping TypeName="ChessModel.Logs">
+              <MappingFragment StoreEntitySet="Logs">
+                <ScalarProperty Name="Details" ColumnName="Details" />
+                <ScalarProperty Name="Wording" ColumnName="Wording" />
+                <ScalarProperty Name="FK_LogType" ColumnName="FK_LogType" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LogType">
+            <EntityTypeMapping TypeName="ChessModel.LogType">
+              <MappingFragment StoreEntitySet="LogType">
                 <ScalarProperty Name="Wording" ColumnName="Wording" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>

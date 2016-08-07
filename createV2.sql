@@ -44,7 +44,7 @@ create table [chess].[LogType]
 )
 go
 
-create table [chess].[chess]
+create table [chess].[Logs]
 (
 	Id integer not null primary key identity(1,1),
 	FK_LogType integer not null constraint fk_logType foreign key references [chess].[LogType] (Id),

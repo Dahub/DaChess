@@ -63,6 +63,14 @@
     <Compile Include="BoardType.cs">
       <DependentUpon>ChessEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Logs.cs">
+      <DependentUpon>ChessEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\LogHelper.cs" />
+    <Compile Include="Logs\LogLevel.cs" />
+    <Compile Include="LogType.cs">
+      <DependentUpon>ChessEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Manager\PartyOptionManager.cs" />
     <Compile Include="ChessEntities.Context.cs">
       <AutoGen>True</AutoGen>

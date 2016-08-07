@@ -800,7 +800,7 @@ namespace DaChessV2.Business
                 }
                 if (security > 26)
                 {
-                    throw new DaChessException("Erreur lors de l'analyse d'un trajet");
+                    throw new DaChessException("Erreur lors de l'analyse d'un trajet", true);
                 }
             }
             return true;

@@ -51,7 +51,7 @@ namespace DaChessV2.Business
             }
             catch (Exception ex)
             {
-                throw new DaChessException("Erreur lors de l'encryptage du token", ex);
+                throw new DaChessException("Erreur lors de l'encryptage du token", ex, true);
             }
 
             return toReturn;
@@ -95,7 +95,7 @@ namespace DaChessV2.Business
             }
             catch (Exception ex)
             {
-                throw new DaChessException("Erreur lors du décryptage du token", ex);
+                throw new DaChessException("Erreur lors du décryptage du token", ex, true);
             }
 
             return toReturn;

@@ -16,7 +16,7 @@ namespace DaChessV2.Business
             }
 
             if (toReturn == null)
-                throw new DaChessException(String.Format("Partie {0} introuvable", name));
+                throw new DaChessException(String.Format("Partie {0} introuvable", name), true);
 
             return toReturn;
         }
@@ -27,7 +27,8 @@ namespace DaChessV2.Business
             int color;
             if (infos.Length != 2 || !Int32.TryParse(infos[1], out color))
             {
-                throw new DaChessException("Token erroné, impossible d'extraire la couleur du joueur");
+                throw new DaChessException(
+                    String.Format("Partie {0} : Token erroné, impossible d'extraire la couleur du joueur", party.PartyName), true);
             }
             return (Color)color;
         }

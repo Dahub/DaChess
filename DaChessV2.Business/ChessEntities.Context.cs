@@ -31,5 +31,7 @@ namespace DaChessV2.Business
         public virtual DbSet<PlayerState> PlayerState { get; set; }
         public virtual DbSet<PartyHistory> PartyHistory { get; set; }
         public virtual DbSet<PartyCadence> PartyCadence { get; set; }
+        public virtual DbSet<Logs> Logs { get; set; }
+        public virtual DbSet<LogType> LogType { get; set; }
     }
 }
