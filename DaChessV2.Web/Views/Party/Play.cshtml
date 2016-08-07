@@ -167,10 +167,14 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-md-12 col-sm-4 col-xs-4">
                         <img src="/Content/Images/black_active.png" class="playerIcon hidden" id="blackIcon" />
                         <img src="/Content/Images/white_active.png" class="playerIcon hidden" id="whiteIcon" />
                         <span id="infoDiv">Infos</span>
+                    </div>
+                    <div id="msgDivParent" class="col-md-12  col-sm-8 col-xs-8" style="display:none">
+                        <img src="/Content/Images/info.png" class="playerIcon" />
+                        <strong><span id="msgDiv">Bienvenue</span></strong>
                     </div>
                 </div>
             </div>
@@ -198,11 +202,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                @*<div class="row">
                     <div id="msgDivParent" class="col-md-12" style="display:none">
                         <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
                     </div>
-                </div>
+                </div>*@
                 <!-- la div de fin de partie -->
                 <div class="row" id="endPartyDiv" style="display:none">
                     <div class="col-md-12">
@@ -223,8 +227,10 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span id="turnDiv"></span>
-                <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
-                <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
+                <span id="partyFunctionDiv" style="display:none">
+                    <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
+                    <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
+                </span>
             </div>
             <div class="panel-body" id="canvasDiv">
                 <div class="centerBlock">

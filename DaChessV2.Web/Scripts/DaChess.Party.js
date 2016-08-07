@@ -5,7 +5,7 @@
     defineBtnAddPlayerState(party);
     refreshCanvas(party, myBoard, images, size, caseNumber);
     refreshInfoDiv(party);
-    refreshTimeDiv(party);    
+    refreshTimeDiv(party);
     checkTimeOver(party);
     refreshTurnDiv(party);
     refreshHistoryDiv(myHistory);
@@ -231,6 +231,11 @@ function refreshTurnDiv(party) {
     else {
         $('#turnDiv').html('Bienvenue');
     }
+    if (party.PartyState == partyStates.running && (isWhite === true || isBlack === true)) {
+        $('#partyFunctionDiv').show();
+    } else {
+        $('#partyFunctionDiv').hide();
+    }
 }
 
 function refreshTimeDiv(party) {
@@ -315,7 +320,7 @@ function checkTimeOver(party) {
         if (isWhite) {
             showEndModal('Temps écoulé', '<h3>Vous avez perdu :-(</h3>');
         }
-        else if(isBlack) {
+        else if (isBlack) {
             showEndModal('Temps écoulé', '<h3>Le temps du joueur blanc est écoulé</h3>');
         }
     }
@@ -324,7 +329,7 @@ function checkTimeOver(party) {
         if (isBlack) {
             showEndModal('Temps écoulé', '<h3>Vous avez perdu :-(</h3>');
         }
-        else if(isWhite) {
+        else if (isWhite) {
             showEndModal('Temps écoulé', '<h3>Le temps du joueur noir est écoulé</h3>');
         }
     }
