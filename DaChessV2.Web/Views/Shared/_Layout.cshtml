@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Jeu d'échec en ligne grauit</title>
 
     <link href="/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -12,9 +12,9 @@
     <script src="/Scripts/bootstrap.min.js"></script>
     <script src="/Scripts/jquery.signalR-2.2.1.min.js"></script>
 
+    <script src="/Scripts/DaChess.Canvas.js"></script>
     <script src="/Scripts/DaChess.Generic.js"></script>
     <script src="/Scripts/DaChess.Party.js"></script>
-    <script src="/Scripts/DaChess.Canvas.js"></script>
     <script src="/Scripts/DaChess.Tchat.js"></script>
 
     <script src="~/signalr/hubs"></script>
@@ -40,10 +40,12 @@
 
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - <a href="https://github.com/Dahub">Dahub</a> -- Version 0.1</p>
-        </footer>
+        <div class="hidden-xs hidden-sm">
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - <a href="https://github.com/Dahub">Dahub</a> -- Version 0.1</p>
+            </footer>
+        </div>
     </div>
 
 </body>

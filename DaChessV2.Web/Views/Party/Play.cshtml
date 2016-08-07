@@ -5,8 +5,8 @@
     ViewBag.Title = "Partie en cours";
 }
 
-@{ int canvasSize = 400; }
 @{ int caseNumber = 8; }
+
 <script src="/Scripts/DaChess.Time.js"></script>
 <script type="text/javascript">
     var party; // stockage (JSon) de l'objet PartyModel
@@ -15,7 +15,7 @@
     var myHistory; // historique de la partie
     var images = {}; // array d'images du jeu (pièces du jeu d'échec);
 
-    @String.Concat("var size = ", canvasSize); // taille en pixels du plateau
+    var size = $('#canvasDiv').width(); // taille en pixels du plateau
     @String.Concat("var caseNumber = ", caseNumber); // nombre de cases du plateau
     var moveStep = 0; // compteur de cases sélectionnées
     var moveText = ''; // texte du coup
@@ -146,12 +146,13 @@
         partyHub.client.askToRedirectToNewParty = function (newPartyName) {
             redirectToNewParty(newPartyName);
         };
+
+        listenWindowsResize();
     });
 </script>
 
 @Html.Partial("_PlayModals", Model)
 
-<br />
 <!-- première ligne pour les infos -->
 <div class="row hidden-xs hidden-sm">
     <div class="col-md-6">
@@ -173,34 +174,27 @@
                     </div>
                 </div>
             </div>
-            <div class="panel-body">
-                <div class="row" id="btnDiv" style="display:none">
-                    <div class="col-sm-12">
-                        <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
-                        <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
-                    </div>
-                </div>
-                <br />
+            <div class="panel-body">               
                 <div class="row" id="btnChoiseColorDiv">
-                    <div class="col-md-6 alignRight" id="whiteBtnDiv">
+                    <div class="col-xs-6 alignRight" id="whiteBtnDiv">
                         <button type="button" id="whiteBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.white)" disabled>Jouer les blancs</button><br />
                     </div>
-                    <div class="col-md-6" id="blackBtnDiv">
+                    <div class="col-xs-6" id="blackBtnDiv">
                         <button type="button" id="blackBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.black)" disabled>Jouer les noirs</button>
                     </div>
                 </div>
                 <!-- les images indiquant qui doit jouer -->
                 <div class="row" id="playerTurnDiv">
-                    <div class="col-md-8">
+                    <div class="col-xs-7">
                         <img src="/Content/Images/blackTurn.png" id="blackTurnImg" style="display:none" />
                         <img src="/Content/Images/whiteTurn.png" id="whiteTurnImg" style="display:none" />
                     </div>
-                    <div id="timeDiv" class="col-md-4">
+                    <div id="timeDiv" class="col-xs-5">
                         <div class="alignLeft">
                             <br />
-                            <span id="timeWhite">01:25:12</span>
+                            <span id="timeWhite">00:00:00</span>
                             <br /><br />
-                            <span id="timeBlack">00:57:52</span>
+                            <span id="timeBlack">00:00:00</span>
                         </div>
                     </div>
                 </div>
@@ -227,10 +221,14 @@
     </div>
     <div class="col-md-5">
         <div class="panel panel-default">
-            <div class="panel-heading" id="turnDiv"></div>
-            <div class="panel-body">
+            <div class="panel-heading">
+                <span id="turnDiv"></span>
+                <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
+                <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
+            </div>
+            <div class="panel-body" id="canvasDiv">
                 <div class="centerBlock">
-                    <canvas id="canvas" width="@canvasSize" height="@canvasSize" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
+                    <canvas id="canvas" style="border:1px solid #000000;" onclick="getMousePos(this, event)"></canvas>
                 </div>
             </div>
         </div>

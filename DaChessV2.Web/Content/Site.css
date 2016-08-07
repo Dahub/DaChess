@@ -1,6 +1,13 @@
-﻿body {
-    padding-top: 50px;
+﻿html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding-top: 20px;
     padding-bottom: 20px;
+}
+
+canvas {
+    display: block;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -22,25 +29,25 @@ textarea {
 }
 
 .alignRight {
-   text-align:right;
+    text-align: right;
 }
 
 .alignLeft {
-   text-align:left;
+    text-align: left;
 }
 
 .playerIcon {
-    height: auto; 
-    width: auto; 
-    max-width: 30px; 
+    height: auto;
+    width: auto;
+    max-width: 30px;
     max-height: 30px;
 }
 
-.debugZone{
-    margin-left:auto;
-    margin-right:auto;
-    width:600px;
-    padding:10px;
-    border:1px #808080 solid;
-    background-color:lavender;
+.debugZone {
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    padding: 10px;
+    border: 1px #808080 solid;
+    background-color: lavender;
 }

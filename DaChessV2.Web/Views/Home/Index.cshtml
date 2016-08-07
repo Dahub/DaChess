@@ -37,6 +37,7 @@
         $('#ChoisedCadenceType').change(function () {
             if ($('#ChoisedCadenceType').val() == 1) {
                 $('#classiqueDiv').hide();
+                $('#fischerDiv').hide();
 
             } else if ($('#ChoisedCadenceType').val() == 2) {
                 $('#classiqueDiv').show();
@@ -77,9 +78,10 @@
             <p>
                 Vous pouvez spécifier un temps pour cette partie ci dessous :
             </p>
-        </blockquote>
+        </blockquote>      
     </div>
 </div>
+<div class="alert alert-warning">Attention, site en version Beta !</div>
 <div class="row" id="optiondDiv">
     <div class="col-md-12">
         <fieldset>
@@ -122,6 +124,7 @@
     <h3>Partie crée avec succès. Cliquez sur le lien pour la rejoindre :</h3>
     <div class="col-md-8 col-md-offset-2" id="resultLinkDiv">
     </div>
+    
 </div>
 
 

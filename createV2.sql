@@ -30,6 +30,29 @@ go
 if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[PartyCadence]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 drop table [chess].[PartyCadence]
 go
+if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[chess]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [chess].[chess]
+go
+if exists (select * from dbo.sysobjects where id = object_id(N'[chess].[LogType]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [chess].[LogType]
+go
+
+create table [chess].[LogType]
+(
+	Id integer not null primary key identity(1,1),
+	Wording nvarchar(256) not null
+)
+go
+
+create table [chess].[chess]
+(
+	Id integer not null primary key identity(1,1),
+	FK_LogType integer not null constraint fk_logType foreign key references [chess].[LogType] (Id),
+	Wording nvarchar(1024) not null,
+	Details nvarchar(max) null
+)
+go
+
 
 -- Les modes de partie, c'est à dire : temps illimité, limité, fisher
 create table [chess].[PartyCadence]
@@ -93,6 +116,10 @@ create table [chess].[PartyHistory]
 	Board nvarchar(max) not null,
 	DateCreation datetime not null default getdate()
 )
+go
+
+insert into [chess].[LogType] (wording) values ('Info')
+insert into [chess].[LogType] (wording) values ('Error')
 go
 
 insert into [chess].[PartyCadence] (wording) values ('Temps illimité')
