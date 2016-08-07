@@ -278,3 +278,8 @@ function getPieceAtCase(myCase, board) {
     }
     return piece;
 }
+
+function flipBoard() {
+    flip = !flip;
+    refreshCanvas(party, myBoard, images, size, caseNumber);
+}

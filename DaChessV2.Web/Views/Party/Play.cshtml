@@ -183,7 +183,7 @@
                     </div>
                 </div>
             </div>
-            <div class="panel-body">               
+            <div class="panel-body">
                 <div class="row" id="btnChoiseColorDiv">
                     <div class="col-xs-6 alignRight" id="whiteBtnDiv">
                         <button type="button" id="whiteBtn" class="btn btn-xs" onclick="addPlayer('@Model', colors.white)" disabled>Jouer les blancs</button><br />
@@ -207,11 +207,6 @@
                         </div>
                     </div>
                 </div>
-                @*<div class="row">
-                    <div id="msgDivParent" class="col-md-12" style="display:none">
-                        <div id="msgDiv" class="alert alert-warning">Bienvenue</div>
-                    </div>
-                </div>*@
                 <!-- la div de fin de partie -->
                 <div class="row" id="endPartyDiv" style="display:none">
                     <div class="col-md-12">
@@ -231,11 +226,16 @@
     <div class="col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">
+                <span id="flipBoard">
+                    <button type="button" class="btn btn-default btn-xs" onclick="flipBoard()">
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                    </button>
+                </span>
                 <span id="turnDiv"></span>
                 <span id="partyFunctionDiv" style="display:none">
                     <button type="button" id="btnResign" name="btnResign" class="btn btn-default btn-xs" onclick="resign(event, '@Model')">Abandonner</button>
                     <button type="button" id="btnDrawn" name="btnDrawn" class="btn btn-default btn-xs" onclick="askForDrawn('@Model')">Proposer la nulle</button>
-                </span>
+                </span>                
             </div>
             <div class="panel-body" id="canvasDiv">
                 <div class="centerBlock">
