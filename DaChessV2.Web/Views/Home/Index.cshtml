@@ -12,41 +12,50 @@
         FischerInSeconds: 0
     };
     $(document).ready(function () {
-        $("#newPartyBtn").click(function () {
-            model.ChoisedCadenceType = $('#ChoisedCadenceType').val();
-            model.TimeInSeconds = toSecond($('#partyTime').val());
-            model.FischerInSeconds = toSecond($('#fischerTime').val());
+        if (typeof window.WebSocket !== 'undefined') {
+            $('#notSupportedDiv').hide();
+            $("#newPartyBtn").click(function () {
+                model.ChoisedCadenceType = $('#ChoisedCadenceType').val();
+                model.TimeInSeconds = toSecond($('#partyTime').val());
+                model.FischerInSeconds = toSecond($('#fischerTime').val());
 
-            $.ajax({
-                url: '/Home/NewParty',
-                cache: false,
-                type: 'POST',
-                dataType: "json",
-                data: JSON.stringify(model),
-                contentType: 'application/json; charset=utf-8'
-            }).done(function (data) {
-                setDebugInfo(data);
-                var html = '<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>';
-                $("#resultLinkDiv").html(html);
-                $('#optiondDiv').hide();
-                $('#btnCreateDiv').hide();
-                $('#resultDiv').show();
-            });;
-        });
+                $.ajax({
+                    url: '/Home/NewParty',
+                    cache: false,
+                    type: 'POST',
+                    dataType: "json",
+                    data: JSON.stringify(model),
+                    contentType: 'application/json; charset=utf-8'
+                }).done(function (data) {
+                    setDebugInfo(data);
+                    var html = '<h3><a href="@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '">@String.Concat(Request.Url.GetLeftPart(UriPartial.Authority), "/Party/Play/")' + data.Name + '</h3>';
+                    $("#resultLinkDiv").html(html);
+                    $('#optiondDiv').hide();
+                    $('#btnCreateDiv').hide();
+                    $('#resultDiv').show();
+                });;
+            });
 
-        $('#ChoisedCadenceType').change(function () {
-            if ($('#ChoisedCadenceType').val() == 1) {
-                $('#classiqueDiv').hide();
-                $('#fischerDiv').hide();
+            $('#ChoisedCadenceType').change(function () {
+                if ($('#ChoisedCadenceType').val() == 1) {
+                    $('#classiqueDiv').hide();
+                    $('#fischerDiv').hide();
 
-            } else if ($('#ChoisedCadenceType').val() == 2) {
-                $('#classiqueDiv').show();
-            }
-            else if ($('#ChoisedCadenceType').val() == 3) {
-                $('#classiqueDiv').show();
-                $('#fischerDiv').show();
-            }
-        })
+                } else if ($('#ChoisedCadenceType').val() == 2) {
+                    $('#classiqueDiv').show();
+                }
+                else if ($('#ChoisedCadenceType').val() == 3) {
+                    $('#classiqueDiv').show();
+                    $('#fischerDiv').show();
+                }
+            })
+        }
+        else {
+            $('#optiondDiv').hide();
+            $('#btnCreateDiv').hide();
+            $('#resultDiv').hide();
+            $('#notSupportedDiv').show();
+        }
     });
 
     // toSecond($('#partyTime').val())
@@ -78,7 +87,7 @@
             <p>
                 Vous pouvez spécifier un temps pour cette partie ci dessous :
             </p>
-        </blockquote>      
+        </blockquote>
     </div>
 </div>
 <div class="alert alert-warning">Attention, site en version Beta !</div>
@@ -106,7 +115,7 @@
             </div>
             <br />
             <div class="row" id="fischerDiv" style="display:none">
-                <label for="inputEmail3" class="col-md-offset-2 col-md-2 control-label">Temps Fischer : </label>              
+                <label for="inputEmail3" class="col-md-offset-2 col-md-2 control-label">Temps Fischer : </label>
                 <div class="col-md-6">
                     <input id="fischerTime" type="time" step="1" class="form-control" value="00:00:05" />
                 </div>
@@ -121,10 +130,19 @@
     </div>
 </div>
 <div class="row" id="resultDiv" style="display:none">
-    <h3>Partie crée avec succès. Cliquez sur le lien pour la rejoindre :</h3>
+    <div class="col-md-8 col-md-offset-2">
+        <h3>Partie crée avec succès.<br />Cliquez sur le lien pour la rejoindre :</h3>
+    </div>
     <div class="col-md-8 col-md-offset-2" id="resultLinkDiv">
     </div>
-    
+</div>
+
+<!-- div pour indiquer que le navigateur ne supporte pas web sockets -->
+<div class="row" id="notSupportedDiv" style="display:none">
+    <div class="col-md-6 col-md-offset-3">
+        <h3>Oups, il semble que votre navigateur ne puisse pas afficher ce site :(</h3>
+    </div>
+    <br /><br /><br />
 </div>
 
 

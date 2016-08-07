@@ -87,6 +87,10 @@
     };
 
     $(document).ready(function () {
+        if (typeof window.WebSocket === 'undefined') {
+            window.location.href = "/";
+        }
+
         loadCookie('@Model'); // on cherche à initialiser les données de joueur depuis les cookies (cas du retour sur la page)
 
         // chargement des images du jeu et tracé du premier canvas une fois celles-ci chargées

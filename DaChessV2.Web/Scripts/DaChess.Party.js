@@ -452,3 +452,4 @@ function redirectToNewParty(newPartyName) {
         window.location = url;
     }
 }
+

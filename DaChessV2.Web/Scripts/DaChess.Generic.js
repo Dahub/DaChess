@@ -1,5 +1,5 @@
 ﻿function setDebugInfo(model) {
-    console.log(model);
+ //   console.log(model);
 }
 
 function letterToNumber(letter) {
