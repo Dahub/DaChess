@@ -233,7 +233,7 @@ function refreshTurnDiv(party) {
     else {
         $('#turnDiv').html('Bienvenue');
     }
-    if (party.PartyState == partyStates.running && (isWhite === true || isBlack === true)) {
+    if (party.PartyState === partyStates.running && (isWhite === true || isBlack === true)) {
         $('#partyFunctionDiv').show();
     } else {
         $('#partyFunctionDiv').hide();
