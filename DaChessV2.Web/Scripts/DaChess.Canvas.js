@@ -1,7 +1,6 @@
 ﻿function listenWindowsResize() {
     var c = $("#canvas");
     var context = c[0].getContext('2d');
-    // resize the canvas to fill browser window dynamically
     window.addEventListener('resize', resizeCanvas, false);
 
     function resizeCanvas() {
@@ -35,9 +34,6 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         // cases en fond du plateau
         ctx.fillStyle = darkColor;
         var startCase = 1;
-        if (flip === true) {
-            startCase = 0;
-        }
         for (posY = 0; posY < caseNumber; posY = posY + 1) {
             for (posX = startCase; posX < caseNumber; posX = posX + 2) {
                 ctx.fillRect(posX * caseSize, posY * caseSize, caseSize, caseSize);
@@ -53,16 +49,17 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         // les pièces
         for (var i = 0; i < board.length; i++) {
             if (isEmpty(board[i].piece) === false) {
-                var xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
+                var xPos = 0;
                 var yPos = 0;
                 if (flip === false) {
+                    xPos = ((letterToNumber(board[i].col) - 1) * caseSize) + piecePadding;
                     yPos = ((caseNumber - board[i].line) * caseSize) + piecePadding;
                 }
                 else {
+                    xPos = ((caseNumber - letterToNumber(board[i].col)) * caseSize) + piecePadding;
                     yPos = size - caseSize - ((caseNumber - board[i].line) * caseSize) + piecePadding;
                 }
 
-                //   var myImage = document.querySelector('#' + board[i].piece + '');
                 var myImage = images[board[i].piece];
                 ctx.drawImage(myImage, xPos, yPos, pieceSize, pieceSize);
 
@@ -77,12 +74,14 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
 
         // on colore la dernière case ou une pièce à bougé
         if (isEmpty(party.LastCase) === false) {
-            var xPosLast = ((letterToNumber(party.LastCase.charAt(0)) - 1) * caseSize) + piecePadding;
+            var xPosLast = 0;
             var yPosLast = 0;
             if (flip === false) {
+                xPosLast = ((letterToNumber(party.LastCase.charAt(0)) - 1) * caseSize) + piecePadding;
                 yPosLast = ((caseNumber - party.LastCase.charAt(1)) * caseSize) + piecePadding;
             }
             else {
+                xPosLast = size - caseSize - ((letterToNumber(party.LastCase.charAt(0)) - 1) * caseSize) + piecePadding;
                 yPosLast = size - caseSize - ((caseNumber - party.LastCase.charAt(1)) * caseSize) + piecePadding;
             }
             ctx.fillStyle = 'rgba(102, 255, 51, 0.5)';
@@ -90,14 +89,12 @@ function refreshCanvas(myParty, board, myImages, size, caseNumber) {
         }
 
         // on grise le canvas si la partie n'est pas prête
-        // 2 étant l'état "RUNNING" de la partie
         if (party.PartyState !== partyStates.running) {
             ctx.fillStyle = 'rgba(184, 184, 184, 0.4)';
             ctx.fillRect(0, 0, size, size);
         }
     }
 }
-
 
 function loadImages(sources, callback) {
     var loadedImages = 0;
@@ -131,13 +128,13 @@ function getMousePos(canvas, evt) {
         // y => chiffres
         var caseSize = size / caseNumber;
         if (flip === false) {
+            xcord = Math.trunc(xcord / caseSize);
             ycord = caseNumber - Math.trunc(ycord / caseSize);
         }
         else {
+            xcord = caseNumber - Math.trunc(xcord / caseSize) - 1;
             ycord = Math.trunc(ycord / caseSize) + 1;
-        }
-        console.log(ycord);
-        xcord = Math.trunc(xcord / caseSize);
+        }       
 
         var result = String.fromCharCode(97 + xcord) + ycord.toString();
         var myPiece = getPieceAtCase(result, myBoard);
@@ -154,7 +151,7 @@ function getMousePos(canvas, evt) {
                 ctx.fillRect(xcord * caseSize, size - ycord * caseSize, caseSize, caseSize);
             }
             else {
-                ctx.fillRect(xcord * caseSize, ycord * caseSize - caseSize, caseSize, caseSize);
+                ctx.fillRect(size - caseSize - xcord * caseSize, ycord * caseSize - caseSize, caseSize, caseSize);
             }
             if (isEmpty(moveModel.firstCase) === true) { // premier coup
                 moveModel.firstCase = result;
