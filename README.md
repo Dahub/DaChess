@@ -10,10 +10,3 @@ La partie peut commencer.
 
 Il est aussi possible de se connecter à une partie en cours pour être simple spectateur.
 
-## TODO
-
-### V2
-* ~~Gestion du temps~~
-* Autres plateaux de jeu
-* Export partie PGN
-* Liste des parties en cours
